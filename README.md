@@ -1,2 +1,2 @@
-# vibe-olympics
-vibe coding Community
+# Vibe-Olympics
+Vibe Coding Community
