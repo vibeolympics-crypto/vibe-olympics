@@ -1,7 +1,50 @@
 # 📜 Vibe Olympics - 변경 이력 (CHANGELOG)
 
-> 마지막 업데이트: 2025년 12월 8일
+> 마지막 업데이트: 2025년 12월 9일
 > 형식: 세션별 완료 작업 + 수정된 파일 목록
+
+---
+
+## 세션 53 (2025-12-09) - Cloudflare → Vercel 배포 전환
+
+### 작업 요약
+Cloudflare Pages 배포 시도 → Edge Runtime 호환성 문제로 Vercel로 전환
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| Cloudflare Pages 설정 | wrangler.toml, open-next.config.ts 생성 | ⚠️ 실패 |
+| 호환성 문제 확인 | Prisma, NextAuth가 Edge Runtime 미지원 | ✅ 분석 |
+| Vercel로 전환 결정 | Node.js Runtime 필요한 프로젝트에 적합 | ✅ 결정 |
+| Cloudflare 설정 백업 | `.cloudflare-backup/` 폴더로 이동 | ✅ 완료 |
+| 불필요 패키지 제거 | @opennextjs/cloudflare, wrangler | ✅ 완료 |
+
+### 변경된 파일
+```
+# 삭제 (루트에서)
+- wrangler.toml
+- open-next.config.ts
+
+# 생성 (백업)
++ .cloudflare-backup/README.md
++ .cloudflare-backup/wrangler.toml
++ .cloudflare-backup/open-next.config.ts
++ .cloudflare-backup/CLOUDFLARE_DEPLOYMENT.md
+
+# 수정
+~ package.json (Cloudflare 스크립트 제거)
+~ package-lock.json (패키지 정리)
+~ .gitignore (주석 추가)
+```
+
+### Cloudflare Pages 실패 원인
+1. **Edge Runtime 필수**: 모든 라우트에 `export const runtime = 'edge'` 필요
+2. **Prisma 미지원**: Prisma Client는 Node.js Runtime 필요
+3. **NextAuth 미지원**: 서버 사이드 세션이 Edge에서 제한적
+4. **대규모 수정 필요**: 70+ 라우트 모두 수정 필요
+
+### 향후 Cloudflare 재활성화 방법
+`.cloudflare-backup/README.md` 참조
 
 ---
 
