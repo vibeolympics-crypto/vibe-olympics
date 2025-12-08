@@ -1,0 +1,280 @@
+{
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "description": "Find answers to common questions about Vibe Olympics.",
+    "searchPlaceholder": "Search questions...",
+    "noResults": "No results found.",
+    "categories": {
+      "general": "General",
+      "buyer": "Buyers",
+      "seller": "Sellers",
+      "education": "Education",
+      "community": "Community",
+      "account": "Account/Security",
+      "payment": "Payment/Refund",
+      "legal": "Terms/Legal"
+    },
+    "items": {
+      "general": [
+        {
+          "id": "g1",
+          "question": "What is Vibe Olympics?",
+          "answer": "Vibe Olympics is a digital marketplace for VIBE coding-based intellectual products. You can buy and sell templates, prompts, automation scripts, educational content, and more created using AI coding and no-code tools. You can also learn VIBE coding at our Education Center.",
+          "relatedActions": ["Browse Marketplace", "Visit Education Center"],
+          "priority": 1
+        },
+        {
+          "id": "g2",
+          "question": "Is registration free?",
+          "answer": "Yes, registration is completely free. You can sign up easily with your GitHub account or register directly with email. After signing up, you can use all basic features including marketplace, educational content, and community participation for free.",
+          "relatedActions": ["Sign Up", "Login"],
+          "priority": 1
+        },
+        {
+          "id": "g3",
+          "question": "What types of products can I purchase?",
+          "answer": "You can purchase various digital products including AI prompts, web/app templates, automation scripts, design assets, and educational content. All products are categorized for easy browsing.",
+          "relatedActions": ["View Categories", "Popular Products"],
+          "priority": 2
+        },
+        {
+          "id": "g4",
+          "question": "Can I use it on mobile?",
+          "answer": "Yes, Vibe Olympics is designed as a responsive web application and can be used optimally on PC, tablet, and smartphone devices.",
+          "relatedActions": [],
+          "priority": 3
+        }
+      ],
+      "buyer": [
+        {
+          "id": "b1",
+          "question": "How do I purchase a product?",
+          "answer": "1) Find the product you want and go to the detail page.\n2) Click the 'Buy Now' button.\n3) Enter your card information on the Stripe payment page.\n4) After payment, you'll be automatically redirected to the download page.\n5) Purchased products can be re-downloaded anytime from 'Dashboard > Purchases'.",
+          "relatedActions": ["Marketplace", "Purchases"],
+          "priority": 1
+        },
+        {
+          "id": "b2",
+          "question": "Where can I download purchased products?",
+          "answer": "A download link is provided immediately after purchase. You can also re-download all purchased products anytime from 'Dashboard > Purchases'.",
+          "relatedActions": ["Purchases"],
+          "priority": 1
+        },
+        {
+          "id": "b3",
+          "question": "What payment methods are supported?",
+          "answer": "You can pay with major credit/debit cards including Visa, Mastercard, and American Express through Stripe. All payments are processed securely with SSL encryption.",
+          "relatedActions": [],
+          "priority": 2
+        },
+        {
+          "id": "b4",
+          "question": "Can I get a refund after purchase?",
+          "answer": "Due to the nature of digital products, refunds are difficult after download. However, if the product significantly differs from the description or the file is corrupted, please contact support within 7 days of purchase for review and possible refund.",
+          "relatedActions": ["Contact Support"],
+          "priority": 1
+        },
+        {
+          "id": "b5",
+          "question": "What is the license for purchased products?",
+          "answer": "Each product has a license specified by the seller. Generally, personal and commercial use is allowed, while resale or redistribution is prohibited. Please check the exact license terms on each product's detail page.",
+          "relatedActions": [],
+          "priority": 2
+        },
+        {
+          "id": "b6",
+          "question": "What is the wishlist feature?",
+          "answer": "You can save products you're interested in to your wishlist for easy access later. Click the heart icon on the product card or detail page to add to wishlist. View saved products in 'Dashboard > Wishlist'.",
+          "relatedActions": ["Wishlist"],
+          "priority": 3
+        }
+      ],
+      "seller": [
+        {
+          "id": "s1",
+          "question": "How do I register as a seller?",
+          "answer": "1) Sign up or log in.\n2) Click 'Become a Seller' button in 'Dashboard > Settings'.\n3) Enter seller information (bio, contact, etc.).\n4) Once approved, you can start listing products.",
+          "relatedActions": ["Dashboard", "Settings"],
+          "priority": 1
+        },
+        {
+          "id": "s2",
+          "question": "How do I list a product?",
+          "answer": "After seller approval, go to 'Dashboard > My Products > Add New Product'. Enter product name, description, price, category, thumbnail image, and upload the sales file. Listed products will be published on the marketplace after review.",
+          "relatedActions": ["My Products", "Add Product"],
+          "priority": 1
+        },
+        {
+          "id": "s3",
+          "question": "What is the selling fee?",
+          "answer": "10% of the sale amount is deducted as platform fee. For example, for a $10 product sale, $1 is deducted as fee and $9 is settled. Stripe PG fee of approximately 3.5% is charged separately.",
+          "relatedActions": [],
+          "priority": 1
+        },
+        {
+          "id": "s4",
+          "question": "How do I receive sales earnings?",
+          "answer": "Previous month's sales earnings are settled on the 1st of each month. Minimum settlement amount is $10, deposited to your registered account. Check real-time sales status and expected settlement in 'Dashboard > Analytics'.",
+          "relatedActions": ["Analytics", "Settings"],
+          "priority": 1
+        },
+        {
+          "id": "s5",
+          "question": "How do I set product prices?",
+          "answer": "You can freely set prices starting from $1. Free products are also allowed. Consider market research and your product's value when setting appropriate prices.",
+          "relatedActions": [],
+          "priority": 2
+        },
+        {
+          "id": "s6",
+          "question": "Where can I check sales statistics?",
+          "answer": "In 'Dashboard > Analytics', you can view various statistics including total sales, revenue, views, and popular products. Filter by 7, 30, or 90 days for period-based analysis.",
+          "relatedActions": ["Analytics"],
+          "priority": 2
+        },
+        {
+          "id": "s7",
+          "question": "What if my product is rejected?",
+          "answer": "After product review, rejection reasons are sent via email. Review the reasons, make corrections, and resubmit. Common rejection reasons include copyright issues, inappropriate content, or incomplete product descriptions.",
+          "relatedActions": ["My Products"],
+          "priority": 3
+        }
+      ],
+      "education": [
+        {
+          "id": "e1",
+          "question": "Is educational content free?",
+          "answer": "Basic tutorials and introductory courses are provided for free. Some advanced courses or premium content may be paid. Check the price of each content in the Education Center.",
+          "relatedActions": ["Education Center"],
+          "priority": 1
+        },
+        {
+          "id": "e2",
+          "question": "What is VIBE coding?",
+          "answer": "VIBE coding is a new development approach that collaborates with AI to write code. Using AI tools like ChatGPT, Claude, and GitHub Copilot, you can quickly implement ideas. No prior programming experience required.",
+          "relatedActions": ["Education Center", "Tutorials"],
+          "priority": 1
+        },
+        {
+          "id": "e3",
+          "question": "What educational content is available?",
+          "answer": "Various content including VIBE coding basics, AI prompt writing, web development fundamentals, automation scripts, and no-code tool tutorials. Available in various formats: tutorials, making-ofs, tips & tricks, and external links.",
+          "relatedActions": ["Education Center"],
+          "priority": 2
+        },
+        {
+          "id": "e4",
+          "question": "Can I create my own educational content?",
+          "answer": "Yes, any logged-in user can create educational content. Click 'Create Content' in the Education Center and enter title, content, and type. Quality content receives likes and gets featured as recommended content.",
+          "relatedActions": ["Education Center", "Create Content"],
+          "priority": 2
+        }
+      ],
+      "community": [
+        {
+          "id": "c1",
+          "question": "What can I do in the community?",
+          "answer": "You can engage in Q&A, share know-how, introduce projects, and request feedback with other users. Actively communicate through posts, comments, and likes.",
+          "relatedActions": ["Community"],
+          "priority": 1
+        },
+        {
+          "id": "c2",
+          "question": "How do I write a post?",
+          "answer": "Click 'Write Post' button on the Community page and enter category, title, and content. Login is required.",
+          "relatedActions": ["Community", "Write Post"],
+          "priority": 2
+        },
+        {
+          "id": "c3",
+          "question": "How do I report inappropriate posts?",
+          "answer": "Click '...' menu at the top right of the post and select 'Report'. Reported posts are reviewed and addressed by administrators. False reports may result in penalties.",
+          "relatedActions": [],
+          "priority": 3
+        }
+      ],
+      "account": [
+        {
+          "id": "a1",
+          "question": "I forgot my password.",
+          "answer": "Click 'Forgot Password' on the login page and enter your registered email. A password reset link will be sent. GitHub login users should manage their password through GitHub.",
+          "relatedActions": ["Login", "Forgot Password"],
+          "priority": 1
+        },
+        {
+          "id": "a2",
+          "question": "How do I edit my profile?",
+          "answer": "In 'Dashboard > Settings', you can edit your name, profile image, bio, website, and social media links.",
+          "relatedActions": ["Settings"],
+          "priority": 2
+        },
+        {
+          "id": "a3",
+          "question": "I want to delete my account.",
+          "answer": "You can delete your account in 'Dashboard > Settings > Delete Account'. Account deletion permanently removes all data (purchase history, products, posts, etc.) and cannot be recovered.",
+          "relatedActions": ["Settings"],
+          "priority": 3
+        },
+        {
+          "id": "a4",
+          "question": "How do I configure notifications?",
+          "answer": "In 'Dashboard > Settings', you can configure email and push notifications. Individually toggle purchase/sale notifications, review notifications, and promotional notifications.",
+          "relatedActions": ["Settings"],
+          "priority": 3
+        }
+      ],
+      "payment": [
+        {
+          "id": "p1",
+          "question": "My payment failed.",
+          "answer": "Payment may fail due to card limit, insufficient balance, or international payment block. Check if international payments are enabled with your card issuer and try with a different card. Contact support if the problem persists.",
+          "relatedActions": ["Contact Support"],
+          "priority": 1
+        },
+        {
+          "id": "p2",
+          "question": "Where can I get my payment receipt?",
+          "answer": "Receipts are automatically sent to your registered email after payment. You can also view receipts again in 'Dashboard > Purchases'.",
+          "relatedActions": ["Purchases"],
+          "priority": 2
+        },
+        {
+          "id": "p3",
+          "question": "Can I pay with international cards?",
+          "answer": "Yes, you can pay with most Visa, Mastercard, and American Express cards worldwide through Stripe.",
+          "relatedActions": [],
+          "priority": 3
+        }
+      ],
+      "legal": [
+        {
+          "id": "l1",
+          "question": "I found a copyright-infringing product.",
+          "answer": "Please report immediately if you find a product suspected of copyright infringement. Click 'Report' on the product detail page or contact support. The product will be removed after verification.",
+          "relatedActions": ["Contact Support"],
+          "priority": 1
+        },
+        {
+          "id": "l2",
+          "question": "How is my personal information protected?",
+          "answer": "Vibe Olympics complies with privacy laws and protects user information through SSL encryption and secure payment systems (Stripe). See our Privacy Policy for details.",
+          "relatedActions": ["Privacy Policy"],
+          "priority": 2
+        },
+        {
+          "id": "l3",
+          "question": "Where can I find the Terms of Service?",
+          "answer": "You can access the full Terms of Service through the 'Terms of Service' link at the bottom of the website. Please review before using the service.",
+          "relatedActions": ["Terms of Service"],
+          "priority": 3
+        }
+      ]
+    },
+    "contact": {
+      "title": "Still have questions?",
+      "description": "If you couldn't find the answer you're looking for, please contact our support team.",
+      "email": "support@vibeolympics.com",
+      "responseTime": "Response within 24 hours on business days"
+    }
+  }
+}

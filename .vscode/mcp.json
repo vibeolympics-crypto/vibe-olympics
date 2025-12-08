@@ -1,0 +1,15 @@
+{
+  "servers": {
+    "testsprite": {
+      "type": "http",
+      "url": "https://mcp.testsprite.com/mcp",
+        "headers": {
+          "x-testsprite-api-key": "sk-user-BP5dA4z7hDJyDiQPBj3Dn9CjEL7xpWVS"
+        }
+      },
+      "context7": {
+        "command": "npx",
+        "args": ["-y", "@upstash/context7-mcp", "--api-key", "ctx7sk-ef634880-4de6-4e46-8983-70b49add844c"]
+      }
+    }
+  }

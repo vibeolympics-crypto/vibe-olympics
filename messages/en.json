@@ -1,0 +1,306 @@
+{
+  "common": {
+    "home": "Home",
+    "marketplace": "Marketplace",
+    "education": "Education",
+    "community": "Community",
+    "dashboard": "Dashboard",
+    "faq": "FAQ",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "viewAll": "View All",
+    "learnMore": "Learn More",
+    "getStarted": "Get Started",
+    "free": "Free",
+    "premium": "Premium"
+  },
+  "home": {
+    "badge": "A Space for VIBE Coding Creators",
+    "titleLine1": "Create Your",
+    "titleLine2": "Ideas Into Reality",
+    "subtitle": "Share and trade apps, templates, and prompts created with VIBE coding. A marketplace where creators' intellectual property has real value.",
+    "cta": {
+      "explore": "Explore Marketplace",
+      "learn": "View Education",
+      "title": "Start Now",
+      "description": "Explore the possibilities of VIBE coding together",
+      "button": "Start for Free"
+    },
+    "stats": {
+      "creators": "Creators",
+      "products": "Products",
+      "education": "Tutorials"
+    },
+    "hero": {
+      "title": "Turn Ideas into Reality",
+      "subtitle": "A marketplace to share and trade intellectual property created with VIBE coding",
+      "cta": "Explore Marketplace"
+    },
+    "features": {
+      "title": "Why Vibe Olympics?",
+      "marketplace": {
+        "title": "Digital Marketplace",
+        "description": "Buy and sell apps, templates, and prompts created with AI coding"
+      },
+      "education": {
+        "title": "Educational Content",
+        "description": "Learn and share VIBE coding tutorials and know-how"
+      },
+      "community": {
+        "title": "Community",
+        "description": "Connect with other creators and get inspired"
+      }
+    },
+    "howItWorks": {
+      "title": "How to Get Started?",
+      "step1": {
+        "title": "Sign Up",
+        "description": "Start with a simple registration"
+      },
+      "step2": {
+        "title": "List Products",
+        "description": "Upload your products and set prices"
+      },
+      "step3": {
+        "title": "Earn Revenue",
+        "description": "Receive sales revenue and grow"
+      }
+    }
+  },
+  "marketplace": {
+    "title": "Marketplace",
+    "subtitle": "Discover digital products created with VIBE coding",
+    "searchPlaceholder": "Search products...",
+    "filters": {
+      "all": "All",
+      "category": "Category",
+      "priceRange": "Price Range",
+      "sortBy": "Sort By",
+      "newest": "Newest",
+      "popular": "Popular",
+      "priceLow": "Price: Low to High",
+      "priceHigh": "Price: High to Low"
+    },
+    "product": {
+      "by": "by",
+      "reviews": "reviews",
+      "sales": "sales",
+      "views": "views",
+      "buyNow": "Buy Now",
+      "addToWishlist": "Add to Wishlist",
+      "removeFromWishlist": "Remove from Wishlist",
+      "download": "Download",
+      "purchased": "Purchased"
+    },
+    "noProducts": "No products found"
+  },
+  "education": {
+    "title": "Education Center",
+    "subtitle": "Learn and grow with VIBE coding",
+    "tabs": {
+      "all": "All",
+      "tutorial": "Tutorials",
+      "making": "Making",
+      "tips": "Tips",
+      "external": "External Links"
+    },
+    "featured": "Featured Content",
+    "latest": "Latest Content",
+    "writeContent": "Write Content",
+    "noContent": "No content available"
+  },
+  "community": {
+    "title": "Community",
+    "subtitle": "Connect with creators and get inspired",
+    "writePost": "Write Post",
+    "tabs": {
+      "all": "All",
+      "question": "Questions",
+      "showcase": "Showcase",
+      "discussion": "Discussion",
+      "tips": "Tips"
+    },
+    "post": {
+      "likes": "likes",
+      "comments": "comments",
+      "share": "Share"
+    },
+    "noPosts": "No posts found"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "overview": "Overview",
+    "products": "My Products",
+    "purchases": "Purchases",
+    "wishlist": "Wishlist",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "stats": {
+      "totalRevenue": "Total Revenue",
+      "totalSales": "Total Sales",
+      "totalViews": "Total Views",
+      "totalCustomers": "Total Customers"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "subtitle": "Sign in to your account",
+      "email": "Email",
+      "password": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign up"
+    },
+    "signup": {
+      "title": "Sign Up",
+      "subtitle": "Create a new account",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "terms": "I agree to the Terms of Service",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Login"
+    },
+    "oauth": {
+      "github": "Continue with GitHub",
+      "google": "Continue with Google"
+    }
+  },
+  "errors": {
+    "notFound": {
+      "title": "Page Not Found",
+      "description": "The page you're looking for doesn't exist or has been moved.",
+      "backHome": "Back to Home"
+    },
+    "serverError": {
+      "title": "Server Error",
+      "description": "A temporary error occurred. Please try again later.",
+      "retry": "Try Again"
+    }
+  },
+  "footer": {
+    "description": "VIBE coding-based intellectual property marketplace",
+    "product": "Product",
+    "resources": "Resources",
+    "company": "Company",
+    "legal": "Legal",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "refund": "Refund Policy",
+    "copyright": "© {year} Vibe Olympics. All rights reserved."
+  },
+  "legal": {
+    "terms": {
+      "title": "Terms of Service",
+      "lastUpdated": "Last Updated: {date}",
+      "backToHome": "Back to Home"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "lastUpdated": "Last Updated: {date}",
+      "backToHome": "Back to Home"
+    },
+    "refund": {
+      "title": "Refund Policy",
+      "lastUpdated": "Last Updated: {date}",
+      "backToHome": "Back to Home",
+      "importantNotice": "Important Notice",
+      "refundable": "Refundable Cases",
+      "nonRefundable": "Non-Refundable Cases",
+      "procedure": "Refund Procedure",
+      "contact": "Refund Inquiries"
+    }
+  },
+  "accessibility": {
+    "skipToContent": "Skip to content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "userMenu": "User menu",
+    "notifications": "Notifications",
+    "unreadNotifications": "{count} unread notifications",
+    "mobileNav": "Mobile navigation"
+  },
+  "chatbot": {
+    "title": "AI Assistant",
+    "placeholder": "Type your message...",
+    "send": "Send",
+    "close": "Close",
+    "greeting": "Hello! I'm the Vibe Olympics AI assistant. How can I help you?",
+    "error": "Sorry, an error occurred. Please try again."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "deleteAll": "Delete all",
+    "empty": "No notifications",
+    "viewInDashboard": "View in dashboard",
+    "types": {
+      "purchase": "Purchase",
+      "sale": "Sale",
+      "review": "Review",
+      "system": "System",
+      "promotion": "Promotion"
+    }
+  },
+  "reactions": {
+    "like": "Like",
+    "love": "Love",
+    "fire": "Fire",
+    "recommend": "Recommend",
+    "helpful": "Helpful",
+    "bookmark": "Bookmark"
+  },
+  "recommendations": {
+    "title": "Recommendations",
+    "forYou": "Recommended for you",
+    "similarProducts": "Similar products",
+    "popularNow": "Popular now",
+    "basedOnHistory": "Based on your interests"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "overview": "Overview",
+    "revenue": "Revenue",
+    "sales": "Sales",
+    "views": "Views",
+    "conversions": "Conversions",
+    "period": {
+      "7d": "7 days",
+      "30d": "30 days",
+      "90d": "90 days",
+      "1y": "1 year",
+      "all": "All time"
+    },
+    "growth": "Growth",
+    "compared": "vs previous period",
+    "noData": "No data available",
+    "charts": {
+      "dailySales": "Daily Sales",
+      "revenueByCategory": "Revenue by Category",
+      "topProducts": "Top Products",
+      "conversionFunnel": "Conversion Funnel"
+    },
+    "metrics": {
+      "totalRevenue": "Total Revenue",
+      "totalSales": "Total Sales",
+      "avgOrderValue": "Avg. Order Value",
+      "conversionRate": "Conversion Rate"
+    }
+  }
+}

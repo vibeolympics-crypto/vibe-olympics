@@ -1,0 +1,890 @@
+// Vibe Olympics - Prisma Schema
+// VIBE 코딩 기반 지식재산 마켓플레이스
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ==========================================
+// NextAuth.js 인증 관련 모델
+// ==========================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// 비밀번호 재설정 토큰
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([email, token])
+  @@index([email])
+}
+
+// ==========================================
+// 사용자 권한 Enum
+// ==========================================
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+// ==========================================
+// 사용자 모델
+// ==========================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  password      String?   // 이메일 로그인용
+  role          UserRole  @default(USER)  // 사용자 권한
+  
+  // 프로필 정보
+  bio           String?   @db.Text
+  website       String?
+  github        String?
+  twitter       String?
+  
+  // 판매자 정보
+  isSeller      Boolean   @default(false)
+  sellerVerified Boolean  @default(false)
+  sellerBio     String?   @db.Text
+  
+  // 알림 설정 (JSON)
+  notificationSettings Json?
+  
+  // 통계
+  totalSales    Int       @default(0)
+  totalRevenue  Decimal   @default(0) @db.Decimal(12, 2)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // 관계
+  accounts      Account[]
+  sessions      Session[]
+  products      Product[]         // 판매 상품
+  purchases     Purchase[]        // 구매 내역
+  reviews       Review[]          // 작성한 리뷰
+  wishlists     Wishlist[]        // 위시리스트
+  notifications Notification[]    // 알림
+  pushSubscriptions PushSubscription[] // 푸시 알림 구독
+  posts         Post[]            // 작성한 게시글
+  comments      Comment[]         // 작성한 댓글
+  postLikes     PostLike[]        // 좋아요한 게시글
+  tutorials     Tutorial[]        // 작성한 튜토리얼
+  tutorialLikes TutorialLike[]    // 좋아요한 튜토리얼
+  
+  // 통합 반응 시스템
+  reactions        Reaction[]        // 반응 (좋아요/추천/북마크)
+  unifiedComments  UnifiedComment[]  // 통합 댓글
+  
+  // 팔로우 시스템
+  followers     Follow[]  @relation("Following")  // 나를 팔로우하는 사람들
+  following     Follow[]  @relation("Followers")  // 내가 팔로우하는 사람들
+  
+  // 정산 시스템
+  settlements      Settlement[]      // 정산 내역 (판매자)
+  refundRequests   RefundRequest[]   // 환불 요청 (구매자)
+  
+  @@index([email])
+}
+
+// ==========================================
+// 팔로우 모델
+// ==========================================
+
+model Follow {
+  id          String   @id @default(cuid())
+  
+  // 팔로워 (팔로우 하는 사람)
+  followerId  String
+  follower    User     @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade)
+  
+  // 팔로잉 (팔로우 당하는 사람)
+  followingId String
+  following   User     @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  
+  // 같은 사람을 중복 팔로우 불가
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+// ==========================================
+// 상품 모델
+// ==========================================
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  icon        String?
+  color       String?
+  sortOrder   Int       @default(0)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  products    Product[]
+  
+  @@index([slug])
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  
+  // 기본 정보
+  title           String
+  slug            String   @unique
+  shortDescription String  @db.VarChar(200)
+  description     String   @db.Text  // Markdown
+  
+  // 카테고리
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id])
+  
+  // 판매자
+  sellerId        String
+  seller          User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  
+  // 가격
+  pricingType     PricingType @default(PAID)
+  price           Decimal     @default(0) @db.Decimal(10, 2)
+  originalPrice   Decimal?    @db.Decimal(10, 2)  // 할인 전 가격
+  
+  // 라이선스
+  licenseType     LicenseType @default(PERSONAL)
+  
+  // 미디어
+  thumbnail       String?
+  images          String[]    // JSON array of image URLs
+  
+  // 파일
+  files           ProductFile[]
+  
+  // 태그
+  tags            String[]
+  
+  // 기능 목록
+  features        String[]
+  
+  // 기술 스택
+  techStack       String[]
+  
+  // 상태
+  status          ProductStatus @default(DRAFT)
+  isPublished     Boolean       @default(false)
+  publishedAt     DateTime?
+  
+  // 통계
+  viewCount       Int       @default(0)
+  salesCount      Int       @default(0)
+  downloadCount   Int       @default(0)
+  averageRating   Float     @default(0)
+  reviewCount     Int       @default(0)
+  
+  // 메타
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // 관계
+  purchases       Purchase[]
+  reviews         Review[]
+  wishlists       Wishlist[]
+  tutorials       ProductTutorial[]  // 연결된 튜토리얼
+  
+  @@index([sellerId])
+  @@index([categoryId])
+  @@index([slug])
+  @@index([status, isPublished])
+  @@index([createdAt])
+}
+
+model ProductFile {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  name        String
+  url         String
+  size        Int      // bytes
+  type        String   // MIME type
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([productId])
+}
+
+// ==========================================
+// 구매 모델
+// ==========================================
+
+model Purchase {
+  id            String   @id @default(cuid())
+  
+  // 구매자
+  buyerId       String
+  buyer         User     @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  
+  // 상품
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id])
+  
+  // 결제 정보
+  amount        Decimal  @db.Decimal(10, 2)
+  currency      String   @default("KRW")
+  paymentMethod String?
+  paymentId     String?  // 외부 결제 시스템 ID
+  
+  // 상태
+  status        PurchaseStatus @default(PENDING)
+  
+  // 다운로드
+  downloadCount Int      @default(0)
+  lastDownloadAt DateTime?
+  
+  // 정산 관련
+  isSettled     Boolean  @default(false)  // 정산 완료 여부
+  settledAt     DateTime?                 // 정산 완료일
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // 정산/환불 관계
+  settlementItems SettlementItem[]
+  refundRequests  RefundRequest[]
+  
+  @@unique([buyerId, productId])
+  @@index([buyerId])
+  @@index([productId])
+  @@index([status])
+  @@index([isSettled])
+}
+
+// ==========================================
+// 리뷰 모델
+// ==========================================
+
+model Review {
+  id          String   @id @default(cuid())
+  
+  // 작성자
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // 상품
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // 내용
+  rating      Int      // 1-5
+  title       String?
+  content     String   @db.Text
+  
+  // 이미지 (최대 5개)
+  images      Json?    // ["url1", "url2", ...]
+  
+  // 도움됨 표시
+  helpfulCount Int     @default(0)
+  
+  // 판매자 답변
+  sellerReply String?  @db.Text
+  sellerRepliedAt DateTime?
+  
+  // 검증된 구매자 리뷰
+  isVerifiedPurchase Boolean @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // 관계
+  helpfulVotes ReviewHelpful[]
+  
+  @@unique([userId, productId])
+  @@index([productId])
+  @@index([userId])
+  @@index([rating])
+}
+
+// 리뷰 도움됨 투표 모델
+model ReviewHelpful {
+  id        String   @id @default(cuid())
+  
+  reviewId  String
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([reviewId, userId])
+  @@index([reviewId])
+  @@index([userId])
+}
+
+// ==========================================
+// 위시리스트 모델
+// ==========================================
+
+model Wishlist {
+  id          String   @id @default(cuid())
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
+}
+
+// ==========================================
+// 알림 모델
+// ==========================================
+
+model Notification {
+  id          String   @id @default(cuid())
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type        NotificationType
+  title       String
+  message     String   @db.Text
+  data        Json?    // 추가 데이터
+  
+  isRead      Boolean  @default(false)
+  readAt      DateTime?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// ==========================================
+// 푸시 알림 구독 모델
+// ==========================================
+
+model PushSubscription {
+  id          String   @id @default(cuid())
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Web Push API 구독 정보
+  endpoint    String   @db.Text
+  p256dh      String?  // Public Key
+  auth        String?  // Auth Secret
+  
+  // 메타데이터
+  userAgent   String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([userId, endpoint])
+  @@index([userId])
+}
+
+// ==========================================
+// Enum 정의
+// ==========================================
+
+enum PricingType {
+  FREE
+  PAID
+}
+
+enum LicenseType {
+  PERSONAL        // 개인용
+  COMMERCIAL      // 상업용 (1인)
+  EXTENDED        // 확장 라이선스 (팀/기업)
+}
+
+enum ProductStatus {
+  DRAFT           // 작성 중
+  PENDING_REVIEW  // 검토 대기
+  PUBLISHED       // 게시됨
+  REJECTED        // 거부됨
+  SUSPENDED       // 일시 중지
+}
+
+enum PurchaseStatus {
+  PENDING         // 결제 대기
+  COMPLETED       // 완료
+  FAILED          // 결제 실패
+  REFUNDED        // 환불됨
+  CANCELLED       // 취소됨
+}
+
+enum NotificationType {
+  PURCHASE        // 구매 완료 알림
+  SALE            // 판매 알림
+  REVIEW          // 리뷰 알림
+  SYSTEM          // 시스템 알림
+  PROMOTION       // 프로모션
+  FOLLOWER        // 새 팔로워
+  COMMENT         // 새 댓글
+  WISHLIST        // 위시리스트 관련
+  PRODUCT_UPDATE  // 상품 업데이트
+}
+
+// ==========================================
+// 커뮤니티 모델
+// ==========================================
+
+model Post {
+  id          String   @id @default(cuid())
+  
+  // 작성자
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  // 내용
+  category    PostCategory @default(FREE)
+  title       String   @db.VarChar(200)
+  content     String   @db.Text
+  
+  // 통계
+  viewCount   Int      @default(0)
+  likeCount   Int      @default(0)
+  
+  // 상태
+  isPinned    Boolean  @default(false)
+  isDeleted   Boolean  @default(false)
+  isPublished Boolean  @default(true)     // 예약 발행용
+  scheduledAt DateTime?                   // 예약 발행 일시
+  publishedAt DateTime?                   // 실제 발행 일시
+  
+  // 메타
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // 관계
+  comments    Comment[]
+  likes       PostLike[]
+  
+  @@index([authorId])
+  @@index([category])
+  @@index([createdAt])
+  @@index([isPinned, createdAt])
+  @@index([isPublished, scheduledAt])
+}
+
+model Comment {
+  id          String   @id @default(cuid())
+  
+  // 작성자
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  // 게시글
+  postId      String
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  // 대댓글 (선택)
+  parentId    String?
+  parent      Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Comment[] @relation("CommentReplies")
+  
+  // 내용
+  content     String   @db.Text
+  
+  // 상태
+  isDeleted   Boolean  @default(false)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([postId])
+  @@index([authorId])
+  @@index([parentId])
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, postId])
+  @@index([postId])
+}
+
+enum PostCategory {
+  FREE            // 자유게시판
+  QA              // Q&A
+  FEEDBACK        // 피드백
+  NOTICE          // 공지사항
+}
+
+// ==========================================
+// 교육 센터 모델
+// ==========================================
+
+model Tutorial {
+  id            String   @id @default(cuid())
+  
+  // 작성자
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  // 기본 정보
+  title         String   @db.VarChar(200)
+  slug          String   @unique
+  description   String   @db.Text
+  content       String   @db.Text  // Markdown
+  
+  // 유형
+  type          TutorialType @default(TUTORIAL)
+  
+  // 미디어
+  thumbnail     String?
+  videoUrl      String?       // 유튜브, Vimeo 등
+  externalUrl   String?       // 외부 자료 링크
+  
+  // 메타 정보
+  duration      Int?          // 분 단위
+  tags          String[]
+  
+  // 상태
+  isFeatured    Boolean  @default(false)
+  isPublished   Boolean  @default(false)
+  publishedAt   DateTime?
+  
+  // 통계
+  viewCount     Int      @default(0)
+  likeCount     Int      @default(0)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // 관계
+  likes         TutorialLike[]
+  products      ProductTutorial[]  // 연결된 상품
+  
+  @@index([authorId])
+  @@index([type])
+  @@index([slug])
+  @@index([isPublished, isFeatured])
+  @@index([createdAt])
+}
+
+// 상품-튜토리얼 연결 모델 (다대다)
+model ProductTutorial {
+  id          String   @id @default(cuid())
+  
+  // 상품
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // 튜토리얼
+  tutorialId  String
+  tutorial    Tutorial @relation(fields: [tutorialId], references: [id], onDelete: Cascade)
+  
+  // 연결 유형
+  type        ProductTutorialType @default(TUTORIAL)
+  
+  // 순서 (상품 페이지에서 표시 순서)
+  sortOrder   Int      @default(0)
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([productId, tutorialId])
+  @@index([productId])
+  @@index([tutorialId])
+}
+
+// 상품-튜토리얼 연결 유형
+enum ProductTutorialType {
+  TUTORIAL        // 사용 방법 튜토리얼
+  MAKING          // 제작 과정
+  TIPS            // 활용 팁
+}
+
+model TutorialLike {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tutorialId  String
+  tutorial    Tutorial @relation(fields: [tutorialId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  
+  @@unique([userId, tutorialId])
+  @@index([tutorialId])
+}
+
+enum TutorialType {
+  TUTORIAL        // 튜토리얼
+  MAKING          // 제작기
+  TIPS            // 팁 & 트릭
+  EXTERNAL        // 외부 자료
+}
+
+// ==========================================
+// 통합 반응 시스템 (Unified Reaction System)
+// ==========================================
+
+// 반응 대상 콘텐츠 유형
+enum TargetType {
+  PRODUCT         // 상품
+  TUTORIAL        // 튜토리얼/교육 콘텐츠
+  POST            // 커뮤니티 게시글
+  COMMENT         // 댓글
+}
+
+// 반응 유형
+enum ReactionType {
+  LIKE            // 좋아요
+  RECOMMEND       // 추천
+  HELPFUL         // 도움됨
+  BOOKMARK        // 북마크/저장
+}
+
+// 통합 반응 모델
+model Reaction {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  targetType  TargetType   // 대상 콘텐츠 유형
+  targetId    String       // 대상 콘텐츠 ID
+  type        ReactionType // 반응 유형
+  
+  createdAt   DateTime     @default(now())
+  
+  @@unique([userId, targetType, targetId, type])
+  @@index([targetType, targetId])
+  @@index([userId])
+  @@index([type])
+}
+
+// 통합 댓글 모델
+model UnifiedComment {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  targetType  TargetType  // 대상 콘텐츠 유형
+  targetId    String      // 대상 콘텐츠 ID
+  content     String      @db.Text
+  
+  // 대댓글 지원
+  parentId    String?
+  parent      UnifiedComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     UnifiedComment[] @relation("CommentReplies")
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([targetType, targetId])
+  @@index([userId])
+  @@index([parentId])
+  @@index([createdAt])
+}
+
+// ==========================================
+// 정산 모델
+// ==========================================
+
+model Settlement {
+  id              String   @id @default(cuid())
+  
+  // 판매자
+  sellerId        String
+  seller          User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  
+  // 정산 기간
+  periodStart     DateTime
+  periodEnd       DateTime
+  
+  // 금액 정보
+  totalSales      Decimal  @db.Decimal(12, 2)  // 총 판매액
+  salesCount      Int      @default(0)          // 판매 건수
+  platformFee     Decimal  @db.Decimal(12, 2)  // 플랫폼 수수료 (10%)
+  paymentFee      Decimal  @db.Decimal(12, 2)  // PG 수수료 (약 3.5%)
+  netAmount       Decimal  @db.Decimal(12, 2)  // 정산 금액 (실수령액)
+  
+  // 상태
+  status          SettlementStatus @default(PENDING)
+  
+  // 정산 처리 정보
+  processedAt     DateTime?        // 정산 처리일
+  paidAt          DateTime?        // 입금 완료일
+  transactionId   String?          // 은행 거래 ID
+  
+  // 정산 계좌 정보 (정산 시점 스냅샷)
+  bankName        String?
+  accountNumber   String?
+  accountHolder   String?
+  
+  // 비고
+  notes           String?  @db.Text
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // 정산에 포함된 구매 내역
+  settlementItems SettlementItem[]
+  
+  @@index([sellerId])
+  @@index([status])
+  @@index([periodStart, periodEnd])
+  @@index([createdAt])
+}
+
+// 정산 상세 항목 (어떤 구매가 이 정산에 포함되었는지)
+model SettlementItem {
+  id            String     @id @default(cuid())
+  
+  settlementId  String
+  settlement    Settlement @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  
+  purchaseId    String
+  purchase      Purchase   @relation(fields: [purchaseId], references: [id])
+  
+  // 금액 스냅샷
+  amount        Decimal    @db.Decimal(10, 2)
+  platformFee   Decimal    @db.Decimal(10, 2)
+  paymentFee    Decimal    @db.Decimal(10, 2)
+  netAmount     Decimal    @db.Decimal(10, 2)
+  
+  createdAt     DateTime   @default(now())
+  
+  @@unique([settlementId, purchaseId])
+  @@index([settlementId])
+  @@index([purchaseId])
+}
+
+// ==========================================
+// 환불 요청 모델
+// ==========================================
+
+model RefundRequest {
+  id            String   @id @default(cuid())
+  
+  // 요청자 (구매자)
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // 구매 정보
+  purchaseId    String
+  purchase      Purchase @relation(fields: [purchaseId], references: [id])
+  
+  // 환불 금액
+  amount        Decimal  @db.Decimal(10, 2)
+  
+  // 환불 사유
+  reason        RefundReason
+  reasonDetail  String?  @db.Text  // 상세 사유
+  
+  // 상태
+  status        RefundStatus @default(PENDING)
+  
+  // 처리 정보
+  processedAt   DateTime?
+  processedBy   String?          // 처리한 관리자 ID
+  adminNotes    String?  @db.Text // 관리자 메모
+  
+  // Stripe 환불 ID
+  stripeRefundId String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([purchaseId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// ==========================================
+// 정산/환불 관련 Enum
+// ==========================================
+
+enum SettlementStatus {
+  PENDING       // 정산 대기 (환불 대기 기간)
+  READY         // 정산 준비 완료
+  PROCESSING    // 처리 중
+  COMPLETED     // 정산 완료
+  FAILED        // 실패
+  CANCELLED     // 취소
+}
+
+enum RefundStatus {
+  PENDING       // 검토 대기
+  REVIEWING     // 검토 중
+  APPROVED      // 승인 (환불 처리 중)
+  COMPLETED     // 환불 완료
+  REJECTED      // 거절
+  CANCELLED     // 취소
+}
+
+enum RefundReason {
+  PRODUCT_MISMATCH    // 상품 설명과 다름
+  DOWNLOAD_ISSUE      // 다운로드 불가
+  DUPLICATE_PURCHASE  // 중복 결제
+  COPYRIGHT_ISSUE     // 저작권 문제
+  TECHNICAL_ISSUE     // 기술적 문제
+  OTHER               // 기타
+}

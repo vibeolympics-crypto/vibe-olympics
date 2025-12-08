@@ -1,0 +1,306 @@
+{
+  "common": {
+    "home": "홈",
+    "marketplace": "마켓플레이스",
+    "education": "교육 센터",
+    "community": "커뮤니티",
+    "dashboard": "대시보드",
+    "faq": "자주 묻는 질문",
+    "login": "로그인",
+    "signup": "회원가입",
+    "logout": "로그아웃",
+    "search": "검색",
+    "loading": "로딩 중...",
+    "error": "오류가 발생했습니다",
+    "save": "저장",
+    "cancel": "취소",
+    "delete": "삭제",
+    "edit": "수정",
+    "submit": "제출",
+    "back": "뒤로",
+    "next": "다음",
+    "previous": "이전",
+    "close": "닫기",
+    "viewAll": "전체 보기",
+    "learnMore": "자세히 보기",
+    "getStarted": "시작하기",
+    "free": "무료",
+    "premium": "프리미엄"
+  },
+  "home": {
+    "badge": "VIBE 코딩 크리에이터를 위한 공간",
+    "titleLine1": "당신의 아이디어를",
+    "titleLine2": "현실로 창조하세요",
+    "subtitle": "VIBE 코딩으로 만든 앱, 템플릿, 프롬프트를 공유하고 거래하세요. 크리에이터들의 지식 재산이 가치를 갖는 마켓플레이스입니다.",
+    "cta": {
+      "explore": "마켓플레이스 둘러보기",
+      "learn": "교육 콘텐츠 보기",
+      "title": "지금 바로 시작하세요",
+      "description": "VIBE 코딩의 가능성을 함께 탐험해 보세요",
+      "button": "무료로 시작하기"
+    },
+    "stats": {
+      "creators": "크리에이터",
+      "products": "상품",
+      "education": "교육 콘텐츠"
+    },
+    "hero": {
+      "title": "아이디어를 현실로",
+      "subtitle": "VIBE 코딩으로 만든 지적 재산을 공유하고 거래하는 마켓플레이스",
+      "cta": "마켓플레이스 둘러보기"
+    },
+    "features": {
+      "title": "왜 Vibe Olympics인가요?",
+      "marketplace": {
+        "title": "디지털 상품 마켓",
+        "description": "AI 코딩으로 만든 앱, 템플릿, 프롬프트를 사고 팔 수 있습니다"
+      },
+      "education": {
+        "title": "교육 콘텐츠",
+        "description": "VIBE 코딩 튜토리얼과 노하우를 배우고 공유하세요"
+      },
+      "community": {
+        "title": "커뮤니티",
+        "description": "다른 크리에이터들과 소통하고 영감을 얻으세요"
+      }
+    },
+    "howItWorks": {
+      "title": "어떻게 시작하나요?",
+      "step1": {
+        "title": "회원가입",
+        "description": "간단한 회원가입으로 시작하세요"
+      },
+      "step2": {
+        "title": "상품 등록",
+        "description": "만든 상품을 업로드하고 가격을 설정하세요"
+      },
+      "step3": {
+        "title": "수익 창출",
+        "description": "판매 수익을 받고 성장하세요"
+      }
+    }
+  },
+  "marketplace": {
+    "title": "마켓플레이스",
+    "subtitle": "VIBE 코딩으로 만든 디지털 상품을 만나보세요",
+    "searchPlaceholder": "상품 검색...",
+    "filters": {
+      "all": "전체",
+      "category": "카테고리",
+      "priceRange": "가격대",
+      "sortBy": "정렬",
+      "newest": "최신순",
+      "popular": "인기순",
+      "priceLow": "가격 낮은순",
+      "priceHigh": "가격 높은순"
+    },
+    "product": {
+      "by": "판매자",
+      "reviews": "리뷰",
+      "sales": "판매",
+      "views": "조회",
+      "buyNow": "구매하기",
+      "addToWishlist": "위시리스트에 추가",
+      "removeFromWishlist": "위시리스트에서 제거",
+      "download": "다운로드",
+      "purchased": "구매 완료"
+    },
+    "noProducts": "상품이 없습니다"
+  },
+  "education": {
+    "title": "교육 센터",
+    "subtitle": "VIBE 코딩을 배우고 성장하세요",
+    "tabs": {
+      "all": "전체",
+      "tutorial": "튜토리얼",
+      "making": "메이킹",
+      "tips": "팁",
+      "external": "외부 링크"
+    },
+    "featured": "추천 콘텐츠",
+    "latest": "최신 콘텐츠",
+    "writeContent": "콘텐츠 작성",
+    "noContent": "콘텐츠가 없습니다"
+  },
+  "community": {
+    "title": "커뮤니티",
+    "subtitle": "크리에이터들과 소통하고 영감을 얻으세요",
+    "writePost": "글쓰기",
+    "tabs": {
+      "all": "전체",
+      "question": "질문",
+      "showcase": "쇼케이스",
+      "discussion": "토론",
+      "tips": "팁"
+    },
+    "post": {
+      "likes": "좋아요",
+      "comments": "댓글",
+      "share": "공유"
+    },
+    "noPosts": "게시글이 없습니다"
+  },
+  "dashboard": {
+    "title": "대시보드",
+    "overview": "개요",
+    "products": "내 상품",
+    "purchases": "구매 내역",
+    "wishlist": "위시리스트",
+    "analytics": "분석",
+    "settings": "설정",
+    "stats": {
+      "totalRevenue": "총 수익",
+      "totalSales": "총 판매",
+      "totalViews": "총 조회수",
+      "totalCustomers": "총 고객"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "로그인",
+      "subtitle": "계정에 로그인하세요",
+      "email": "이메일",
+      "password": "비밀번호",
+      "rememberMe": "로그인 상태 유지",
+      "forgotPassword": "비밀번호를 잊으셨나요?",
+      "noAccount": "계정이 없으신가요?",
+      "signupLink": "회원가입"
+    },
+    "signup": {
+      "title": "회원가입",
+      "subtitle": "새 계정을 만드세요",
+      "name": "이름",
+      "email": "이메일",
+      "password": "비밀번호",
+      "confirmPassword": "비밀번호 확인",
+      "terms": "이용약관에 동의합니다",
+      "hasAccount": "이미 계정이 있으신가요?",
+      "loginLink": "로그인"
+    },
+    "oauth": {
+      "github": "GitHub로 계속하기",
+      "google": "Google로 계속하기"
+    }
+  },
+  "errors": {
+    "notFound": {
+      "title": "페이지를 찾을 수 없습니다",
+      "description": "요청하신 페이지가 존재하지 않거나 이동되었을 수 있습니다.",
+      "backHome": "홈으로 돌아가기"
+    },
+    "serverError": {
+      "title": "서버 오류",
+      "description": "일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
+      "retry": "다시 시도"
+    }
+  },
+  "footer": {
+    "description": "VIBE 코딩 기반 지식재산 마켓플레이스",
+    "product": "제품",
+    "resources": "리소스",
+    "company": "회사",
+    "legal": "법적 고지",
+    "terms": "이용약관",
+    "privacy": "개인정보처리방침",
+    "refund": "환불정책",
+    "copyright": "© {year} Vibe Olympics. All rights reserved."
+  },
+  "legal": {
+    "terms": {
+      "title": "이용약관",
+      "lastUpdated": "최종 수정일: {date}",
+      "backToHome": "홈으로"
+    },
+    "privacy": {
+      "title": "개인정보처리방침",
+      "lastUpdated": "최종 수정일: {date}",
+      "backToHome": "홈으로"
+    },
+    "refund": {
+      "title": "환불정책",
+      "lastUpdated": "최종 수정일: {date}",
+      "backToHome": "홈으로",
+      "importantNotice": "중요 안내",
+      "refundable": "환불 가능한 경우",
+      "nonRefundable": "환불이 불가능한 경우",
+      "procedure": "환불 절차",
+      "contact": "환불 문의"
+    }
+  },
+  "accessibility": {
+    "skipToContent": "본문으로 건너뛰기",
+    "openMenu": "메뉴 열기",
+    "closeMenu": "메뉴 닫기",
+    "userMenu": "사용자 메뉴",
+    "notifications": "알림",
+    "unreadNotifications": "읽지 않은 알림 {count}개",
+    "mobileNav": "모바일 메뉴"
+  },
+  "chatbot": {
+    "title": "AI 어시스턴트",
+    "placeholder": "메시지를 입력하세요...",
+    "send": "보내기",
+    "close": "닫기",
+    "greeting": "안녕하세요! Vibe Olympics AI 어시스턴트입니다. 무엇을 도와드릴까요?",
+    "error": "죄송합니다. 오류가 발생했습니다. 다시 시도해 주세요."
+  },
+  "notifications": {
+    "title": "알림",
+    "markAllRead": "모두 읽음",
+    "deleteAll": "전체 삭제",
+    "empty": "알림이 없습니다",
+    "viewInDashboard": "대시보드에서 보기",
+    "types": {
+      "purchase": "구매",
+      "sale": "판매",
+      "review": "리뷰",
+      "system": "시스템",
+      "promotion": "프로모션"
+    }
+  },
+  "reactions": {
+    "like": "좋아요",
+    "love": "최고예요",
+    "fire": "불타오르네",
+    "recommend": "추천해요",
+    "helpful": "도움됐어요",
+    "bookmark": "북마크"
+  },
+  "recommendations": {
+    "title": "추천",
+    "forYou": "나를 위한 추천 상품",
+    "similarProducts": "비슷한 상품",
+    "popularNow": "지금 인기 있는",
+    "basedOnHistory": "최근 관심사 기반"
+  },
+  "analytics": {
+    "title": "분석",
+    "overview": "개요",
+    "revenue": "수익",
+    "sales": "판매",
+    "views": "조회수",
+    "conversions": "전환율",
+    "period": {
+      "7d": "7일",
+      "30d": "30일",
+      "90d": "90일",
+      "1y": "1년",
+      "all": "전체"
+    },
+    "growth": "성장률",
+    "compared": "이전 기간 대비",
+    "noData": "데이터가 없습니다",
+    "charts": {
+      "dailySales": "일별 판매",
+      "revenueByCategory": "카테고리별 수익",
+      "topProducts": "인기 상품",
+      "conversionFunnel": "전환 퍼널"
+    },
+    "metrics": {
+      "totalRevenue": "총 수익",
+      "totalSales": "총 판매",
+      "avgOrderValue": "평균 주문 금액",
+      "conversionRate": "전환율"
+    }
+  }
+}
