@@ -5,10 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
-    "build:cf": "prisma generate && npx opennextjs-cloudflare build",
     "start": "next start",
-    "preview:cf": "npx wrangler pages dev",
-    "deploy:cf": "npm run build:cf && npx wrangler pages deploy",
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -69,7 +66,6 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.14.4",
     "@playwright/test": "^1.57.0",
     "@swc/helpers": "^0.5.17",
     "@tailwindcss/postcss": "^4",
@@ -90,7 +86,6 @@
     "tailwindcss": "^4",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
-    "typescript": "^5",
-    "wrangler": "^4.53.0"
+    "typescript": "^5"
   }
 }

@@ -36,7 +36,7 @@ yarn-error.log*
 # vercel
 .vercel
 
-# cloudflare
+# cloudflare (빌드 출력물만 무시, 백업 폴더는 커밋)
 .open-next
 .wrangler
 
