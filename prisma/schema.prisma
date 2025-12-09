@@ -888,3 +888,183 @@ enum RefundReason {
   TECHNICAL_ISSUE     // 기술적 문제
   OTHER               // 기타
 }
+
+// ==========================================
+// 상품 번들 모델
+// ==========================================
+
+model Bundle {
+  id              String   @id @default(cuid())
+  
+  // 기본 정보
+  title           String
+  slug            String   @unique
+  description     String   @db.Text
+  
+  // 판매자
+  sellerId        String
+  
+  // 가격 정보
+  originalPrice   Decimal  @db.Decimal(10, 2)  // 개별 구매 시 총합
+  bundlePrice     Decimal  @db.Decimal(10, 2)  // 번들 가격
+  discountPercent Int      @default(0)          // 할인율 (%)
+  
+  // 미디어
+  thumbnail       String?
+  
+  // 상태
+  isActive        Boolean  @default(true)
+  startDate       DateTime?                     // 판매 시작일
+  endDate         DateTime?                     // 판매 종료일
+  
+  // 통계
+  salesCount      Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // 관계
+  items           BundleItem[]
+  purchases       BundlePurchase[]
+  
+  @@index([sellerId])
+  @@index([slug])
+  @@index([isActive])
+}
+
+model BundleItem {
+  id          String   @id @default(cuid())
+  
+  bundleId    String
+  bundle      Bundle   @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  
+  productId   String
+  
+  sortOrder   Int      @default(0)
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([bundleId, productId])
+  @@index([bundleId])
+  @@index([productId])
+}
+
+model BundlePurchase {
+  id            String   @id @default(cuid())
+  
+  buyerId       String
+  bundleId      String
+  bundle        Bundle   @relation(fields: [bundleId], references: [id])
+  
+  // 결제 정보
+  amount        Decimal  @db.Decimal(10, 2)
+  currency      String   @default("KRW")
+  paymentMethod String?
+  paymentId     String?
+  
+  // 상태
+  status        PurchaseStatus @default(PENDING)
+  
+  // 적용된 쿠폰
+  couponId      String?
+  coupon        Coupon?  @relation(fields: [couponId], references: [id])
+  discountAmount Decimal? @db.Decimal(10, 2)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([buyerId, bundleId])
+  @@index([buyerId])
+  @@index([bundleId])
+  @@index([status])
+}
+
+// ==========================================
+// 쿠폰/할인 시스템 모델
+// ==========================================
+
+model Coupon {
+  id              String   @id @default(cuid())
+  
+  // 쿠폰 코드
+  code            String   @unique
+  
+  // 기본 정보
+  name            String
+  description     String?
+  
+  // 할인 유형
+  discountType    DiscountType @default(PERCENTAGE)
+  discountValue   Decimal  @db.Decimal(10, 2)  // 금액 또는 %
+  
+  // 최소 주문 금액
+  minOrderAmount  Decimal? @db.Decimal(10, 2)
+  
+  // 최대 할인 금액 (% 할인 시)
+  maxDiscountAmount Decimal? @db.Decimal(10, 2)
+  
+  // 사용 제한
+  usageLimit      Int?                         // 전체 사용 가능 횟수
+  usageLimitPerUser Int?    @default(1)        // 유저당 사용 가능 횟수
+  usedCount       Int      @default(0)         // 현재 사용된 횟수
+  
+  // 유효 기간
+  startDate       DateTime @default(now())
+  endDate         DateTime?
+  
+  // 적용 대상
+  applicableType  CouponApplicableType @default(ALL)
+  applicableIds   String[]                     // 특정 상품/카테고리 ID 목록
+  
+  // 발행자 (판매자 쿠폰 또는 플랫폼 쿠폰)
+  sellerId        String?                      // null이면 플랫폼 쿠폰
+  
+  // 상태
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // 관계
+  usages          CouponUsage[]
+  bundlePurchases BundlePurchase[]
+  
+  @@index([code])
+  @@index([sellerId])
+  @@index([isActive])
+  @@index([startDate, endDate])
+}
+
+model CouponUsage {
+  id          String   @id @default(cuid())
+  
+  couponId    String
+  coupon      Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  
+  userId      String
+  
+  // 적용된 주문
+  orderId     String?                          // Purchase ID 또는 BundlePurchase ID
+  orderType   String?                          // "PRODUCT" 또는 "BUNDLE"
+  
+  // 할인 금액
+  discountAmount Decimal @db.Decimal(10, 2)
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([couponId, userId, orderId])
+  @@index([couponId])
+  @@index([userId])
+}
+
+enum DiscountType {
+  PERCENTAGE      // 퍼센트 할인
+  FIXED_AMOUNT    // 고정 금액 할인
+}
+
+enum CouponApplicableType {
+  ALL             // 모든 상품
+  PRODUCTS        // 특정 상품
+  CATEGORIES      // 특정 카테고리
+  SELLER          // 특정 판매자의 상품
+}

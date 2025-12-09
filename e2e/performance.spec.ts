@@ -1,106 +1,145 @@
 import { test, expect } from '@playwright/test';
 
+/**
+ * 환경별 성능 임계값 설정
+ * - CI/Production: 엄격한 기준 (빠른 응답 기대)
+ * - Local/Development: 완화된 기준 (Cold start, 외부 DB 연결 고려)
+ */
+const isCI = process.env.CI === 'true';
+const isProduction = process.env.NODE_ENV === 'production';
+
+// 환경별 임계값 (ms)
+const THRESHOLDS = {
+  pageLoad: {
+    standard: isCI || isProduction ? 5000 : 30000,  // 페이지 로드
+    fast: isCI || isProduction ? 3000 : 30000,      // 빠른 페이지 (로그인 등)
+  },
+  api: {
+    fast: isCI || isProduction ? 1000 : 20000,      // 빠른 API (health, categories)
+    standard: isCI || isProduction ? 3000 : 20000,  // 일반 API
+  },
+  navigation: {
+    average: isCI || isProduction ? 3000 : 30000,   // 평균 네비게이션
+    back: isCI || isProduction ? 2000 : 30000,      // 뒤로 가기
+  },
+  search: {
+    query: isCI || isProduction ? 3000 : 10000,     // 검색
+    filter: isCI || isProduction ? 2000 : 10000,    // 필터
+  },
+  reload: isCI || isProduction ? 3000 : 30000,      // 페이지 리로드
+};
+
 test.describe('Performance - Page Load', () => {
-  test('TC-PERF-001: should load home page within 5 seconds', async ({ page }) => {
+  test('TC-PERF-001: should load home page within threshold', async ({ page }) => {
     const startTime = Date.now();
     
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
     
     const loadTime = Date.now() - startTime;
-    expect(loadTime).toBeLessThan(5000);
+    console.log(`Home page load time: ${loadTime}ms (threshold: ${THRESHOLDS.pageLoad.standard}ms)`);
+    expect(loadTime).toBeLessThan(THRESHOLDS.pageLoad.standard);
   });
 
-  test('TC-PERF-002: should load marketplace within 5 seconds', async ({ page }) => {
+  test('TC-PERF-002: should load marketplace within threshold', async ({ page }) => {
     const startTime = Date.now();
     
     await page.goto('/marketplace');
     await page.waitForLoadState('domcontentloaded');
     
     const loadTime = Date.now() - startTime;
-    expect(loadTime).toBeLessThan(5000);
+    console.log(`Marketplace load time: ${loadTime}ms (threshold: ${THRESHOLDS.pageLoad.standard}ms)`);
+    expect(loadTime).toBeLessThan(THRESHOLDS.pageLoad.standard);
   });
 
-  test('TC-PERF-003: should load education within 5 seconds', async ({ page }) => {
+  test('TC-PERF-003: should load education within threshold', async ({ page }) => {
     const startTime = Date.now();
     
     await page.goto('/education');
     await page.waitForLoadState('domcontentloaded');
     
     const loadTime = Date.now() - startTime;
-    expect(loadTime).toBeLessThan(5000);
+    console.log(`Education load time: ${loadTime}ms (threshold: ${THRESHOLDS.pageLoad.standard}ms)`);
+    expect(loadTime).toBeLessThan(THRESHOLDS.pageLoad.standard);
   });
 
-  test('TC-PERF-004: should load community within 5 seconds', async ({ page }) => {
+  test('TC-PERF-004: should load community within threshold', async ({ page }) => {
     const startTime = Date.now();
     
     await page.goto('/community');
     await page.waitForLoadState('domcontentloaded');
     
     const loadTime = Date.now() - startTime;
-    expect(loadTime).toBeLessThan(5000);
+    console.log(`Community load time: ${loadTime}ms (threshold: ${THRESHOLDS.pageLoad.standard}ms)`);
+    expect(loadTime).toBeLessThan(THRESHOLDS.pageLoad.standard);
   });
 
-  test('TC-PERF-005: should load login page within 3 seconds', async ({ page }) => {
+  test('TC-PERF-005: should load login page within threshold', async ({ page }) => {
     const startTime = Date.now();
     
     await page.goto('/auth/login');
     await page.waitForLoadState('domcontentloaded');
     
     const loadTime = Date.now() - startTime;
-    expect(loadTime).toBeLessThan(3000);
+    console.log(`Login page load time: ${loadTime}ms (threshold: ${THRESHOLDS.pageLoad.fast}ms)`);
+    expect(loadTime).toBeLessThan(THRESHOLDS.pageLoad.fast);
   });
 });
 
 test.describe('Performance - API Response', () => {
-  test('TC-PERF-006: should respond health check within 1 second', async ({ request }) => {
+  test('TC-PERF-006: should respond health check within threshold', async ({ request }) => {
     const startTime = Date.now();
     
     const response = await request.get('/api/health');
     
     const responseTime = Date.now() - startTime;
+    console.log(`Health API response time: ${responseTime}ms (threshold: ${THRESHOLDS.api.fast}ms)`);
     expect(response.status()).toBe(200);
-    expect(responseTime).toBeLessThan(1000);
+    expect(responseTime).toBeLessThan(THRESHOLDS.api.fast);
   });
 
-  test('TC-PERF-007: should respond products list within 3 seconds', async ({ request }) => {
+  test('TC-PERF-007: should respond products list within threshold', async ({ request }) => {
     const startTime = Date.now();
     
     const response = await request.get('/api/products');
     
     const responseTime = Date.now() - startTime;
+    console.log(`Products API response time: ${responseTime}ms (threshold: ${THRESHOLDS.api.standard}ms)`);
     expect(response.status()).toBe(200);
-    expect(responseTime).toBeLessThan(3000);
+    expect(responseTime).toBeLessThan(THRESHOLDS.api.standard);
   });
 
-  test('TC-PERF-008: should respond tutorials list within 3 seconds', async ({ request }) => {
+  test('TC-PERF-008: should respond tutorials list within threshold', async ({ request }) => {
     const startTime = Date.now();
     
     const response = await request.get('/api/tutorials');
     
     const responseTime = Date.now() - startTime;
+    console.log(`Tutorials API response time: ${responseTime}ms (threshold: ${THRESHOLDS.api.standard}ms)`);
     expect(response.status()).toBe(200);
-    expect(responseTime).toBeLessThan(3000);
+    expect(responseTime).toBeLessThan(THRESHOLDS.api.standard);
   });
 
-  test('TC-PERF-009: should respond posts list within 3 seconds', async ({ request }) => {
+  test('TC-PERF-009: should respond posts list within threshold', async ({ request }) => {
     const startTime = Date.now();
     
     const response = await request.get('/api/posts');
     
     const responseTime = Date.now() - startTime;
+    console.log(`Posts API response time: ${responseTime}ms (threshold: ${THRESHOLDS.api.standard}ms)`);
     expect(response.status()).toBe(200);
-    expect(responseTime).toBeLessThan(3000);
+    expect(responseTime).toBeLessThan(THRESHOLDS.api.standard);
   });
 
-  test('TC-PERF-010: should respond categories within 1 second', async ({ request }) => {
+  test('TC-PERF-010: should respond categories within threshold', async ({ request }) => {
     const startTime = Date.now();
     
     const response = await request.get('/api/categories');
     
     const responseTime = Date.now() - startTime;
+    console.log(`Categories API response time: ${responseTime}ms (threshold: ${THRESHOLDS.api.fast}ms)`);
     expect(response.status()).toBe(200);
-    expect(responseTime).toBeLessThan(1000);
+    expect(responseTime).toBeLessThan(THRESHOLDS.api.fast);
   });
 });
 
@@ -127,9 +166,10 @@ test.describe('Performance - Navigation', () => {
     await page.waitForLoadState('domcontentloaded');
     const navTime3 = Date.now() - startTime3;
     
-    // 평균 네비게이션 시간이 3초 이내여야 함
+    // 평균 네비게이션 시간 체크
     const avgNavTime = (navTime1 + navTime2 + navTime3) / 3;
-    expect(avgNavTime).toBeLessThan(3000);
+    console.log(`Average navigation time: ${avgNavTime.toFixed(0)}ms (threshold: ${THRESHOLDS.navigation.average}ms)`);
+    expect(avgNavTime).toBeLessThan(THRESHOLDS.navigation.average);
   });
 
   test('TC-PERF-012: should handle back navigation', async ({ page }) => {
@@ -145,8 +185,8 @@ test.describe('Performance - Navigation', () => {
     await page.waitForLoadState('domcontentloaded');
     const backTime = Date.now() - startTime;
     
-    // 뒤로 가기가 2초 이내여야 함
-    expect(backTime).toBeLessThan(2000);
+    console.log(`Back navigation time: ${backTime}ms (threshold: ${THRESHOLDS.navigation.back}ms)`);
+    expect(backTime).toBeLessThan(THRESHOLDS.navigation.back);
   });
 });
 
@@ -164,8 +204,8 @@ test.describe('Performance - Search', () => {
       await page.waitForLoadState('networkidle');
       const searchTime = Date.now() - startTime;
       
-      // 검색이 3초 이내여야 함
-      expect(searchTime).toBeLessThan(3000);
+      console.log(`Search time: ${searchTime}ms (threshold: ${THRESHOLDS.search.query}ms)`);
+      expect(searchTime).toBeLessThan(THRESHOLDS.search.query);
     }
   });
 
@@ -181,8 +221,8 @@ test.describe('Performance - Search', () => {
       await page.waitForLoadState('networkidle');
       const filterTime = Date.now() - startTime;
       
-      // 필터링이 2초 이내여야 함
-      expect(filterTime).toBeLessThan(2000);
+      console.log(`Filter time: ${filterTime}ms (threshold: ${THRESHOLDS.search.filter}ms)`);
+      expect(filterTime).toBeLessThan(THRESHOLDS.search.filter);
     }
   });
 });
@@ -198,6 +238,7 @@ test.describe('Performance - Resource Loading', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
+    console.log(`Total requests on home page: ${requestCount}`);
     // 초기 로드 시 요청이 100개 미만이어야 함
     expect(requestCount).toBeLessThan(100);
   });
@@ -213,7 +254,7 @@ test.describe('Performance - Resource Loading', () => {
     await page.waitForLoadState('domcontentloaded');
     const reloadTime = Date.now() - startTime;
     
-    // 리로드가 3초 이내여야 함
-    expect(reloadTime).toBeLessThan(3000);
+    console.log(`Reload time: ${reloadTime}ms (threshold: ${THRESHOLDS.reload}ms)`);
+    expect(reloadTime).toBeLessThan(THRESHOLDS.reload);
   });
 });

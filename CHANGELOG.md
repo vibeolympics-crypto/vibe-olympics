@@ -5,6 +5,98 @@
 
 ---
 
+## 세션 58 (2025-12-09) - 번들 판매 및 쿠폰/할인 시스템
+
+### 작업 요약
+상품 번들 판매 기능과 쿠폰/할인 시스템 구현
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| Prisma 스키마 확장 | Bundle, BundleItem, BundlePurchase, Coupon, CouponUsage 모델 | ✅ |
+| 번들 API 구현 | CRUD + 구매 API (5개 엔드포인트) | ✅ |
+| 쿠폰 API 구현 | CRUD + 적용 API (4개 엔드포인트) | ✅ |
+| 이메일 테스트 API | Resend 도메인 상태 확인 + 테스트 발송 | ✅ |
+| 다국어 지원 | bundle, coupon 번역 키 (한/영) | ✅ |
+
+### 추가된 기능
+
+#### 1. 상품 번들 판매
+- 여러 상품을 하나의 번들로 묶어 할인 판매
+- 자동 할인율 계산 (개별 가격 합계 기준)
+- 판매 기간 설정 (시작일/종료일)
+- 번들 구매 시 개별 상품 구매 기록도 생성
+
+#### 2. 쿠폰/할인 시스템
+- **할인 유형**: 퍼센트 할인, 정액 할인
+- **적용 대상**: 전체 상품, 특정 상품, 특정 카테고리, 특정 판매자
+- **사용 제한**: 전체 사용 횟수, 유저당 사용 횟수
+- **유효 기간**: 시작일/종료일 설정
+- **최소 주문 금액** / **최대 할인 금액** 설정
+
+#### 3. 이메일 테스트 API
+- Resend 도메인 상태 확인
+- 테스트 이메일 발송 (구매완료, 환영, 기본)
+- 관리자 전용 기능
+
+### 새로운 Prisma 모델
+```prisma
+model Bundle           # 상품 번들
+model BundleItem       # 번들 구성 상품
+model BundlePurchase   # 번들 구매 내역
+model Coupon           # 쿠폰
+model CouponUsage      # 쿠폰 사용 내역
+
+enum DiscountType      # PERCENTAGE, FIXED_AMOUNT
+enum CouponApplicableType # ALL, PRODUCTS, CATEGORIES, SELLER
+```
+
+### 새로운 API 엔드포인트
+```
+POST   /api/bundles                   # 번들 생성
+GET    /api/bundles                   # 번들 목록 조회
+GET    /api/bundles/[id]              # 번들 상세 조회
+PUT    /api/bundles/[id]              # 번들 수정
+DELETE /api/bundles/[id]              # 번들 삭제
+POST   /api/bundles/[id]/purchase     # 번들 구매
+
+POST   /api/coupons                   # 쿠폰 생성
+GET    /api/coupons                   # 쿠폰 목록/코드 조회
+GET    /api/coupons/[id]              # 쿠폰 상세 조회
+PUT    /api/coupons/[id]              # 쿠폰 수정
+DELETE /api/coupons/[id]              # 쿠폰 삭제
+POST   /api/coupons/apply             # 쿠폰 적용 (할인 계산)
+
+GET    /api/admin/email-test          # Resend 상태 확인
+POST   /api/admin/email-test          # 테스트 이메일 발송
+```
+
+### 생성/수정된 파일
+```
++ prisma/schema.prisma (Bundle, Coupon 모델 추가)
++ src/app/api/bundles/route.ts
++ src/app/api/bundles/[id]/route.ts
++ src/app/api/bundles/[id]/purchase/route.ts
++ src/app/api/coupons/route.ts
++ src/app/api/coupons/[id]/route.ts
++ src/app/api/coupons/apply/route.ts
++ src/app/api/admin/email-test/route.ts
+~ messages/ko.json (bundle, coupon 번역 추가)
+~ messages/en.json (bundle, coupon 번역 추가)
+```
+
+### 서비스 연결 테스트 결과
+```
+✅ Database: Connected (416ms)
+✅ Resend: Connected - 0 verified domain(s)
+✅ Supabase: API reachable (863ms)
+✅ GitHub OAuth: Configured
+⏭️ Stripe: Skipped (부트페이로 대체)
+⏭️ Sentry: Skipped
+```
+
+---
+
 ## 세션 57 (2025-12-09) - Playwright E2E 테스트 자동화
 
 ### 작업 요약

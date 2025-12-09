@@ -2,7 +2,7 @@
 
 > 마지막 업데이트: 2025년 12월 9일
 > TestSprite MCP 자동 테스트용 역할별 테스트 케이스 정의
-> 총 테스트 케이스: 184개 (명세) + 160개 (Playwright E2E)
+> 총 테스트 케이스: 221개 (명세) + 160개 (Playwright E2E) + 61개 (Jest)
 
 ---
 
@@ -62,12 +62,14 @@ npx playwright test --headed  # 브라우저 표시하며 실행
 | 판매자 | `seller2@vibeolympics.com` | `Test1234!` | 판매자 기능 테스트용 |
 | 관리자 | (환경변수 설정 필요) | - | ADMIN_EMAILS에 등록된 이메일 |
 
-### Stripe 테스트 카드
+### Stripe 테스트 카드 (레거시 - Bootpay로 전환됨)
 | 카드 번호 | 만료일 | CVC | 설명 |
 |-----------|--------|-----|------|
 | 4242 4242 4242 4242 | 12/34 | 123 | 성공 |
 | 4000 0000 0000 0002 | 12/34 | 123 | 거절 |
 | 4000 0000 0000 9995 | 12/34 | 123 | 잔액 부족 |
+
+> ⚠️ **참고**: Session 55부터 Bootpay로 결제 시스템이 전환되었습니다. 아래 부트페이 테스트 정보를 사용하세요.
 
 ### 부트페이 테스트 (샌드박스 모드)
 | 결제 수단 | 테스트 정보 | 설명 |
@@ -384,7 +386,7 @@ expected:
   - 상태가 APPROVED로 변경
 validation:
   - 구매자에게 환불 승인 이메일 발송
-  - Stripe 환불 처리 시작
+  - Bootpay 환불 처리 시작
 ```
 
 #### TC-ADMIN-018: 환불 관리 - 거절
@@ -502,6 +504,99 @@ expected:
   - Purchase.status = REFUNDED
 validation:
   - 환불 상태 자동 업데이트
+```
+
+### 📦 번들 관리 테스트
+
+#### TC-ADMIN-033: 번들 목록 조회
+```yaml
+url: /api/bundles
+method: GET
+precondition: 관리자 계정으로 로그인
+steps:
+  1. GET /api/bundles?activeOnly=false 호출
+expected:
+  - HTTP 200
+  - bundles 배열
+  - pagination 정보 포함
+validation:
+  - 모든 번들 조회 가능 (비활성 포함)
+```
+
+#### TC-ADMIN-034: 플랫폼 쿠폰 생성
+```yaml
+url: /api/coupons
+method: POST
+precondition: 관리자 계정으로 로그인
+body:
+  code: "WELCOME2024"
+  name: "신규 가입 환영 쿠폰"
+  discountType: "PERCENTAGE"
+  discountValue: 20
+  maxDiscountAmount: 10000
+  usageLimit: 1000
+  usageLimitPerUser: 1
+  isPlatformCoupon: true
+steps:
+  1. POST /api/coupons 호출
+expected:
+  - HTTP 200
+  - coupon.sellerId = null (플랫폼 쿠폰)
+  - 쿠폰 코드 대문자 변환
+validation:
+  - 플랫폼 쿠폰으로 생성됨
+```
+
+#### TC-ADMIN-035: 쿠폰 사용 현황 조회
+```yaml
+url: /api/coupons/[id]
+method: GET
+precondition: 관리자 계정으로 로그인 + 쿠폰 존재
+steps:
+  1. GET /api/coupons/{couponId} 호출
+expected:
+  - HTTP 200
+  - coupon 상세 정보
+  - recentUsages 배열
+  - _count.usages 통계
+validation:
+  - 사용 내역 조회 가능
+```
+
+### 📧 이메일 테스트
+
+#### TC-ADMIN-036: Resend 도메인 상태 확인
+```yaml
+url: /api/admin/email-test
+method: GET
+precondition: 관리자 계정으로 로그인
+steps:
+  1. GET /api/admin/email-test 호출
+expected:
+  - HTTP 200
+  - configured: true
+  - apiKeyValid: true
+  - domains 배열
+  - verifiedDomains 수
+validation:
+  - Resend API 연결 확인
+```
+
+#### TC-ADMIN-037: 테스트 이메일 발송
+```yaml
+url: /api/admin/email-test
+method: POST
+precondition: 관리자 계정으로 로그인 + Resend 설정 완료
+body:
+  templateType: "test"
+steps:
+  1. POST /api/admin/email-test 호출
+expected:
+  - HTTP 200
+  - success: true
+  - emailId 반환
+validation:
+  - 이메일 발송 성공
 ```
 
 ---
@@ -864,6 +959,119 @@ validation:
   - /api/recommendations?type=products API 연동
 ```
 
+### 📦 번들 관리 테스트
+
+#### TC-SELLER-021: 번들 생성
+```yaml
+url: /api/bundles
+method: POST
+precondition: 판매자 계정으로 로그인 + 상품 2개 이상 보유
+body:
+  title: "프리미엄 번들"
+  description: "모든 프리미엄 상품 모음"
+  productIds: ["product1", "product2", "product3"]
+  bundlePrice: 50000
+steps:
+  1. POST /api/bundles 호출
+expected:
+  - HTTP 200
+  - bundle 생성
+  - 자동 할인율 계산 (discountPercent)
+  - slug 자동 생성
+validation:
+  - 본인 상품만 번들에 포함 가능
+  - 최소 2개 상품 필수
+```
+
+#### TC-SELLER-022: 번들 수정
+```yaml
+url: /api/bundles/[id]
+method: PUT
+precondition: 판매자 계정으로 로그인 + 본인 번들 존재
+body:
+  title: "슈퍼 프리미엄 번들"
+  bundlePrice: 45000
+  isActive: true
+steps:
+  1. PUT /api/bundles/{bundleId} 호출
+expected:
+  - HTTP 200
+  - 번들 정보 업데이트
+  - 할인율 재계산
+validation:
+  - 본인 번들만 수정 가능
+```
+
+#### TC-SELLER-023: 번들 비활성화
+```yaml
+url: /api/bundles/[id]
+method: PUT
+precondition: 판매자 계정으로 로그인 + 본인 번들 존재
+body:
+  isActive: false
+steps:
+  1. PUT /api/bundles/{bundleId} 호출
+expected:
+  - HTTP 200
+  - bundle.isActive = false
+validation:
+  - 비활성화된 번들은 목록에서 제외
+```
+
+### 🎟️ 쿠폰 관리 테스트
+
+#### TC-SELLER-024: 판매자 쿠폰 생성
+```yaml
+url: /api/coupons
+method: POST
+precondition: 판매자 계정으로 로그인
+body:
+  code: "MYSALE10"
+  name: "내 상품 10% 할인"
+  discountType: "PERCENTAGE"
+  discountValue: 10
+  usageLimitPerUser: 1
+  endDate: "2025-12-31T23:59:59Z"
+steps:
+  1. POST /api/coupons 호출
+expected:
+  - HTTP 200
+  - coupon.sellerId = 현재 사용자 ID
+  - 쿠폰 코드 대문자 변환
+validation:
+  - 판매자 쿠폰으로 생성됨
+```
+
+#### TC-SELLER-025: 쿠폰 목록 조회
+```yaml
+url: /api/coupons
+method: GET
+precondition: 판매자 계정으로 로그인
+steps:
+  1. GET /api/coupons 호출
+expected:
+  - HTTP 200
+  - 본인 쿠폰 + 플랫폼 쿠폰 목록
+validation:
+  - 다른 판매자 쿠폰은 미표시
+```
+
+#### TC-SELLER-026: 쿠폰 비활성화
+```yaml
+url: /api/coupons/[id]
+method: PUT
+precondition: 판매자 계정으로 로그인 + 본인 쿠폰 존재
+body:
+  isActive: false
+steps:
+  1. PUT /api/coupons/{couponId} 호출
+expected:
+  - HTTP 200
+  - coupon.isActive = false
+validation:
+  - 비활성화된 쿠폰은 적용 불가
+```
+
 ---
 
 ## 💳 역할 3: 구매자 (Buyer)
@@ -1113,7 +1321,7 @@ steps:
   1. 위시리스트 상품 카드에서 "구매하기" 버튼 클릭
   2. 결제 진행
 expected:
-  - Stripe Checkout으로 리다이렉트 또는 결제 수단 선택 모달
+  - 결제 수단 선택 모달 (부트페이 7종 결제 수단)
 validation:
   - useCheckout 훅 정상 작동
 ```
@@ -1134,8 +1342,9 @@ validation:
   - 구매 내역에 추가
 ```
 
-#### TC-BUYER-017: 유료 상품 구매 - Stripe 결제
+#### TC-BUYER-017: 유료 상품 구매 - Stripe 결제 (레거시)
 ```yaml
+# ⚠️ 레거시: Session 55부터 Bootpay로 전환됨. TC-BUYER-019B~H 참조
 url: /api/checkout
 method: POST
 precondition: 구매자 계정으로 로그인 + 유료 상품
@@ -1153,7 +1362,7 @@ expected:
   - 판매자에게 판매 알림
 validation:
   - Purchase 레코드 생성 (status: COMPLETED)
-  - 부트페이 webhook으로 검증 (/api/payment/bootpay/webhook)
+  - 현재는 부트페이 사용: /api/payment/bootpay/*
 ```
 
 #### TC-BUYER-018: 유료 상품 구매 - 카카오페이
@@ -1369,9 +1578,9 @@ validation:
 ```yaml
 url: /marketplace/[id]?canceled=true
 method: GET
-precondition: Stripe Checkout에서 취소
+precondition: 부트페이 결제 창에서 취소
 steps:
-  1. 결제 진행 중 Stripe 페이지에서 "뒤로 가기" 클릭
+  1. 결제 진행 중 부트페이 결제 창에서 X 또는 "취소" 클릭
   2. 상품 상세 페이지로 리다이렉트
 expected:
   - Info Toast "결제가 취소되었습니다. 언제든 다시 시도하실 수 있습니다."
@@ -1600,6 +1809,201 @@ expected:
 validation:
   - 환불 정책 안내 메시지 표시
   - RefundRequest 생성되지 않음
+```
+
+### 📦 번들 구매 테스트
+
+#### TC-BUYER-113: 번들 목록 조회
+```yaml
+url: /api/bundles
+method: GET
+precondition: 로그인 상태
+steps:
+  1. GET /api/bundles 호출
+expected:
+  - HTTP 200
+  - 활성 번들 목록만 반환
+  - 각 번들의 상품 정보 포함
+validation:
+  - 비활성/만료 번들 제외
+```
+
+#### TC-BUYER-114: 번들 상세 조회
+```yaml
+url: /api/bundles/[id]
+method: GET
+precondition: 로그인 상태 + 번들 존재
+steps:
+  1. GET /api/bundles/{bundleId} 호출
+expected:
+  - HTTP 200
+  - 번들 상세 정보
+  - 포함된 상품 목록
+  - 판매자 정보
+  - 할인율 정보
+validation:
+  - 개별 가격 vs 번들 가격 비교 가능
+```
+
+#### TC-BUYER-115: 번들 구매 성공
+```yaml
+url: /api/bundles/[id]/purchase
+method: POST
+precondition: 로그인 상태 + 활성 번들 + 미구매 상태
+body:
+  paymentMethod: "card"
+  paymentId: "BP-TEST-12345"
+steps:
+  1. POST /api/bundles/{bundleId}/purchase 호출
+expected:
+  - HTTP 200
+  - BundlePurchase 생성
+  - 개별 상품별 Purchase 레코드 생성
+  - 번들 salesCount 증가
+  - 각 상품 salesCount 증가
+validation:
+  - 트랜잭션으로 일괄 처리
+```
+
+#### TC-BUYER-116: 번들 구매 실패 - 이미 구매
+```yaml
+url: /api/bundles/[id]/purchase
+method: POST
+precondition: 로그인 상태 + 이미 구매한 번들
+steps:
+  1. POST /api/bundles/{bundleId}/purchase 호출
+expected:
+  - HTTP 400
+  - error: "이미 구매한 번들입니다"
+validation:
+  - 중복 구매 방지
+```
+
+#### TC-BUYER-117: 번들 구매 실패 - 일부 상품 보유
+```yaml
+url: /api/bundles/[id]/purchase
+method: POST
+precondition: 로그인 상태 + 번들 내 일부 상품 이미 구매
+steps:
+  1. POST /api/bundles/{bundleId}/purchase 호출
+expected:
+  - HTTP 400
+  - error: "번들에 포함된 일부 상품을 이미 구매하셨습니다"
+  - alreadyPurchasedProducts 배열
+validation:
+  - 부분 구매 상태 안내
+```
+
+### 🎟️ 쿠폰 적용 테스트
+
+#### TC-BUYER-118: 쿠폰 조회 (코드로)
+```yaml
+url: /api/coupons?code=WELCOME2024
+method: GET
+precondition: 로그인 상태 + 유효한 쿠폰 코드
+steps:
+  1. GET /api/coupons?code=WELCOME2024 호출
+expected:
+  - HTTP 200
+  - valid: true
+  - 쿠폰 정보 (할인 유형, 할인값 등)
+validation:
+  - 유효 기간 확인
+  - 사용 가능 여부 확인
+```
+
+#### TC-BUYER-119: 쿠폰 적용 계산
+```yaml
+url: /api/coupons/apply
+method: POST
+precondition: 로그인 상태 + 유효한 쿠폰
+body:
+  code: "WELCOME2024"
+  orderAmount: 50000
+  productId: "product123"
+steps:
+  1. POST /api/coupons/apply 호출
+expected:
+  - HTTP 200
+  - valid: true
+  - orderAmount: 50000
+  - discountAmount: 10000 (20% 할인)
+  - finalAmount: 40000
+validation:
+  - 할인 금액 정확히 계산
+  - 최대 할인 금액 적용
+```
+
+#### TC-BUYER-120: 쿠폰 적용 실패 - 만료
+```yaml
+url: /api/coupons/apply
+method: POST
+precondition: 로그인 상태 + 만료된 쿠폰
+body:
+  code: "EXPIRED2023"
+  orderAmount: 50000
+steps:
+  1. POST /api/coupons/apply 호출
+expected:
+  - HTTP 400
+  - error: "만료된 쿠폰입니다"
+validation:
+  - 만료 쿠폰 거절
+```
+
+#### TC-BUYER-121: 쿠폰 적용 실패 - 이미 사용
+```yaml
+url: /api/coupons/apply
+method: POST
+precondition: 로그인 상태 + 이미 사용한 쿠폰 (usageLimitPerUser 초과)
+body:
+  code: "ONETIME"
+  orderAmount: 50000
+steps:
+  1. POST /api/coupons/apply 호출
+expected:
+  - HTTP 400
+  - error: "이미 사용한 쿠폰입니다"
+validation:
+  - 사용자별 사용 횟수 확인
+```
+
+#### TC-BUYER-122: 쿠폰 적용 실패 - 최소 주문 금액 미달
+```yaml
+url: /api/coupons/apply
+method: POST
+precondition: 로그인 상태 + 최소 주문 금액 조건 쿠폰
+body:
+  code: "MIN50000"
+  orderAmount: 30000
+steps:
+  1. POST /api/coupons/apply 호출
+expected:
+  - HTTP 400
+  - error: "최소 주문 금액은 50,000원입니다"
+  - minOrderAmount: 50000
+validation:
+  - 최소 주문 금액 확인
+```
+
+#### TC-BUYER-123: 번들 구매 + 쿠폰 적용
+```yaml
+url: /api/bundles/[id]/purchase
+method: POST
+precondition: 로그인 상태 + 활성 번들 + 유효한 쿠폰
+body:
+  paymentMethod: "card"
+  paymentId: "BP-TEST-12345"
+  couponCode: "BUNDLE10"
+steps:
+  1. POST /api/bundles/{bundleId}/purchase 호출
+expected:
+  - HTTP 200
+  - 쿠폰 할인 적용된 금액으로 결제
+  - CouponUsage 레코드 생성
+  - Coupon.usedCount 증가
+validation:
+  - 번들 + 쿠폰 동시 할인 적용
 ```
 
 ---
@@ -3002,7 +3406,7 @@ steps:
   2. action: approve | reject
 expected:
   - HTTP 200 응답
-  - Stripe Refund 처리 (승인 시)
+  - Bootpay 환불 처리 (승인 시)
 validation:
   - Refund.status 업데이트
 ```
@@ -3239,11 +3643,11 @@ validation:
 
 #### TC-ERROR-007: 결제 실패
 ```yaml
-url: /api/checkout
+url: /api/payment/bootpay/verify
 method: POST
-precondition: 로그인 + Stripe 테스트 카드 (4000 0000 0000 0002)
+precondition: 로그인 + 부트페이 샌드박스 테스트 결제 실패 케이스
 steps:
-  1. 상품 결제 시도 (거절 카드)
+  1. 상품 결제 시도 (결제 실패 시뮬레이션)
 expected:
   - HTTP 400 응답
   - Error Toast "결제가 거절되었습니다"
@@ -3495,6 +3899,155 @@ npm run test:e2e
 # GitHub Copilot Chat에서 실행
 ```
 
+---
+
+## 🎯 TestSprite MCP 테스트 진행 현황
+
+> TestSprite MCP를 통한 자동 테스트 진행 상태 추적
+> 각 테스트 케이스는 고객 유형별 웹페이지 여정을 기반으로 합니다.
+
+### 📋 테스트 상태 분류
+
+| 상태 | 설명 | 아이콘 |
+|------|------|--------|
+| **Backlog** | 테스트 대기 (아직 실행 안 함) | ⬜ |
+| **In Progress** | 테스트 진행 중 | 🔄 |
+| **Review** | 테스트 완료, 검토 필요 | 🔍 |
+| **Done** | 테스트 통과, 검증 완료 | ✅ |
+
+---
+
+### ✅ 완료 (Done) - 검증된 테스트 케이스
+
+> 제작자 또는 자동화 테스트로 통과 확인된 항목
+
+#### Jest 단위 테스트 (61개 통과)
+- ✅ 컴포넌트: Button, Input, Card, Badge, Textarea
+- ✅ 유틸리티: lib/utils.ts (cn 함수)
+- ✅ 커스텀 훅: use-media-query
+
+#### Playwright E2E 테스트 (160개 설정)
+- ✅ app.spec.ts - 기본 페이지 테스트 (27개)
+- ✅ auth.spec.ts - 인증 테스트 (14개)
+- ✅ marketplace.spec.ts - 마켓플레이스 테스트 (16개)
+- ✅ education.spec.ts - 교육 센터 테스트 (14개)
+- ✅ community.spec.ts - 커뮤니티 테스트 (13개)
+- ✅ responsive.spec.ts - 반응형 테스트 (17개)
+- ✅ api.spec.ts - API 테스트 (25개)
+- ✅ accessibility.spec.ts - 접근성 테스트 (19개)
+- ✅ performance.spec.ts - 성능 테스트 (16개)
+
+#### 통합 테스트
+- ✅ Bootpay 결제 연동 (7종 결제 수단)
+- ✅ Resend 이메일 API 연결 확인
+- ✅ Supabase 데이터베이스 연결
+- ✅ GitHub OAuth 인증
+
+---
+
+### 🔍 검토 (Review) - 수동 검증 필요
+
+> 자동 테스트 통과했으나 수동 확인 필요한 항목
+
+| TC ID | 테스트명 | 역할 | 상태 |
+|-------|---------|------|------|
+| TC-ADMIN-036 | Resend 도메인 상태 확인 | 관리자 | 🔍 도메인 인증 대기 |
+| TC-ADMIN-037 | 테스트 이메일 발송 | 관리자 | 🔍 도메인 인증 후 검증 |
+
+---
+
+### 🔄 진행 중 (In Progress)
+
+> 현재 TestSprite MCP로 테스트 진행 중인 항목
+
+| TC ID | 테스트명 | 역할 | 진행률 |
+|-------|---------|------|--------|
+| - | - | - | - |
+
+---
+
+### ⬜ 대기 (Backlog) - TestSprite MCP 테스트 예정
+
+> 고객 유형별 웹페이지 여정 테스트 (TestSprite MCP 자동 테스트 대상)
+
+#### 방문자 (Visitor) 여정 테스트 - 22개
+| TC ID | 테스트명 | 페이지 | 상태 |
+|-------|---------|--------|------|
+| TC-VISITOR-001 | 홈페이지 접근 | / | ⬜ |
+| TC-VISITOR-002 | 네비게이션 메뉴 | / | ⬜ |
+| TC-VISITOR-003 | 마켓플레이스 브라우징 | /marketplace | ⬜ |
+| TC-VISITOR-004 | 교육 센터 브라우징 | /education | ⬜ |
+| TC-VISITOR-005 | 교육 콘텐츠 상세 조회 | /education/[id] | ⬜ |
+| TC-VISITOR-006 | 커뮤니티 브라우징 | /community | ⬜ |
+| TC-VISITOR-007 | 커뮤니티 게시글 상세 조회 | /community/[id] | ⬜ |
+| TC-VISITOR-008 | FAQ 페이지 | /faq | ⬜ |
+| TC-VISITOR-009 | 정적 페이지 - 이용약관 | /terms | ⬜ |
+| TC-VISITOR-010 | 정적 페이지 - 개인정보처리방침 | /privacy | ⬜ |
+| TC-VISITOR-011 | 정적 페이지 - 환불정책 | /refund | ⬜ |
+| TC-VISITOR-012 | 회원가입 - 이메일/비밀번호 | /auth/signup | ⬜ |
+| TC-VISITOR-013 | 회원가입 - 유효성 검사 | /auth/signup | ⬜ |
+| TC-VISITOR-014 | 회원가입 - GitHub OAuth | /auth/signup | ⬜ |
+| TC-VISITOR-015 | 회원가입 - Google OAuth | /auth/signup | ⬜ |
+| TC-VISITOR-016 | 로그인 - 이메일/비밀번호 | /auth/login | ⬜ |
+| TC-VISITOR-017 | 로그인 - 잘못된 자격증명 | /auth/login | ⬜ |
+| TC-VISITOR-018 | 로그인 - GitHub OAuth | /auth/login | ⬜ |
+| TC-VISITOR-019 | 로그인 - Google OAuth | /auth/login | ⬜ |
+| TC-VISITOR-020 | 비밀번호 찾기 | /auth/forgot-password | ⬜ |
+| TC-VISITOR-021 | 비밀번호 재설정 | /auth/reset-password | ⬜ |
+| TC-VISITOR-022 | 언어 전환 | / | ⬜ |
+
+#### 구매자 (Buyer) 여정 테스트 - 53개
+| TC ID | 테스트명 | 페이지 | 상태 |
+|-------|---------|--------|------|
+| TC-BUYER-001 | 상품 검색 - 키워드 | /marketplace | ⬜ |
+| TC-BUYER-002 | 상품 검색 - 자동완성 | /marketplace | ⬜ |
+| TC-BUYER-003~008 | 상품 필터링/정렬 | /marketplace | ⬜ |
+| TC-BUYER-009 | 상품 상세 조회 | /marketplace/[id] | ⬜ |
+| TC-BUYER-010 | 판매자 프로필 조회 | /seller/[id] | ⬜ |
+| TC-BUYER-011~015 | 위시리스트 관리 | /dashboard/wishlist | ⬜ |
+| TC-BUYER-016 | 무료 상품 다운로드 | /marketplace/[id] | ⬜ |
+| TC-BUYER-019B~H | 부트페이 결제 (7종) | /marketplace/[id] | ⬜ |
+| TC-BUYER-020~024 | 구매/다운로드 관리 | /dashboard/purchases | ⬜ |
+| TC-BUYER-025~030 | 리뷰 관리 | /marketplace/[id] | ⬜ |
+| TC-BUYER-110~112 | 환불 요청 | /dashboard/purchases | ⬜ |
+| TC-BUYER-113~117 | 번들 구매 | /api/bundles | ⬜ |
+| TC-BUYER-118~123 | 쿠폰 적용 | /api/coupons | ⬜ |
+
+#### 판매자 (Seller) 여정 테스트 - 26개
+| TC ID | 테스트명 | 페이지 | 상태 |
+|-------|---------|--------|------|
+| TC-SELLER-001~005 | 상품 등록 (5단계) | /dashboard/products/new | ⬜ |
+| TC-SELLER-006~008 | 상품 관리 | /dashboard/products | ⬜ |
+| TC-SELLER-009~011 | 판매 통계/내역 | /dashboard | ⬜ |
+| TC-SELLER-012~013 | 정산 관리 | /dashboard/settlements | ⬜ |
+| TC-SELLER-014~016 | 리뷰 관리 | /dashboard/products/[id] | ⬜ |
+| TC-SELLER-017~020 | 튜토리얼/Q&A/통계 | /dashboard | ⬜ |
+| TC-SELLER-021~023 | 번들 관리 | /api/bundles | ⬜ |
+| TC-SELLER-024~026 | 쿠폰 관리 | /api/coupons | ⬜ |
+
+#### 커뮤니티 활동자 여정 테스트 - 19개
+| TC ID | 테스트명 | 페이지 | 상태 |
+|-------|---------|--------|------|
+| TC-COMMUNITY-001~003 | 게시글 CRUD | /community | ⬜ |
+| TC-COMMUNITY-004~007 | 댓글/대댓글 | /community/[id] | ⬜ |
+| TC-COMMUNITY-008~009 | 반응 (좋아요) | /community/[id] | ⬜ |
+| TC-COMMUNITY-010~013 | 팔로우/피드 | /seller/[id] | ⬜ |
+| TC-COMMUNITY-014~019 | Q&A/튜토리얼 좋아요 | /marketplace/[id] | ⬜ |
+
+#### 관리자 (Admin) 여정 테스트 - 29개
+| TC ID | 테스트명 | 페이지 | 상태 |
+|-------|---------|--------|------|
+| TC-ADMIN-001~003 | 대시보드/통계 | /admin | ⬜ |
+| TC-ADMIN-004~007 | 사용자 관리 | /admin/users | ⬜ |
+| TC-ADMIN-008~011 | 상품 관리 | /admin/products | ⬜ |
+| TC-ADMIN-012~015 | 정산 관리 | /admin/settlements | ⬜ |
+| TC-ADMIN-016~018 | 환불 관리 | /admin/refunds | ⬜ |
+| TC-ADMIN-019~021 | 엑셀 내보내기 | /admin | ⬜ |
+| TC-ADMIN-030~032 | 부트페이 관리 | /api/admin | ⬜ |
+| TC-ADMIN-033~037 | 번들/쿠폰/이메일 | /api/admin | ⬜ |
+
+---
+
 ### 수동 테스트 체크리스트
 - [ ] 모든 역할별 테스트 케이스 실행
 - [ ] 반응형 테스트 (모바일/태블릿/데스크톱)
@@ -3519,19 +4072,19 @@ npx playwright show-report
 
 ## 📝 테스트 결과 요약
 
-| 역할 | 테스트 케이스 수 | 우선순위 |
-|------|------------------|----------|
-| 관리자 | 21 | 높음 |
-| 판매자 | 20 | 높음 |
-| 구매자 | 30 | 높음 |
-| 방문자 | 22 | 중간 |
-| 커뮤니티 | 19 | 중간 |
-| 일반 유저 | 18 | 중간 |
-| API | 32 | 높음 |
-| 에러 케이스 | 10 | 높음 |
-| 다국어 | 5 | 낮음 |
-| 반응형/접근성 | 7 | 중간 |
-| **총계** | **184** | - |
+| 역할 | 테스트 케이스 수 | 우선순위 | 비고 |
+|------|------------------|----------|------|
+| 관리자 | 29 | 높음 | 부트페이/번들/쿠폰/이메일 관리 포함 |
+| 판매자 | 26 | 높음 | 번들/쿠폰 관리 포함 |
+| 구매자 | 53 | 높음 | 부트페이 결제 7종, 환불, 번들/쿠폰 포함 |
+| 방문자 | 22 | 중간 | |
+| 커뮤니티 | 19 | 중간 | |
+| 일반 유저 | 18 | 중간 | |
+| API | 32 | 높음 | |
+| 에러 케이스 | 10 | 높음 | |
+| 다국어 | 5 | 낮음 | |
+| 반응형/접근성 | 7 | 중간 | |
+| **총계** | **221** | - | Session 58 업데이트 |
 
 ---
 
@@ -3550,7 +4103,7 @@ npx playwright show-report
 - [ ] 관리자 플로우 E2E
 
 ### Phase 3: 통합 테스트
-- [ ] 결제 통합 테스트 (Stripe)
+- [x] 결제 통합 테스트 (Bootpay - 7종 결제 수단)
 - [ ] OAuth 통합 테스트 (GitHub, Google)
 - [ ] 이메일 전송 테스트 (Resend)
 
@@ -3561,9 +4114,9 @@ npx playwright show-report
 
 ---
 
-**마지막 업데이트**: 2025-12-08  
+**마지막 업데이트**: 2025-12-09  
 **작성자**: Vibe Olympics 개발팀  
-**버전**: 2.0
+**버전**: 2.2 (Session 58 - TestSprite MCP 테스트 진행 현황 추가)
 
 ---
 
