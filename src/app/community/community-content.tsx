@@ -75,7 +75,7 @@ export function CommunityContent() {
     category: selectedCategory === "all" ? undefined : selectedCategory,
     search: debouncedSearch || undefined,
   });
-  const _createPost = useCreatePost(); // 향후 게시물 작성 기능에 사용
+  const _createPost = useCreatePost(); // 향후 게시물 작성 기능에 사용 (미사용 경고 방지)
   const toggleLike = useTogglePostLike();
 
   // 검색 디바운스

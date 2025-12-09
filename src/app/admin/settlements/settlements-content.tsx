@@ -6,8 +6,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   DollarSign,
   Calendar,
-  Download,
-  Search,
   Filter,
   ChevronLeft,
   ChevronRight,
@@ -22,7 +20,6 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
 
@@ -62,7 +59,7 @@ export function SettlementsContent() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>("");
-  const [selectedSettlement, setSelectedSettlement] = useState<string | null>(null);
+  const [_selectedSettlement, setSelectedSettlement] = useState<string | null>(null);
 
   // 정산 목록 조회
   const { data, isLoading } = useQuery({

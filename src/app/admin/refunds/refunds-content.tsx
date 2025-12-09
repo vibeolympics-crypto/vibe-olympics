@@ -5,8 +5,6 @@ import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   RotateCcw,
-  Calendar,
-  Search,
   Filter,
   ChevronLeft,
   ChevronRight,
@@ -72,8 +70,8 @@ export function RefundsContent() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>("");
-  const [selectedRefund, setSelectedRefund] = useState<RefundRequest | null>(null);
-  const [adminNotes, setAdminNotes] = useState("");
+  const [_selectedRefund, setSelectedRefund] = useState<RefundRequest | null>(null);
+  const [_adminNotes, setAdminNotes] = useState("");
 
   // 환불 요청 목록 조회
   const { data, isLoading } = useQuery({

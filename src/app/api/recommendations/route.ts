@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { TargetType } from "@prisma/client";
 
 // GET: 개인화 추천 조회
 export async function GET(request: NextRequest) {

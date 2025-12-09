@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     });
 
     // 예약 시간이 지난 미발행 튜토리얼 찾기
-    const scheduledTutorials = await prisma.tutorial.findMany({
+    const _scheduledTutorials = await prisma.tutorial.findMany({
       where: {
         isPublished: false,
         // Tutorial 모델에 scheduledAt이 없으면 스킵
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
 }
 
 // GET - 예약된 콘텐츠 목록 조회 (Admin용)
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {

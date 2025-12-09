@@ -67,7 +67,7 @@ export function AdSlot({
   showPlaceholder = process.env.NODE_ENV === "development",
 }: AdSlotProps) {
   const adRef = useRef<HTMLDivElement>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [_isLoaded, setIsLoaded] = useState(false);
   const dimensions = slotDimensions[type];
 
   // Google AdSense 스크립트 로드

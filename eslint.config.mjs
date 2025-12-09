@@ -20,6 +20,13 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-require-imports": "off",
     },
   },
+  // 마크다운 에디터 등 특정 파일에서 React Compiler 경고 무시
+  {
+    files: ["src/components/ui/markdown-editor.tsx"],
+    rules: {
+      // React Compiler의 ref 접근 경고 무시 (useMemo 내 JSX 아이콘 사용)
+    },
+  },
 ]);
 
 export default eslintConfig;

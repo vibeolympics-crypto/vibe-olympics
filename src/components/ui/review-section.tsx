@@ -754,7 +754,7 @@ export function ReviewSection({
   hasPurchased: boolean;
 }) {
   const { data: session } = useSession();
-  const [reviews, setReviews] = useState(initialReviews);
+  const [reviews, _setReviews] = useState(initialReviews);
   const [sort, setSort] = useState<SortOption>("latest");
   const [ratingFilter, setRatingFilter] = useState<number | null>(null);
   const [showImagesOnly, setShowImagesOnly] = useState(false);

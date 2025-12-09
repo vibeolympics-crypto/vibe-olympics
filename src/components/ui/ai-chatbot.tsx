@@ -4,7 +4,6 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   MessageSquare, 
-  X, 
   Send, 
   Bot, 
   User, 

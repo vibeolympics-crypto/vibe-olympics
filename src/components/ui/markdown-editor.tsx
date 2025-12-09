@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { 
   Bold, 
   Italic, 
@@ -104,7 +104,7 @@ export function MarkdownEditor({
   }, [value, onChange]);
 
   // 툴바 버튼 정의
-  const toolbarButtons: (ToolbarButton | "divider")[] = [
+  const toolbarButtons: (ToolbarButton | "divider")[] = useMemo(() => [
     {
       icon: <Heading1 className="w-4 h-4" />,
       label: "제목 1",
@@ -191,7 +191,7 @@ export function MarkdownEditor({
       label: "구분선",
       action: () => insertText("\n---\n", ""),
     },
-  ];
+  ], [insertText, insertAtLineStart]);
 
   // 키보드 단축키 처리
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {

@@ -41,7 +41,7 @@ export function SettingsContent() {
   const { data: session, update: updateSession } = useSession();
   const [activeTab, setActiveTab] = useState("profile");
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true);
+  const [_isFetching, setIsFetching] = useState(true);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   const [profile, setProfile] = useState({

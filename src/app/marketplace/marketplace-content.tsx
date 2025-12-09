@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import {
   Search,
-  Filter,
   Grid3X3,
   List,
   Briefcase,
@@ -22,8 +21,6 @@ import {
   AlertCircle,
   TrendingUp,
   X,
-  SlidersHorizontal,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

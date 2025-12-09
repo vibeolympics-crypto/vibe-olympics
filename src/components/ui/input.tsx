@@ -11,8 +11,9 @@ export interface InputProps
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, error, icon, label, helperText, id, ...props }, ref) => {
-    // Generate unique ID if not provided
-    const inputId = id || React.useId();
+    // useId는 항상 호출해야 함 (조건부 호출 금지)
+    const generatedId = React.useId();
+    const inputId = id || generatedId;
     const errorId = error ? `${inputId}-error` : undefined;
     const helperId = helperText ? `${inputId}-helper` : undefined;
     
