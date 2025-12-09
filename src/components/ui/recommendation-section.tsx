@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -101,7 +101,7 @@ export function RecommendationSection({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchRecommendations = async () => {
+  const fetchRecommendations = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -116,11 +116,11 @@ export function RecommendationSection({
     } finally {
       setLoading(false);
     }
-  };
+  }, [type, limit]);
 
   useEffect(() => {
     fetchRecommendations();
-  }, [type, limit]);
+  }, [fetchRecommendations]);
 
   const getIcon = () => {
     switch (type) {

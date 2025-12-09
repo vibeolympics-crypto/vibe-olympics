@@ -178,7 +178,7 @@ async function testSentry(): Promise<void> {
     if (isValidFormat) {
       // Try to reach the Sentry ingest endpoint
       const start = Date.now();
-      const response = await fetch(`${url.protocol}//${url.host}/api/0/`, {
+      await fetch(`${url.protocol}//${url.host}/api/0/`, {
         method: 'HEAD',
       });
       const latency = Date.now() - start;

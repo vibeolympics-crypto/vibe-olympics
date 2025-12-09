@@ -20,11 +20,22 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-require-imports": "off",
     },
   },
-  // 마크다운 에디터 등 특정 파일에서 React Compiler 경고 무시
+  // 전역 규칙 설정
   {
-    files: ["src/components/ui/markdown-editor.tsx"],
     rules: {
-      // React Compiler의 ref 접근 경고 무시 (useMemo 내 JSX 아이콘 사용)
+      // 외부 URL 이미지 및 동적 이미지에는 <img> 사용이 적합
+      // Next.js Image 컴포넌트는 외부 도메인 설정이 필요하고
+      // 동적 크기 이미지에 제한이 있음
+      "@next/next/no-img-element": "off",
+      // _ 접두사가 있는 변수는 의도적으로 미사용된 것으로 간주
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
     },
   },
 ]);

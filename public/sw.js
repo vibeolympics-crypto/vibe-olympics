@@ -86,7 +86,7 @@ self.addEventListener('push', (event) => {
         ...data,
         ...payload,
       };
-    } catch (e) {
+    } catch (_e) {
       // JSON 파싱 실패 시 텍스트로 처리
       data.body = event.data.text();
     }
@@ -152,7 +152,7 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 // 알림 닫기 이벤트
-self.addEventListener('notificationclose', (event) => {
+self.addEventListener('notificationclose', (_event) => {
   console.log('[Service Worker] Notification closed');
 });
 

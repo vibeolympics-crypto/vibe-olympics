@@ -102,7 +102,7 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
   const addToWishlist = useAddToWishlist();
   const removeFromWishlist = useRemoveFromWishlist();
   const createPurchase = useCreatePurchase();
-  const checkout = useCheckout();
+  const _checkout = useCheckout(); // 향후 Stripe 결제에 사용 예정
   
   // 구매 여부 확인
   const { data: purchaseData } = useCheckPurchase(product.id, !!session);

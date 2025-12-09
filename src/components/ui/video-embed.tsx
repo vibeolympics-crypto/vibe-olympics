@@ -45,7 +45,7 @@ export function VideoEmbed({ type, videoId, title, className }: VideoEmbedProps)
           aria-label={`${title || "영상"} 재생`}
         >
           {/* 썸네일 이미지 */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          { }
           <img
             src={thumbnailUrl}
             alt={title || "영상 썸네일"}

@@ -165,7 +165,7 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
           // 이미지
           img: ({ src, alt, ...props }) => (
             <figure className="my-6">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+              { }
               <img
                 src={src}
                 alt={alt || ""}

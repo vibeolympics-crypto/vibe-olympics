@@ -185,7 +185,7 @@ export async function requestBootpayPayment(
 }
 
 // 클라이언트에서 서버 승인 처리
-export async function confirmBootpayPayment(receiptId: string): Promise<BootpayPaymentResponse> {
+export async function confirmBootpayPayment(_receiptId: string): Promise<BootpayPaymentResponse> {
   try {
     const confirmedData = await Bootpay.confirm();
     

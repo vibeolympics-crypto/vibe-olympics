@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useMemo } from "react";
+import { useState, useRef, useCallback } from "react";
 import { 
   Bold, 
   Italic, 
@@ -20,6 +20,7 @@ import {
   Columns,
   Youtube,
   FileCode,
+  LucideIcon,
 } from "lucide-react";
 import { Button } from "./button";
 import { cn } from "@/lib/utils";
@@ -36,12 +37,107 @@ interface MarkdownEditorProps {
 
 type ViewMode = "edit" | "preview" | "split";
 
-interface ToolbarButton {
-  icon: React.ReactNode;
+// 툴바 버튼 액션 타입
+type ToolbarActionType = 
+  | { type: "insertText"; before: string; after: string; placeholder: string }
+  | { type: "insertAtLineStart"; prefix: string };
+
+interface ToolbarButtonDef {
+  Icon: LucideIcon;
   label: string;
-  action: () => void;
+  actionDef: ToolbarActionType;
   shortcut?: string;
 }
+
+// 정적 툴바 버튼 정의 (컴포넌트 외부에서 정의하여 렌더링 시 ref 접근 방지)
+const TOOLBAR_BUTTONS: (ToolbarButtonDef | "divider")[] = [
+  {
+    Icon: Heading1,
+    label: "제목 1",
+    actionDef: { type: "insertAtLineStart", prefix: "# " },
+    shortcut: "Ctrl+1",
+  },
+  {
+    Icon: Heading2,
+    label: "제목 2",
+    actionDef: { type: "insertAtLineStart", prefix: "## " },
+    shortcut: "Ctrl+2",
+  },
+  {
+    Icon: Heading3,
+    label: "제목 3",
+    actionDef: { type: "insertAtLineStart", prefix: "### " },
+    shortcut: "Ctrl+3",
+  },
+  "divider",
+  {
+    Icon: Bold,
+    label: "굵게",
+    actionDef: { type: "insertText", before: "**", after: "**", placeholder: "굵은 텍스트" },
+    shortcut: "Ctrl+B",
+  },
+  {
+    Icon: Italic,
+    label: "기울임",
+    actionDef: { type: "insertText", before: "*", after: "*", placeholder: "기울인 텍스트" },
+    shortcut: "Ctrl+I",
+  },
+  {
+    Icon: Strikethrough,
+    label: "취소선",
+    actionDef: { type: "insertText", before: "~~", after: "~~", placeholder: "취소선 텍스트" },
+  },
+  "divider",
+  {
+    Icon: List,
+    label: "목록",
+    actionDef: { type: "insertAtLineStart", prefix: "- " },
+  },
+  {
+    Icon: ListOrdered,
+    label: "순서 목록",
+    actionDef: { type: "insertAtLineStart", prefix: "1. " },
+  },
+  {
+    Icon: Quote,
+    label: "인용",
+    actionDef: { type: "insertAtLineStart", prefix: "> " },
+  },
+  "divider",
+  {
+    Icon: Code,
+    label: "인라인 코드",
+    actionDef: { type: "insertText", before: "`", after: "`", placeholder: "코드" },
+  },
+  {
+    Icon: FileCode,
+    label: "코드 블록",
+    actionDef: { type: "insertText", before: "\n```\n", after: "\n```\n", placeholder: "코드를 입력하세요" },
+  },
+  "divider",
+  {
+    Icon: Link,
+    label: "링크",
+    actionDef: { type: "insertText", before: "[", after: "](URL)", placeholder: "링크 텍스트" },
+    shortcut: "Ctrl+K",
+  },
+  {
+    Icon: Image,
+    label: "이미지",
+    actionDef: { type: "insertText", before: "![", after: "](이미지 URL)", placeholder: "이미지 설명" },
+  },
+  {
+    Icon: Youtube,
+    label: "유튜브 영상",
+    actionDef: { type: "insertText", before: "\nhttps://www.youtube.com/watch?v=", after: "", placeholder: "VIDEO_ID" },
+  },
+  "divider",
+  {
+    Icon: Minus,
+    label: "구분선",
+    actionDef: { type: "insertText", before: "\n---\n", after: "", placeholder: "" },
+  },
+];
 
 export function MarkdownEditor({
   value,
@@ -103,95 +199,14 @@ export function MarkdownEditor({
     }, 0);
   }, [value, onChange]);
 
-  // 툴바 버튼 정의
-  const toolbarButtons: (ToolbarButton | "divider")[] = useMemo(() => [
-    {
-      icon: <Heading1 className="w-4 h-4" />,
-      label: "제목 1",
-      action: () => insertAtLineStart("# "),
-      shortcut: "Ctrl+1",
-    },
-    {
-      icon: <Heading2 className="w-4 h-4" />,
-      label: "제목 2",
-      action: () => insertAtLineStart("## "),
-      shortcut: "Ctrl+2",
-    },
-    {
-      icon: <Heading3 className="w-4 h-4" />,
-      label: "제목 3",
-      action: () => insertAtLineStart("### "),
-      shortcut: "Ctrl+3",
-    },
-    "divider",
-    {
-      icon: <Bold className="w-4 h-4" />,
-      label: "굵게",
-      action: () => insertText("**", "**", "굵은 텍스트"),
-      shortcut: "Ctrl+B",
-    },
-    {
-      icon: <Italic className="w-4 h-4" />,
-      label: "기울임",
-      action: () => insertText("*", "*", "기울인 텍스트"),
-      shortcut: "Ctrl+I",
-    },
-    {
-      icon: <Strikethrough className="w-4 h-4" />,
-      label: "취소선",
-      action: () => insertText("~~", "~~", "취소선 텍스트"),
-    },
-    "divider",
-    {
-      icon: <List className="w-4 h-4" />,
-      label: "목록",
-      action: () => insertAtLineStart("- "),
-    },
-    {
-      icon: <ListOrdered className="w-4 h-4" />,
-      label: "순서 목록",
-      action: () => insertAtLineStart("1. "),
-    },
-    {
-      icon: <Quote className="w-4 h-4" />,
-      label: "인용",
-      action: () => insertAtLineStart("> "),
-    },
-    "divider",
-    {
-      icon: <Code className="w-4 h-4" />,
-      label: "인라인 코드",
-      action: () => insertText("`", "`", "코드"),
-    },
-    {
-      icon: <FileCode className="w-4 h-4" />,
-      label: "코드 블록",
-      action: () => insertText("\n```\n", "\n```\n", "코드를 입력하세요"),
-    },
-    "divider",
-    {
-      icon: <Link className="w-4 h-4" />,
-      label: "링크",
-      action: () => insertText("[", "](URL)", "링크 텍스트"),
-      shortcut: "Ctrl+K",
-    },
-    {
-      icon: <Image className="w-4 h-4" />,
-      label: "이미지",
-      action: () => insertText("![", "](이미지 URL)", "이미지 설명"),
-    },
-    {
-      icon: <Youtube className="w-4 h-4" />,
-      label: "유튜브 영상",
-      action: () => insertText("\nhttps://www.youtube.com/watch?v=", "", "VIDEO_ID"),
-    },
-    "divider",
-    {
-      icon: <Minus className="w-4 h-4" />,
-      label: "구분선",
-      action: () => insertText("\n---\n", ""),
-    },
-  ], [insertText, insertAtLineStart]);
+  // 툴바 버튼 액션 실행 핸들러
+  const handleToolbarAction = useCallback((actionDef: ToolbarActionType) => {
+    if (actionDef.type === "insertText") {
+      insertText(actionDef.before, actionDef.after, actionDef.placeholder);
+    } else {
+      insertAtLineStart(actionDef.prefix);
+    }
+  }, [insertText, insertAtLineStart]);
 
   // 키보드 단축키 처리
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -230,7 +245,7 @@ export function MarkdownEditor({
       {/* 툴바 */}
       <div className="flex items-center justify-between border-b border-[var(--bg-border)] bg-[var(--bg-elevated)] px-2 py-1">
         <div className="flex items-center gap-1 flex-wrap">
-          {toolbarButtons.map((button, index) => 
+          {TOOLBAR_BUTTONS.map((button, index) => 
             button === "divider" ? (
               <div 
                 key={`divider-${index}`} 
@@ -242,11 +257,11 @@ export function MarkdownEditor({
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={button.action}
+                onClick={() => handleToolbarAction(button.actionDef)}
                 title={button.shortcut ? `${button.label} (${button.shortcut})` : button.label}
                 className="p-1.5 h-7 w-7"
               >
-                {button.icon}
+                <button.Icon className="w-4 h-4" />
               </Button>
             )
           )}

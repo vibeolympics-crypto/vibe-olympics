@@ -244,7 +244,7 @@ function ContentCard({ content, featured }: ContentCardProps) {
         {/* Thumbnail */}
         <div className="aspect-video rounded-t-xl bg-gradient-to-br from-[var(--bg-elevated)] to-[var(--bg-surface)] flex items-center justify-center relative overflow-hidden">
           {content.thumbnail ? (
-            // eslint-disable-next-line @next/next/no-img-element
+             
             <img 
               src={content.thumbnail} 
               alt={content.title}
@@ -300,7 +300,7 @@ function ContentCard({ content, featured }: ContentCardProps) {
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--accent-cyan)] to-[var(--accent-violet)] flex items-center justify-center overflow-hidden">
                 {content.author.avatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
+                   
                   <img 
                     src={content.author.avatar} 
                     alt={content.author.name}

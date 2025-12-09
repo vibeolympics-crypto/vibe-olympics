@@ -163,7 +163,7 @@ export function AdSlot({
 
     if (customImageUrl) {
       const imageElement = (
-        // eslint-disable-next-line @next/next/no-img-element
+         
         <img
           src={customImageUrl}
           alt="광고 배너"
