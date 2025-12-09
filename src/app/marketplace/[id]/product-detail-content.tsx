@@ -33,8 +33,8 @@ import { cn, formatPrice } from "@/lib/utils";
 import { useAddToWishlist, useRemoveFromWishlist, useCreatePurchase, useCheckout, useCheckPurchase, useCheckWishlist } from "@/hooks/use-api";
 import { ReactionButtons } from "@/components/ui/reaction-buttons";
 import { QASection } from "@/components/ui/comment-section";
-import { PaymentMethodSelector, type PaymentMethod } from "@/components/ui/payment-method-selector";
-import { initiatePayment, verifyPayment } from "@/lib/portone";
+import { BootpayPaymentSelector } from "@/components/ui/bootpay-payment-selector";
+import { initiateBootpayPayment, verifyBootpayPayment, type BootpayPaymentMethod } from "@/lib/bootpay";
 
 interface Review {
   id: string;
@@ -223,47 +223,44 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
     }
   };
 
-  const handlePaymentMethodSelect = async (method: PaymentMethod) => {
+  const handlePaymentMethodSelect = async (method: BootpayPaymentMethod) => {
     setIsPurchasing(true);
     try {
-      if (method === "STRIPE") {
-        // Stripe 결제
-        toast.loading('결제 페이지로 이동 중...');
-        await checkout.mutateAsync(product.id);
-      } else {
-        // PortOne 결제 (카카오페이, 토스페이, 일반 카드)
-        const paymentId = `payment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
-        const result = await initiatePayment({
-          paymentId,
-          productId: product.id,
-          productName: product.title,
-          amount: product.price,
-          buyerName: session?.user?.name || "구매자",
-          buyerEmail: session?.user?.email || "",
-          method,
-        });
+      // 부트페이 결제
+      const paymentId = `payment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      const result = await initiateBootpayPayment({
+        paymentId,
+        productId: product.id,
+        productName: product.title,
+        amount: product.price,
+        buyerName: session?.user?.name || "구매자",
+        buyerEmail: session?.user?.email || "",
+        method,
+      });
 
-        if (result.success && result.paymentId) {
-          // 결제 검증
-          const verification = await verifyPayment(result.paymentId);
-          
-          if (verification.success) {
-            toast.success('결제가 완료되었습니다! 🎉', {
-              description: '구매 내역에서 파일을 다운로드할 수 있습니다.',
-              action: {
-                label: '다운로드하기',
-                onClick: () => router.push('/dashboard/purchases'),
-              },
-            });
-            setShowPaymentSelector(false);
-            router.refresh();
-          } else {
-            toast.error('결제 확인 실패', {
-              description: verification.error || '고객센터에 문의해주세요.',
-            });
-          }
+      if (result.success && result.receiptId) {
+        // 결제 검증
+        const verification = await verifyBootpayPayment(result.receiptId, product.id);
+        
+        if (verification.success) {
+          toast.success('결제가 완료되었습니다! 🎉', {
+            description: '구매 내역에서 파일을 다운로드할 수 있습니다.',
+            action: {
+              label: '다운로드하기',
+              onClick: () => router.push('/dashboard/purchases'),
+            },
+          });
+          setShowPaymentSelector(false);
+          router.refresh();
         } else {
+          toast.error('결제 확인 실패', {
+            description: verification.error || '고객센터에 문의해주세요.',
+          });
+        }
+      } else {
+        // 결제 취소 또는 실패
+        if (result.error !== '결제가 취소되었습니다.') {
           toast.error('결제 실패', {
             description: result.error || '다시 시도해주세요.',
           });
@@ -858,8 +855,8 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
         </div>
       </div>
 
-      {/* 결제 수단 선택 모달 */}
-      <PaymentMethodSelector
+      {/* 결제 수단 선택 모달 (부트페이) */}
+      <BootpayPaymentSelector
         isOpen={showPaymentSelector}
         onClose={() => setShowPaymentSelector(false)}
         onSelect={handlePaymentMethodSelect}

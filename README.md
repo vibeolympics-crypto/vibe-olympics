@@ -20,7 +20,7 @@ AI를 활용한 창작물(프롬프트, 템플릿, 코드 등)을 거래할 수 
 - **ORM**: Prisma
 - **Auth**: NextAuth.js
 - **Styling**: Tailwind CSS
-- **Payment**: Stripe, PortOne
+- **Payment**: Bootpay, PortOne (백업)
 - **3D**: Three.js, React Three Fiber
 
 ## 🚀 시작하기
@@ -76,7 +76,10 @@ npx vercel link
 **선택 환경변수:**
 | 변수명 | 설명 |
 |--------|------|
-| `STRIPE_SECRET_KEY` | Stripe API 키 |
+| `NEXT_PUBLIC_BOOTPAY_JS_KEY` | 부트페이 Web/App Application ID |
+| `BOOTPAY_REST_API_KEY` | 부트페이 REST API Application ID |
+| `BOOTPAY_PRIVATE_KEY` | 부트페이 Private Key |
+| `STRIPE_SECRET_KEY` | Stripe API 키 (한국 미지원) |
 | `RESEND_API_KEY` | 이메일 발송용 |
 | `NEXT_PUBLIC_SENTRY_DSN` | 에러 모니터링 |
 | `ANTHROPIC_API_KEY` | AI 챗봇 |

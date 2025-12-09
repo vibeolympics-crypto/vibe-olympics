@@ -5,6 +5,92 @@
 
 ---
 
+## 세션 55 (2025-12-09) - 부트페이 결제 시스템 구현
+
+### 작업 요약
+Stripe 한국 미지원으로 인해 부트페이(Bootpay) 결제 시스템으로 전환
+
+### 배경
+- **Stripe 한국 미지원**: Stripe는 한국 사업자 계정을 지원하지 않음
+- **대안 검토**: PortOne(기존), 부트페이, 토스페이먼츠
+- **결정**: 부트페이 선택 (다양한 PG사 연동, 국내 안정적 서비스)
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| SDK 설치 | @bootpay/client-js, @bootpay/backend-js | ✅ |
+| 클라이언트 라이브러리 | src/lib/bootpay.ts 생성 | ✅ |
+| 결제 검증 API | /api/payment/bootpay/verify | ✅ |
+| 환불 처리 API | /api/payment/bootpay/cancel | ✅ |
+| 웹훅 처리 API | /api/payment/bootpay/webhook | ✅ |
+| 결제 수단 선택 UI | BootpayPaymentSelector 컴포넌트 | ✅ |
+| 상품 페이지 연동 | product-detail-content.tsx 수정 | ✅ |
+| 문서 업데이트 | README.md, TODO.md | ✅ |
+
+### 지원 결제 수단
+- 💳 신용/체크카드
+- 🟡 카카오페이
+- 🟢 네이버페이
+- 🔵 토스페이
+- 📱 휴대폰 결제
+- 🏦 계좌이체
+- 🧾 가상계좌
+
+### 변경된 파일
+```
+# 생성
++ src/lib/bootpay.ts
++ src/components/ui/bootpay-payment-selector.tsx
++ src/app/api/payment/bootpay/verify/route.ts
++ src/app/api/payment/bootpay/cancel/route.ts
++ src/app/api/payment/bootpay/webhook/route.ts
+
+# 수정
+~ src/app/marketplace/[id]/product-detail-content.tsx
+~ README.md
+~ TODO.md
+~ package.json
+~ package-lock.json
+```
+
+### 환경변수 (추가됨)
+```
+NEXT_PUBLIC_BOOTPAY_JS_KEY=부트페이 Web Application ID
+BOOTPAY_REST_API_KEY=부트페이 REST API Application ID
+BOOTPAY_PRIVATE_KEY=부트페이 Private Key
+```
+
+### 향후 작업
+- 부트페이 샌드박스 모드로 결제 테스트
+- 토스페이먼츠 직접 연동 준비 (확장성)
+- Vercel 환경변수 설정
+
+---
+
+## 세션 54 (2025-12-09) - 코드 품질 개선
+
+### 작업 요약
+ESLint 경고 정리, Jest 테스트 환경 수정, 보안 점검
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| ESLint 경고 정리 | 64개 → 45개 (미사용 import/변수 제거) | ✅ |
+| Jest 테스트 수정 | @types/react@18 다운그레이드, 61개 통과 | ✅ |
+| 보안 점검 | 하드코딩된 API 키 없음 확인 | ✅ |
+| input.tsx 수정 | useId Hook 조건부 호출 에러 수정 | ✅ |
+
+### 변경된 파일
+```
+~ src/components/ui/input.tsx
+~ src/components/ui/markdown-editor.tsx
+~ src/components/layout/notification-center.tsx
+~ package.json (@types/react 버전)
+# 외 15+ 파일 미사용 import 제거
+```
+
+---
+
 ## 세션 53 (2025-12-09) - Cloudflare → Vercel 배포 전환
 
 ### 작업 요약

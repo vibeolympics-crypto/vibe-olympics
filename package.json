@@ -28,6 +28,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
     "@auth/prisma-adapter": "^2.11.1",
+    "@bootpay/backend-js": "^2.4.1",
+    "@bootpay/client-js": "^5.2.2",
     "@hookform/resolvers": "^5.2.2",
     "@portone/browser-sdk": "^0.1.1",
     "@prisma/client": "^5.22.0",
