@@ -24,6 +24,11 @@ const nextConfig = {
         protocol: 'http',
         hostname: 'localhost',
       },
+      // Cloudinary 이미지 CDN
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
     ],
     // 이미지 최적화 설정
     formats: ['image/avif', 'image/webp'],

@@ -5,6 +5,63 @@
 
 ---
 
+## 세션 59 (2025-12-09) - Cloudinary 파일 스토리지 연동
+
+### 작업 요약
+이미지 업로드 및 최적화를 위한 Cloudinary CDN 연동
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| Cloudinary 패키지 설치 | next-cloudinary, cloudinary | ✅ |
+| Cloudinary 라이브러리 | 업로드, 삭제, 최적화 함수 | ✅ |
+| 업로드 API | /api/upload/cloudinary 엔드포인트 | ✅ |
+| 이미지 업로드 컴포넌트 | ImageUpload, MultiImageUpload UI | ✅ |
+| Next.js 설정 | res.cloudinary.com 도메인 허용 | ✅ |
+| 다국어 지원 | upload.* 번역 키 (한/영) | ✅ |
+
+### 추가된 기능
+
+#### 1. 이미지 업로드 타입별 최적화
+- **상품 썸네일**: 800x600, WebP, fill 크롭
+- **상품 갤러리**: 1200x900, WebP, fit 크롭
+- **프로필 이미지**: 400x400, WebP, 정사각형
+- **게시글 이미지**: 1200x800, WebP, fit 크롭
+- **튜토리얼 썸네일**: 1280x720, WebP, fill 크롭
+
+#### 2. Cloudinary CDN 혜택
+- 자동 이미지 최적화 (WebP/AVIF 변환)
+- 전 세계 CDN 배포 (빠른 로딩)
+- 실시간 이미지 변환 (리사이즈, 크롭)
+- 무료 티어: 25GB 저장소, 25만 변환/월
+
+### 환경변수 (신규)
+```env
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=dy7wnz1xs
+CLOUDINARY_API_KEY=826216796734414
+CLOUDINARY_API_SECRET=DCRGIE7-Qp5ILgShGOioR4osx-c
+```
+
+### 새로운 API 엔드포인트
+```
+POST   /api/upload/cloudinary    # 이미지 업로드 (Cloudinary)
+GET    /api/upload/cloudinary    # 클라이언트 직접 업로드용 서명
+DELETE /api/upload/delete        # 이미지 삭제
+```
+
+### 생성/수정된 파일
+```
++ src/lib/cloudinary.ts                      # Cloudinary 라이브러리
++ src/app/api/upload/cloudinary/route.ts     # Cloudinary 업로드 API
++ src/app/api/upload/delete/route.ts         # 이미지 삭제 API
++ src/components/ui/image-upload.tsx         # 이미지 업로드 컴포넌트
+~ next.config.js                             # Cloudinary 도메인 추가
+~ messages/ko.json                           # upload.* 번역 추가
+~ messages/en.json                           # upload.* 번역 추가
+```
+
+---
+
 ## 세션 58 (2025-12-09) - 번들 판매 및 쿠폰/할인 시스템
 
 ### 작업 요약

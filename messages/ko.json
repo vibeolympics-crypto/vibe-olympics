@@ -354,5 +354,20 @@
     "minOrderNotMet": "최소 주문 금액을 충족하지 않습니다",
     "success": "쿠폰이 적용되었습니다",
     "noCoupons": "쿠폰이 없습니다"
+  },
+  "upload": {
+    "title": "파일 업로드",
+    "dragDrop": "드래그하거나 클릭하여 업로드",
+    "maxSize": "최대 {size}MB",
+    "uploading": "업로드 중...",
+    "success": "업로드 완료",
+    "error": "업로드 실패",
+    "delete": "삭제",
+    "preview": "미리보기",
+    "changeImage": "이미지 변경",
+    "selectFile": "파일 선택",
+    "allowedTypes": "허용 형식: {types}",
+    "fileTooLarge": "파일 크기가 너무 큽니다",
+    "invalidType": "지원하지 않는 파일 형식입니다"
   }
 }

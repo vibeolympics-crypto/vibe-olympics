@@ -354,5 +354,20 @@
     "minOrderNotMet": "Minimum order amount not met",
     "success": "Coupon applied successfully",
     "noCoupons": "No coupons available"
+  },
+  "upload": {
+    "title": "File Upload",
+    "dragDrop": "Drag and drop or click to upload",
+    "maxSize": "Max {size}MB",
+    "uploading": "Uploading...",
+    "success": "Upload complete",
+    "error": "Upload failed",
+    "delete": "Delete",
+    "preview": "Preview",
+    "changeImage": "Change image",
+    "selectFile": "Select file",
+    "allowedTypes": "Allowed formats: {types}",
+    "fileTooLarge": "File size is too large",
+    "invalidType": "Unsupported file format"
   }
 }
