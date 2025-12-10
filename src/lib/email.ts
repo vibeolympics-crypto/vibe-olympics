@@ -877,3 +877,304 @@ export async function sendRefundRejectedEmail(
   const template = refundRejectedEmail(data);
   return sendEmail({ to, subject: template.subject, html: template.html });
 }
+
+// ==========================================
+// 구독 관련 이메일 템플릿
+// ==========================================
+
+// 구독 시작 환영 이메일
+export const subscriptionWelcomeEmail = (data: {
+  userName: string;
+  planName: string;
+  price: number;
+  billingCycle: "MONTHLY" | "YEARLY";
+  features: string[];
+  nextBillingDate: string;
+}): EmailTemplate => ({
+  subject: `[${APP_NAME}] ${data.planName} 구독을 시작해 주셔서 감사합니다!`,
+  html: baseLayout(`
+    <h2>구독을 시작해 주셔서 감사합니다! 🎉</h2>
+    <p>안녕하세요, <span class="highlight">${data.userName}</span>님!</p>
+    <p><strong>${data.planName}</strong> 플랜의 구독이 시작되었습니다.</p>
+    
+    <div class="info-box">
+      <p><strong>구독 플랜:</strong> ${data.planName}</p>
+      <p><strong>결제 금액:</strong> <span class="price">₩${data.price.toLocaleString()}</span> / ${data.billingCycle === "MONTHLY" ? "월" : "년"}</p>
+      <p><strong>다음 결제일:</strong> ${data.nextBillingDate}</p>
+    </div>
+    
+    <h3 style="margin-top: 24px;">✨ 구독 혜택</h3>
+    <ul style="padding-left: 20px; margin: 16px 0;">
+      ${data.features.map((f) => `<li style="margin: 8px 0;">${f}</li>`).join("")}
+    </ul>
+    
+    <p style="margin-top: 24px;">이제 모든 프리미엄 기능을 이용하실 수 있습니다!</p>
+    
+    <p style="text-align: center; margin-top: 24px;">
+      <a href="${APP_URL}/dashboard/subscriptions" class="button">구독 관리하기</a>
+    </p>
+  `),
+});
+
+// 구독 갱신 알림 이메일 (만료 전 알림)
+export const subscriptionRenewalReminderEmail = (data: {
+  userName: string;
+  planName: string;
+  price: number;
+  renewalDate: string;
+  daysUntilRenewal: number;
+}): EmailTemplate => ({
+  subject: `[${APP_NAME}] ${data.daysUntilRenewal}일 후 구독이 갱신됩니다`,
+  html: baseLayout(`
+    <h2>구독 갱신 안내 📅</h2>
+    <p>안녕하세요, <span class="highlight">${data.userName}</span>님!</p>
+    <p><strong>${data.daysUntilRenewal}일 후</strong> 구독이 자동 갱신됩니다.</p>
+    
+    <div class="info-box">
+      <p><strong>구독 플랜:</strong> ${data.planName}</p>
+      <p><strong>결제 예정 금액:</strong> <span class="price">₩${data.price.toLocaleString()}</span></p>
+      <p><strong>갱신 예정일:</strong> ${data.renewalDate}</p>
+    </div>
+    
+    <p style="margin-top: 16px; font-size: 14px; color: #6b7280;">
+      구독을 유지하지 않으실 경우, 갱신일 전에 구독을 취소해 주세요.
+    </p>
+    
+    <p style="text-align: center; margin-top: 24px;">
+      <a href="${APP_URL}/dashboard/subscriptions" class="button">구독 관리하기</a>
+    </p>
+  `),
+});
+
+// 구독 결제 성공 이메일
+export const subscriptionPaymentSuccessEmail = (data: {
+  userName: string;
+  planName: string;
+  amount: number;
+  paymentDate: string;
+  nextBillingDate: string;
+  receiptId?: string;
+}): EmailTemplate => ({
+  subject: `[${APP_NAME}] 구독 결제가 완료되었습니다`,
+  html: baseLayout(`
+    <h2>결제가 완료되었습니다 ✅</h2>
+    <p>안녕하세요, <span class="highlight">${data.userName}</span>님!</p>
+    <p>구독 결제가 정상적으로 처리되었습니다.</p>
+    
+    <div class="info-box">
+      <p><strong>구독 플랜:</strong> ${data.planName}</p>
+      <p><strong>결제 금액:</strong> <span class="price">₩${data.amount.toLocaleString()}</span></p>
+      <p><strong>결제일:</strong> ${data.paymentDate}</p>
+      ${data.receiptId ? `<p><strong>영수증 번호:</strong> ${data.receiptId}</p>` : ""}
+      <p><strong>다음 결제일:</strong> ${data.nextBillingDate}</p>
+    </div>
+    
+    <p style="text-align: center; margin-top: 24px;">
+      <a href="${APP_URL}/dashboard/subscriptions" class="button">결제 내역 보기</a>
+    </p>
+  `),
+});
+
+// 구독 결제 실패 이메일
+export const subscriptionPaymentFailedEmail = (data: {
+  userName: string;
+  planName: string;
+  amount: number;
+  failureReason: string;
+  retryDate?: string;
+  maxRetries?: number;
+  currentRetry?: number;
+}): EmailTemplate => ({
+  subject: `[${APP_NAME}] 구독 결제에 실패했습니다 - 조치가 필요합니다`,
+  html: baseLayout(`
+    <h2 style="color: #ef4444;">결제에 실패했습니다 ⚠️</h2>
+    <p>안녕하세요, <span class="highlight">${data.userName}</span>님!</p>
+    <p>${data.planName} 구독 결제가 실패했습니다.</p>
+    
+    <div class="info-box" style="border-left: 4px solid #ef4444;">
+      <p><strong>구독 플랜:</strong> ${data.planName}</p>
+      <p><strong>결제 시도 금액:</strong> <span class="price">₩${data.amount.toLocaleString()}</span></p>
+      <p><strong>실패 사유:</strong> ${data.failureReason}</p>
+      ${data.retryDate ? `<p><strong>다음 재시도 예정:</strong> ${data.retryDate}</p>` : ""}
+      ${data.maxRetries && data.currentRetry ? `<p><strong>재시도 횟수:</strong> ${data.currentRetry}/${data.maxRetries}회</p>` : ""}
+    </div>
+    
+    <p style="margin-top: 16px;">
+      <strong>다음 조치를 확인해 주세요:</strong>
+    </p>
+    <ul style="padding-left: 20px; margin: 12px 0;">
+      <li>결제 수단의 유효기간을 확인해 주세요</li>
+      <li>계좌 잔액이 충분한지 확인해 주세요</li>
+      <li>카드 한도를 확인해 주세요</li>
+      <li>필요시 결제 수단을 변경해 주세요</li>
+    </ul>
+    
+    <p style="margin-top: 16px; padding: 12px; background-color: #fef3c7; border-radius: 8px; font-size: 14px;">
+      ⚠️ 결제 문제가 해결되지 않으면 구독이 일시 중지될 수 있습니다.
+    </p>
+    
+    <p style="text-align: center; margin-top: 24px;">
+      <a href="${APP_URL}/dashboard/subscriptions" class="button" style="background-color: #ef4444;">결제 수단 변경하기</a>
+    </p>
+  `),
+});
+
+// 구독 취소 확인 이메일
+export const subscriptionCancelledEmail = (data: {
+  userName: string;
+  planName: string;
+  cancelDate: string;
+  endDate: string;
+  reason?: string;
+}): EmailTemplate => ({
+  subject: `[${APP_NAME}] 구독이 취소되었습니다`,
+  html: baseLayout(`
+    <h2>구독 취소 확인 📋</h2>
+    <p>안녕하세요, <span class="highlight">${data.userName}</span>님!</p>
+    <p>요청하신 대로 구독이 취소되었습니다.</p>
+    
+    <div class="info-box">
+      <p><strong>구독 플랜:</strong> ${data.planName}</p>
+      <p><strong>취소일:</strong> ${data.cancelDate}</p>
+      <p><strong>서비스 종료일:</strong> ${data.endDate}</p>
+      ${data.reason ? `<p><strong>취소 사유:</strong> ${data.reason}</p>` : ""}
+    </div>
+    
+    <p style="margin-top: 16px;">
+      <strong>${data.endDate}</strong>까지는 모든 프리미엄 기능을 계속 이용하실 수 있습니다.
+    </p>
+    
+    <p style="margin-top: 16px; font-size: 14px; color: #6b7280;">
+      언제든지 다시 구독하실 수 있습니다. 더 나은 서비스로 다시 만나뵙겠습니다.
+    </p>
+    
+    <p style="text-align: center; margin-top: 24px;">
+      <a href="${APP_URL}/marketplace" class="button" style="background-color: #6b7280;">마켓플레이스 둘러보기</a>
+    </p>
+  `),
+});
+
+// 구독 만료 임박 이메일
+export const subscriptionExpiringEmail = (data: {
+  userName: string;
+  planName: string;
+  expiryDate: string;
+  daysRemaining: number;
+}): EmailTemplate => ({
+  subject: `[${APP_NAME}] 구독이 ${data.daysRemaining}일 후 만료됩니다`,
+  html: baseLayout(`
+    <h2>구독 만료 안내 ⏰</h2>
+    <p>안녕하세요, <span class="highlight">${data.userName}</span>님!</p>
+    <p>현재 이용 중인 구독이 <strong>${data.daysRemaining}일 후</strong> 만료됩니다.</p>
+    
+    <div class="info-box" style="border-left: 4px solid #f59e0b;">
+      <p><strong>구독 플랜:</strong> ${data.planName}</p>
+      <p><strong>만료 예정일:</strong> ${data.expiryDate}</p>
+    </div>
+    
+    <p style="margin-top: 16px;">
+      구독을 계속 이용하시려면 지금 바로 갱신해 주세요!
+    </p>
+    
+    <h3 style="margin-top: 20px;">😢 만료 시 제한되는 기능</h3>
+    <ul style="padding-left: 20px; margin: 12px 0;">
+      <li>프리미엄 AI 모델 접근</li>
+      <li>고급 분석 기능</li>
+      <li>우선 지원 서비스</li>
+      <li>무제한 다운로드</li>
+    </ul>
+    
+    <p style="text-align: center; margin-top: 24px;">
+      <a href="${APP_URL}/dashboard/subscriptions" class="button">지금 갱신하기</a>
+    </p>
+  `),
+});
+
+// 구독 일시중지 이메일
+export const subscriptionPausedEmail = (data: {
+  userName: string;
+  planName: string;
+  pauseDate: string;
+  pauseReason: string;
+  resumeDate?: string;
+}): EmailTemplate => ({
+  subject: `[${APP_NAME}] 구독이 일시 중지되었습니다`,
+  html: baseLayout(`
+    <h2>구독 일시 중지 안내 ⏸️</h2>
+    <p>안녕하세요, <span class="highlight">${data.userName}</span>님!</p>
+    <p>구독이 일시 중지되었습니다.</p>
+    
+    <div class="info-box" style="border-left: 4px solid #f59e0b;">
+      <p><strong>구독 플랜:</strong> ${data.planName}</p>
+      <p><strong>중지일:</strong> ${data.pauseDate}</p>
+      <p><strong>사유:</strong> ${data.pauseReason}</p>
+      ${data.resumeDate ? `<p><strong>자동 재개 예정일:</strong> ${data.resumeDate}</p>` : ""}
+    </div>
+    
+    <p style="margin-top: 16px;">
+      일시 중지 기간 동안에는 프리미엄 기능을 이용하실 수 없습니다.
+    </p>
+    
+    <p style="text-align: center; margin-top: 24px;">
+      <a href="${APP_URL}/dashboard/subscriptions" class="button">구독 재개하기</a>
+    </p>
+  `),
+});
+
+// 발송 함수들 - 구독 관련
+export async function sendSubscriptionWelcomeEmail(
+  to: string,
+  data: Parameters<typeof subscriptionWelcomeEmail>[0]
+) {
+  const template = subscriptionWelcomeEmail(data);
+  return sendEmail({ to, subject: template.subject, html: template.html });
+}
+
+export async function sendSubscriptionRenewalReminderEmail(
+  to: string,
+  data: Parameters<typeof subscriptionRenewalReminderEmail>[0]
+) {
+  const template = subscriptionRenewalReminderEmail(data);
+  return sendEmail({ to, subject: template.subject, html: template.html });
+}
+
+export async function sendSubscriptionPaymentSuccessEmail(
+  to: string,
+  data: Parameters<typeof subscriptionPaymentSuccessEmail>[0]
+) {
+  const template = subscriptionPaymentSuccessEmail(data);
+  return sendEmail({ to, subject: template.subject, html: template.html });
+}
+
+export async function sendSubscriptionPaymentFailedEmail(
+  to: string,
+  data: Parameters<typeof subscriptionPaymentFailedEmail>[0]
+) {
+  const template = subscriptionPaymentFailedEmail(data);
+  return sendEmail({ to, subject: template.subject, html: template.html });
+}
+
+export async function sendSubscriptionCancelledEmail(
+  to: string,
+  data: Parameters<typeof subscriptionCancelledEmail>[0]
+) {
+  const template = subscriptionCancelledEmail(data);
+  return sendEmail({ to, subject: template.subject, html: template.html });
+}
+
+export async function sendSubscriptionExpiringEmail(
+  to: string,
+  data: Parameters<typeof subscriptionExpiringEmail>[0]
+) {
+  const template = subscriptionExpiringEmail(data);
+  return sendEmail({ to, subject: template.subject, html: template.html });
+}
+
+export async function sendSubscriptionPausedEmail(
+  to: string,
+  data: Parameters<typeof subscriptionPausedEmail>[0]
+) {
+  const template = subscriptionPausedEmail(data);
+  return sendEmail({ to, subject: template.subject, html: template.html });
+}
+

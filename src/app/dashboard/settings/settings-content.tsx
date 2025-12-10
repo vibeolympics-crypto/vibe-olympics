@@ -578,6 +578,26 @@ function NotificationsTab() {
       description: "새로운 팔로워가 생길 때 알림을 받습니다",
     },
     {
+      key: "wishlistSale",
+      title: "위시리스트 할인 알림",
+      description: "위시리스트 상품이 할인될 때 알림을 받습니다",
+    },
+    {
+      key: "subscriptionReminder",
+      title: "구독 만료 알림",
+      description: "구독 갱신 및 만료 전 알림을 받습니다",
+    },
+    {
+      key: "paymentFailed",
+      title: "결제 실패 알림",
+      description: "결제 실패 시 알림을 받습니다",
+    },
+    {
+      key: "weeklyDigest",
+      title: "주간 요약",
+      description: "주간 판매/활동 요약 리포트를 받습니다",
+    },
+    {
       key: "marketing",
       title: "마케팅 이메일",
       description: "프로모션, 이벤트, 할인 정보를 받습니다",
@@ -619,6 +639,21 @@ function NotificationsTab() {
       key: "mentions",
       title: "멘션 알림",
       description: "누군가 나를 멘션할 때 알림을 받습니다",
+    },
+    {
+      key: "subscriptionReminder",
+      title: "구독 만료 알림",
+      description: "구독 갱신 및 만료 전 알림을 받습니다",
+    },
+    {
+      key: "paymentFailed",
+      title: "결제 실패 알림",
+      description: "결제 실패 시 즉시 알림을 받습니다",
+    },
+    {
+      key: "promotion",
+      title: "프로모션 알림",
+      description: "특가, 이벤트, 할인 정보를 받습니다",
     },
     {
       key: "marketing",

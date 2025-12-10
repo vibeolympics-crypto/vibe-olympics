@@ -3,6 +3,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { SubscriptionStatus } from "@prisma/client";
+import { 
+  triggerSubscriptionCancelledNotification 
+} from "@/lib/notification-triggers";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -140,6 +143,15 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         await prisma.subscriptionPlan.update({
           where: { id: subscription.planId },
           data: { subscriberCount: { decrement: 1 } },
+        });
+
+        // 구독 취소 알림 트리거
+        await triggerSubscriptionCancelledNotification({
+          userId: subscription.userId,
+          planName: subscription.plan.name,
+          cancelDate: new Date().toLocaleDateString("ko-KR"),
+          endDate: new Date(subscription.currentPeriodEnd).toLocaleDateString("ko-KR"),
+          reason: reason || undefined,
         });
         break;
 

@@ -1,6 +1,6 @@
 # 📋 Vibe Olympics - 예정 작업 (TODO)
 
-> 마지막 업데이트: 2025년 12월 11일 (세션 66 완료)
+> 마지막 업데이트: 2025년 12월 12일 (세션 67 완료)
 > 배포 URL: https://vibe-olympics.onrender.com
 > 워크플로우: TODO.md 검토 → 작업 수행 → CHANGELOG.md 기록 → TEST_SPECS.md 작성
 
@@ -14,14 +14,14 @@
 | 1 | CI-01 | GitHub Actions CI/CD 통과 확인 | ✅ 완료 | Jest coverage threshold 수정 |
 | 2 | DEPLOY-01 | Render 배포 상태 확인 | ✅ 정상 | https://vibe-olympics.onrender.com |
 | 3 | DEPLOY-02 | Vercel 환경변수 설정 | ⏳ 대기 | 11개 환경변수 |
-| 4 | S67-01 | 푸시 알림 구현 | 📋 예정 | Service Worker |
+| 4 | S68-01 | 실시간 알림 웹소켓 | 📋 예정 | Socket.io |
 
 ### 🟡 중간 (Medium Priority) - 기능 개선
 | 순위 | 작업 ID | 작업명 | 상태 | 비고 |
 |------|---------|--------|------|------|
-| 5 | S66-01~05 | 정기 구독 결제 시스템 | ✅ 완료 | 구독 플랜, 빌링키, 자동 갱신, 재시도 |
-| 6 | S65-01~04 | 검색/필터 UX 개선 | ✅ 완료 | 카테고리 자동완성, AI 필터, 정렬 확장 |
-| 7 | S67-02 | 이메일 알림 템플릿 | 📋 예정 | 구매/리뷰/팔로우 |
+| 5 | S67-01~05 | 알림 시스템 고도화 | ✅ 완료 | 구독 알림, 이메일 템플릿, 설정 UI |
+| 6 | S66-01~05 | 정기 구독 결제 시스템 | ✅ 완료 | 구독 플랜, 빌링키, 자동 갱신, 재시도 |
+| 7 | S65-01~04 | 검색/필터 UX 개선 | ✅ 완료 | 카테고리 자동완성, AI 필터, 정렬 확장 |
 | 8 | BACK-01 | Anthropic API 크레딧 충전 | ⏳ 대기 | AI 챗봇 활성화 |
 
 ### 🟢 낮음 (Low Priority) - 최적화/부가 기능
@@ -39,10 +39,40 @@
 
 | 구분 | 완료 | 대기 | 총계 |
 |------|------|------|------|
-| 세션 작업 | 66개 | - | 66개 |
+| 세션 작업 | 67개 | - | 67개 |
 | 테스트 케이스 | 520개 | - | 520개 |
-| API 엔드포인트 | 50+개 | - | 50+개 |
+| API 엔드포인트 | 58+개 | - | 58+개 |
 | UI 컴포넌트 | 35+개 | - | 35+개 |
+
+---
+
+## ✅ 세션 67 완료 - 알림 시스템 고도화
+
+### 세션 67 (2025-12-12): 알림 시스템 고도화
+| 작업 ID | 작업명 | 상태 | 비고 |
+|---------|--------|------|------|
+| S67-01 | 알림 설정 API 확장 | ✅ 완료 | subscriptionReminder, paymentFailed, wishlistSale 등 |
+| S67-02 | 이메일 템플릿 확장 | ✅ 완료 | 7개 구독 관련 템플릿 추가 |
+| S67-03 | 알림 설정 UI 개선 | ✅ 완료 | 구독 알림 토글 추가 |
+| S67-04 | 알림 트리거 통합 | ✅ 완료 | 구독 API에 알림 발송 연동 |
+| S67-05 | 문서화 | ✅ 완료 | TODO.md, SESSION_CONFIG.md |
+
+**새로운 이메일 템플릿 (7개)**:
+- `subscriptionWelcomeEmail` - 구독 시작 환영
+- `subscriptionRenewalReminderEmail` - 갱신 알림
+- `subscriptionPaymentSuccessEmail` - 결제 성공
+- `subscriptionPaymentFailedEmail` - 결제 실패
+- `subscriptionCancelledEmail` - 구독 취소
+- `subscriptionExpiringEmail` - 만료 임박
+- `subscriptionPausedEmail` - 일시 중지
+
+**새로운 알림 트리거 (6개)**:
+- `triggerSubscriptionWelcomeNotification`
+- `triggerSubscriptionRenewalReminderNotification`
+- `triggerSubscriptionPaymentSuccessNotification`
+- `triggerSubscriptionPaymentFailedNotification`
+- `triggerSubscriptionCancelledNotification`
+- `triggerSubscriptionExpiringNotification`
 
 ---
 

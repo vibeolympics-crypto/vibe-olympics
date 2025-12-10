@@ -7,23 +7,37 @@ import { prisma } from "@/lib/prisma";
 const DEFAULT_NOTIFICATION_SETTINGS = {
   // 이메일 알림
   email: {
-    sales: true,           // 판매 알림
-    reviews: true,         // 리뷰 알림
-    purchases: true,       // 구매 확인
-    marketing: false,      // 마케팅 알림
-    community: true,       // 커뮤니티 알림
-    followers: true,       // 팔로우 알림
-    newsletter: false,     // 뉴스레터
+    enabled: true,          // 이메일 알림 전체 활성화
+    sales: true,            // 판매 알림
+    reviews: true,          // 리뷰 알림
+    purchases: true,        // 구매 확인
+    marketing: false,       // 마케팅 알림
+    community: true,        // 커뮤니티 알림
+    followers: true,        // 팔로우 알림
+    newsletter: false,      // 뉴스레터
+    wishlistSale: true,     // 위시리스트 상품 할인
+    weeklyDigest: false,    // 주간 요약
+    subscriptionReminder: true, // 구독 만료 알림
+    paymentFailed: true,    // 결제 실패 알림
   },
   // 푸시/인앱 알림
   push: {
-    sales: true,           // 판매 알림
-    reviews: true,         // 리뷰 알림
-    purchases: true,       // 구매 확인
-    marketing: false,      // 마케팅 알림
-    community: true,       // 커뮤니티 알림
-    followers: true,       // 팔로우 알림
-    mentions: true,        // 멘션 알림
+    enabled: false,         // 푸시 알림 전체 활성화
+    sales: true,            // 판매 알림
+    reviews: true,          // 리뷰 알림
+    purchases: true,        // 구매 확인
+    marketing: false,       // 마케팅 알림
+    community: true,        // 커뮤니티 알림
+    followers: true,        // 팔로우 알림
+    mentions: true,         // 멘션 알림
+    promotion: false,       // 프로모션/이벤트
+    subscriptionReminder: true, // 구독 만료 알림
+    paymentFailed: true,    // 결제 실패 알림
+  },
+  // 인앱 알림 (항상 표시)
+  inApp: {
+    enabled: true,
+    all: true,
   },
 };
 
@@ -113,6 +127,10 @@ export async function PATCH(request: NextRequest) {
       push: {
         ...currentSettings.push,
         ...(settings.push || {}),
+      },
+      inApp: {
+        ...(currentSettings.inApp || { enabled: true, all: true }),
+        ...(settings.inApp || {}),
       },
     };
 

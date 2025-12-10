@@ -10,10 +10,17 @@ import {
   sendNewCommentEmail,
   sendProductApprovedEmail,
   sendWishlistSaleEmail,
+  sendSubscriptionWelcomeEmail,
+  sendSubscriptionRenewalReminderEmail,
+  sendSubscriptionPaymentSuccessEmail,
+  sendSubscriptionPaymentFailedEmail,
+  sendSubscriptionCancelledEmail,
+  sendSubscriptionExpiringEmail,
 } from "@/lib/email";
 
 // 기본 알림 설정값
 const DEFAULT_EMAIL_SETTINGS = {
+  enabled: true,
   sales: true,
   reviews: true,
   purchases: true,
@@ -21,9 +28,14 @@ const DEFAULT_EMAIL_SETTINGS = {
   community: true,
   followers: true,
   newsletter: false,
+  wishlistSale: true,
+  weeklyDigest: false,
+  subscriptionReminder: true,
+  paymentFailed: true,
 };
 
 const DEFAULT_PUSH_SETTINGS = {
+  enabled: false,
   sales: true,
   reviews: true,
   purchases: true,
@@ -31,6 +43,9 @@ const DEFAULT_PUSH_SETTINGS = {
   community: true,
   followers: true,
   mentions: true,
+  promotion: false,
+  subscriptionReminder: true,
+  paymentFailed: true,
 };
 
 // 사용자의 알림 설정 조회
@@ -337,6 +352,274 @@ export async function triggerWishlistSaleNotification(data: {
       });
     } catch (error) {
       console.error("Failed to send wishlist sale email:", error);
+    }
+  }
+}
+
+// ==========================================
+// 구독 관련 알림 트리거
+// ==========================================
+
+// 구독 시작 알림 트리거
+export async function triggerSubscriptionWelcomeNotification(data: {
+  userId: string;
+  planName: string;
+  price: number;
+  billingCycle: "MONTHLY" | "YEARLY";
+  features: string[];
+  nextBillingDate: string;
+}) {
+  const userSettings = await getUserNotificationSettings(data.userId);
+  if (!userSettings) return;
+
+  const { email, settings } = userSettings;
+
+  // 인앱 알림 생성
+  await createInAppNotification({
+    userId: data.userId,
+    type: "PURCHASE",
+    title: "구독이 시작되었습니다!",
+    message: `${data.planName} 플랜 구독이 시작되었습니다. 프리미엄 기능을 이용해 보세요!`,
+    data: { planName: data.planName },
+  });
+
+  // 이메일 알림 (항상 전송 - 중요 알림)
+  if (settings.email.enabled && email) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: data.userId },
+        select: { name: true },
+      });
+
+      await sendSubscriptionWelcomeEmail(email, {
+        userName: user?.name || "회원",
+        planName: data.planName,
+        price: data.price,
+        billingCycle: data.billingCycle,
+        features: data.features,
+        nextBillingDate: data.nextBillingDate,
+      });
+    } catch (error) {
+      console.error("Failed to send subscription welcome email:", error);
+    }
+  }
+}
+
+// 구독 갱신 알림 트리거
+export async function triggerSubscriptionRenewalReminderNotification(data: {
+  userId: string;
+  planName: string;
+  price: number;
+  renewalDate: string;
+  daysUntilRenewal: number;
+}) {
+  const userSettings = await getUserNotificationSettings(data.userId);
+  if (!userSettings) return;
+
+  const { email, settings } = userSettings;
+
+  // 인앱 알림 생성
+  await createInAppNotification({
+    userId: data.userId,
+    type: "SYSTEM",
+    title: "구독 갱신 예정",
+    message: `${data.daysUntilRenewal}일 후 ${data.planName} 구독이 자동 갱신됩니다.`,
+    data: { planName: data.planName, daysUntilRenewal: data.daysUntilRenewal },
+  });
+
+  // 이메일 알림
+  if (settings.email.subscriptionReminder && email) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: data.userId },
+        select: { name: true },
+      });
+
+      await sendSubscriptionRenewalReminderEmail(email, {
+        userName: user?.name || "회원",
+        planName: data.planName,
+        price: data.price,
+        renewalDate: data.renewalDate,
+        daysUntilRenewal: data.daysUntilRenewal,
+      });
+    } catch (error) {
+      console.error("Failed to send subscription renewal reminder email:", error);
+    }
+  }
+}
+
+// 구독 결제 성공 알림 트리거
+export async function triggerSubscriptionPaymentSuccessNotification(data: {
+  userId: string;
+  planName: string;
+  amount: number;
+  paymentDate: string;
+  nextBillingDate: string;
+  receiptId?: string;
+}) {
+  const userSettings = await getUserNotificationSettings(data.userId);
+  if (!userSettings) return;
+
+  const { email, settings } = userSettings;
+
+  // 인앱 알림 생성
+  await createInAppNotification({
+    userId: data.userId,
+    type: "PURCHASE",
+    title: "구독 결제 완료",
+    message: `${data.planName} 구독 결제가 완료되었습니다. (₩${data.amount.toLocaleString()})`,
+    data: { amount: data.amount, receiptId: data.receiptId },
+  });
+
+  // 이메일 알림
+  if (settings.email.purchases && email) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: data.userId },
+        select: { name: true },
+      });
+
+      await sendSubscriptionPaymentSuccessEmail(email, {
+        userName: user?.name || "회원",
+        planName: data.planName,
+        amount: data.amount,
+        paymentDate: data.paymentDate,
+        nextBillingDate: data.nextBillingDate,
+        receiptId: data.receiptId,
+      });
+    } catch (error) {
+      console.error("Failed to send subscription payment success email:", error);
+    }
+  }
+}
+
+// 구독 결제 실패 알림 트리거
+export async function triggerSubscriptionPaymentFailedNotification(data: {
+  userId: string;
+  planName: string;
+  amount: number;
+  failureReason: string;
+  retryDate?: string;
+  maxRetries?: number;
+  currentRetry?: number;
+}) {
+  const userSettings = await getUserNotificationSettings(data.userId);
+  if (!userSettings) return;
+
+  const { email, settings } = userSettings;
+
+  // 인앱 알림 생성 (항상 - 중요)
+  await createInAppNotification({
+    userId: data.userId,
+    type: "SYSTEM",
+    title: "⚠️ 결제 실패",
+    message: `${data.planName} 구독 결제에 실패했습니다. 결제 수단을 확인해 주세요.`,
+    data: { planName: data.planName, failureReason: data.failureReason },
+  });
+
+  // 이메일 알림 (설정에 관계없이 전송 - 중요)
+  if (settings.email.paymentFailed && email) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: data.userId },
+        select: { name: true },
+      });
+
+      await sendSubscriptionPaymentFailedEmail(email, {
+        userName: user?.name || "회원",
+        planName: data.planName,
+        amount: data.amount,
+        failureReason: data.failureReason,
+        retryDate: data.retryDate,
+        maxRetries: data.maxRetries,
+        currentRetry: data.currentRetry,
+      });
+    } catch (error) {
+      console.error("Failed to send subscription payment failed email:", error);
+    }
+  }
+}
+
+// 구독 취소 알림 트리거
+export async function triggerSubscriptionCancelledNotification(data: {
+  userId: string;
+  planName: string;
+  cancelDate: string;
+  endDate: string;
+  reason?: string;
+}) {
+  const userSettings = await getUserNotificationSettings(data.userId);
+  if (!userSettings) return;
+
+  const { email, settings } = userSettings;
+
+  // 인앱 알림 생성
+  await createInAppNotification({
+    userId: data.userId,
+    type: "SYSTEM",
+    title: "구독이 취소되었습니다",
+    message: `${data.planName} 구독이 취소되었습니다. ${data.endDate}까지 이용 가능합니다.`,
+    data: { planName: data.planName, endDate: data.endDate },
+  });
+
+  // 이메일 알림 (항상 전송 - 확인 용도)
+  if (settings.email.enabled && email) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: data.userId },
+        select: { name: true },
+      });
+
+      await sendSubscriptionCancelledEmail(email, {
+        userName: user?.name || "회원",
+        planName: data.planName,
+        cancelDate: data.cancelDate,
+        endDate: data.endDate,
+        reason: data.reason,
+      });
+    } catch (error) {
+      console.error("Failed to send subscription cancelled email:", error);
+    }
+  }
+}
+
+// 구독 만료 임박 알림 트리거
+export async function triggerSubscriptionExpiringNotification(data: {
+  userId: string;
+  planName: string;
+  expiryDate: string;
+  daysRemaining: number;
+}) {
+  const userSettings = await getUserNotificationSettings(data.userId);
+  if (!userSettings) return;
+
+  const { email, settings } = userSettings;
+
+  // 인앱 알림 생성
+  await createInAppNotification({
+    userId: data.userId,
+    type: "SYSTEM",
+    title: "구독 만료 임박",
+    message: `${data.planName} 구독이 ${data.daysRemaining}일 후 만료됩니다. 지금 갱신하세요!`,
+    data: { planName: data.planName, daysRemaining: data.daysRemaining },
+  });
+
+  // 이메일 알림
+  if (settings.email.subscriptionReminder && email) {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: data.userId },
+        select: { name: true },
+      });
+
+      await sendSubscriptionExpiringEmail(email, {
+        userName: user?.name || "회원",
+        planName: data.planName,
+        expiryDate: data.expiryDate,
+        daysRemaining: data.daysRemaining,
+      });
+    } catch (error) {
+      console.error("Failed to send subscription expiring email:", error);
     }
   }
 }

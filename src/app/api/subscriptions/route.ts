@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { SubscriptionStatus } from "@prisma/client";
+import { triggerSubscriptionWelcomeNotification } from "@/lib/notification-triggers";
 
 // GET: 내 구독 목록 조회
 export async function GET(request: NextRequest) {
@@ -191,6 +192,20 @@ export async function POST(request: NextRequest) {
     await prisma.subscriptionPlan.update({
       where: { id: planId },
       data: { subscriberCount: { increment: 1 } },
+    });
+
+    // 구독 환영 알림 트리거
+    const features = Array.isArray(plan.features) 
+      ? (plan.features as string[])
+      : [];
+    
+    await triggerSubscriptionWelcomeNotification({
+      userId: session.user.id,
+      planName: plan.name,
+      price: Number(plan.price),
+      billingCycle: plan.interval,
+      features,
+      nextBillingDate: nextBillingDate.toLocaleDateString("ko-KR"),
     });
 
     return NextResponse.json({

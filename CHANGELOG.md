@@ -1,11 +1,70 @@
 # 📜 Vibe Olympics - 변경 이력 (CHANGELOG)
 
-> 마지막 업데이트: 2025년 12월 11일
+> 마지막 업데이트: 2025년 12월 12일
 > 형식: 세션별 완료 작업 + 수정된 파일 목록
 
 ---
 
-## 세션 66 (2025-12-11) - 정기 구독 결제 시스템 ⭐ NEW
+## 세션 67 (2025-12-12) - 알림 시스템 고도화 ⭐ NEW
+
+### 작업 요약
+1. **알림 설정 API 확장**: 구독 관련 알림 옵션 추가
+2. **이메일 템플릿 확장**: 7개 구독 관련 템플릿 추가
+3. **알림 설정 UI 개선**: 이메일/푸시 알림 토글 옵션 추가
+4. **알림 트리거 통합**: 구독 API에 자동 알림 발송 연동
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| 알림 설정 API 확장 | subscriptionReminder, paymentFailed, wishlistSale 등 | ✅ |
+| 이메일 템플릿 7개 추가 | 구독 환영/갱신/결제성공/실패/취소/만료/일시중지 | ✅ |
+| 알림 트리거 6개 추가 | 구독 관련 이메일/인앱 알림 발송 함수 | ✅ |
+| 설정 UI 업데이트 | 이메일/푸시 토글 옵션 확장 | ✅ |
+| API 알림 연동 | 구독 생성/취소/결제 시 알림 자동 발송 | ✅ |
+
+### 수정된 파일
+```
+src/lib/email.ts                                    # 7개 이메일 템플릿 추가 (+250줄)
+src/lib/notification-triggers.ts                    # 6개 알림 트리거 추가 (+200줄)
+src/app/api/user/notification-settings/route.ts    # 알림 설정 옵션 확장
+src/app/api/subscriptions/route.ts                  # 구독 생성 알림 연동
+src/app/api/subscriptions/[id]/route.ts             # 구독 취소 알림 연동
+src/app/api/subscriptions/renew/route.ts            # 결제 성공/실패 알림 연동
+src/app/dashboard/settings/settings-content.tsx    # 알림 설정 UI 확장
+TODO.md                                             # 세션 67 완료
+SESSION_CONFIG.md                                   # 업데이트 날짜
+CHANGELOG.md                                        # 변경 이력
+```
+
+### 신규 이메일 템플릿
+| 템플릿 | 설명 |
+|--------|------|
+| `subscriptionWelcomeEmail` | 구독 시작 환영 이메일 |
+| `subscriptionRenewalReminderEmail` | 구독 갱신 알림 |
+| `subscriptionPaymentSuccessEmail` | 결제 성공 확인 |
+| `subscriptionPaymentFailedEmail` | 결제 실패 안내 (재시도 정보) |
+| `subscriptionCancelledEmail` | 구독 취소 확인 |
+| `subscriptionExpiringEmail` | 만료 임박 알림 |
+| `subscriptionPausedEmail` | 구독 일시 중지 안내 |
+
+### 신규 알림 트리거
+| 트리거 | 설명 |
+|--------|------|
+| `triggerSubscriptionWelcomeNotification` | 구독 시작 알림 |
+| `triggerSubscriptionRenewalReminderNotification` | 갱신 알림 |
+| `triggerSubscriptionPaymentSuccessNotification` | 결제 성공 알림 |
+| `triggerSubscriptionPaymentFailedNotification` | 결제 실패 알림 |
+| `triggerSubscriptionCancelledNotification` | 취소 확인 알림 |
+| `triggerSubscriptionExpiringNotification` | 만료 임박 알림 |
+
+### 알림 설정 옵션 확장
+- **이메일**: `wishlistSale`, `weeklyDigest`, `subscriptionReminder`, `paymentFailed`
+- **푸시**: `promotion`, `subscriptionReminder`, `paymentFailed`
+- **인앱**: `enabled`, `all`
+
+---
+
+## 세션 66 (2025-12-11) - 정기 구독 결제 시스템
 
 ### 작업 요약
 1. **구독 플랜 시스템**: Prisma 스키마 4개 모델 추가

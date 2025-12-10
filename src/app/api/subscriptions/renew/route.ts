@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Bootpay } from "@bootpay/backend-js";
 import { SubscriptionStatus } from "@prisma/client";
+import {
+  triggerSubscriptionPaymentSuccessNotification,
+  triggerSubscriptionPaymentFailedNotification,
+} from "@/lib/notification-triggers";
 
 // 부트페이 설정
 const BOOTPAY_APPLICATION_ID = process.env.BOOTPAY_REST_API_KEY;
@@ -169,6 +173,16 @@ export async function POST(request: NextRequest) {
             },
           });
 
+          // 결제 성공 알림 트리거
+          await triggerSubscriptionPaymentSuccessNotification({
+            userId: subscription.userId,
+            planName: subscription.plan.name,
+            amount: price,
+            paymentDate: now.toLocaleDateString("ko-KR"),
+            nextBillingDate: newPeriodEnd.toLocaleDateString("ko-KR"),
+            receiptId: paymentResult.receipt_id,
+          });
+
           results.success.push(subscription.id);
         } else {
           // 결제 실패
@@ -249,6 +263,17 @@ async function handlePaymentFailure(subscriptionId: string, errorMessage: string
         scheduledAt,
       },
     });
+
+    // 결제 실패 알림 트리거
+    await triggerSubscriptionPaymentFailedNotification({
+      userId: subscription.userId,
+      planName: subscription.plan.name,
+      amount: Number(subscription.plan.price),
+      failureReason: errorMessage,
+      retryDate: scheduledAt.toLocaleDateString("ko-KR"),
+      maxRetries: maxAttempts,
+      currentRetry: attemptNumber,
+    });
   } else {
     // 최대 재시도 횟수 초과 - 구독 만료
     await prisma.subscription.update({
@@ -263,6 +288,16 @@ async function handlePaymentFailure(subscriptionId: string, errorMessage: string
     await prisma.subscriptionPlan.update({
       where: { id: subscription.planId },
       data: { subscriberCount: { decrement: 1 } },
+    });
+
+    // 최종 결제 실패 알림 (재시도 없음)
+    await triggerSubscriptionPaymentFailedNotification({
+      userId: subscription.userId,
+      planName: subscription.plan.name,
+      amount: Number(subscription.plan.price),
+      failureReason: "최대 재시도 횟수를 초과하여 구독이 만료되었습니다.",
+      maxRetries: maxAttempts,
+      currentRetry: attemptNumber,
     });
   }
 }
