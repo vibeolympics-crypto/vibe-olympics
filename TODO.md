@@ -1,7 +1,38 @@
 # 📋 Vibe Olympics - 예정 작업 (TODO)
 
-> 마지막 업데이트: 2025년 12월 10일 (세션 63 완료)
+> 마지막 업데이트: 2025년 12월 10일 (세션 64 완료)
 > 워크플로우: TODO.md 검토 → 작업 수행 → CHANGELOG.md 기록 → TEST_SPECS.md 작성
+
+---
+
+## ✅ 세션 64 완료 - 판매 분석 대시보드 & 컬렉션/번들/아티스트/미리보기 시스템
+
+### 세션 64 (2025-12-10): 확장된 마켓플레이스 기능
+| 작업 ID | 작업명 | 상태 | 비고 |
+|---------|--------|------|------|
+| S64-01 | ProductType별 분석 차트 | ✅ 완료 | 파이, 트렌드, 막대, 레이더 차트 |
+| S64-02 | 기간별 비교 분석 | ✅ 완료 | 현재/이전 기간 비교, 성장률 계산 |
+| S64-03 | Analytics API 확장 | ✅ 완료 | productTypeAnalytics 데이터 추가 |
+| S64-04 | 컬렉션 Prisma 스키마 | ✅ 완료 | Collection, CollectionItem 모델 |
+| S64-05 | 컬렉션 API | ✅ 완료 | CRUD + Prisma 전체 구현 |
+| S64-06 | 컬렉션 관리 페이지 | ✅ 완료 | 대시보드 UI 컴포넌트 |
+| S64-07 | 번들 구매 API | ✅ 완료 | /api/collections/purchase - 번들 할인 적용 |
+| S64-08 | 컬렉션 UI 컴포넌트 | ✅ 완료 | CollectionCard, BundlePriceDisplay, CollectionGrid |
+| S64-09 | 아티스트 프로필 확장 | ✅ 완료 | User 모델 확장 (artistBio, socialLinks 등) |
+| S64-10 | 아티스트 API | ✅ 완료 | /api/artists - 프로필 조회, 목록, 통계 |
+| S64-11 | 아티스트 페이지 | ✅ 완료 | /artists, /artists/[slug] 페이지 |
+| S64-12 | 미리보기 API | ✅ 완료 | /api/preview - 상품별 미리보기 콘텐츠 |
+| S64-13 | 미리보기 컴포넌트 | ✅ 완료 | BookPreview, VideoPreview, MusicPreview |
+| S64-14 | UI 컴포넌트 확장 | ✅ 완료 | Tabs, Avatar, Select, Dialog, Slider 등 8개 |
+
+**최종 결과**: 
+- ProductType별 분석 차트 (디지털/도서/영상/음악)
+- 분석 대시보드 확장 (8개 차트 탭)
+- 컬렉션 시스템 완성 (번들, 시리즈, 플레이리스트, 큐레이션)
+- 번들 할인 구매 시스템 (할인율 적용, 다중 상품 구매)
+- 아티스트 프로필 시스템 (공개 프로필, 작품 목록, 통계)
+- 상품 미리보기 시스템 (도서/영상/음악/디지털 상품별 미리보기)
+- UI 컴포넌트 8개 추가 (tabs, avatar, separator, select, checkbox, scroll-area, dialog, slider)
 
 ---
 

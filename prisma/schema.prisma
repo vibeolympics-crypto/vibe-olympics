@@ -93,6 +93,20 @@ model User {
   github        String?
   twitter       String?
   
+  // 아티스트/작가 프로필 확장
+  displayName   String?           // 표시 이름 (예명/필명)
+  slug          String?   @unique // 프로필 URL slug
+  coverImage    String?           // 프로필 커버 이미지
+  artistType    String?           // 아티스트 타입 (작가, 뮤지션, 크리에이터 등)
+  specialties   String[]          // 전문 분야
+  location      String?           // 위치/지역
+  instagram     String?           // 인스타그램
+  youtube       String?           // 유튜브
+  linkedin      String?           // 링크드인
+  soundcloud    String?           // 사운드클라우드 (음악)
+  behance       String?           // 비핸스 (디자인)
+  isVerifiedArtist Boolean @default(false) // 인증된 아티스트
+  
   // 판매자 정보
   isSeller      Boolean   @default(false)
   sellerVerified Boolean  @default(false)
@@ -307,6 +321,7 @@ model Product {
   reviews         Review[]
   wishlists       Wishlist[]
   tutorials       ProductTutorial[]  // 연결된 튜토리얼
+  collectionItems CollectionItem[]   // 컬렉션 아이템
   
   // 미디어별 메타데이터 (1:1 관계)
   bookMeta        BookMeta?
@@ -530,6 +545,7 @@ model CollectionItem {
   
   // 상품
   productId     String
+  product       Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
   
   // 순서 (시리즈의 경우 순서 중요)
   order         Int       @default(0)
@@ -569,6 +585,10 @@ model Purchase {
   paymentMethod String?
   paymentId     String?  // 외부 결제 시스템 ID
   
+  // 번들 구매 관련
+  bundleId      String?  // 번들로 구매한 경우 컬렉션 ID
+  bundleDiscount Decimal? @db.Decimal(10, 2)  // 번들 할인 금액
+  
   // 상태
   status        PurchaseStatus @default(PENDING)
   
@@ -592,6 +612,7 @@ model Purchase {
   @@index([productId])
   @@index([status])
   @@index([isSettled])
+  @@index([bundleId])
 }
 
 // ==========================================

@@ -5,7 +5,111 @@
 
 ---
 
-## 세션 63 (2025-12-10) - AI 콘텐츠 등록 시스템 & SEO 자동 최적화 ⭐ NEW
+## 세션 64 (2025-12-10) - 확장된 마켓플레이스 기능 ⭐ NEW
+
+### 작업 요약
+1. **ProductType별 분석 차트**: 8종 차트 컴포넌트 (파이, 막대, 트렌드, 레이더, 트리맵, 통계카드)
+2. **분석 대시보드 확장**: ProductType 필터, 4개 신규 차트 탭, 타입별 통계 카드
+3. **Analytics API 확장**: productTypeAnalytics 데이터, 기간 비교 분석
+4. **컬렉션 시스템**: Prisma 스키마, API, 관리 페이지 UI 완성
+5. **번들 할인 시스템**: 번들 구매 API, 할인 적용 로직
+6. **아티스트 프로필**: User 모델 확장, API, 공개 페이지
+7. **미리보기 시스템**: 상품별 미리보기 API 및 UI 컴포넌트
+8. **UI 컴포넌트**: 8개 신규 컴포넌트 추가
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| ProductTypeRevenuePieChart | 타입별 매출 비율 파이 차트 | ✅ |
+| ProductTypeBarChart | 타입별 매출/판매/조회 막대 차트 | ✅ |
+| ProductTypeTrendChart | 일별 타입별 매출 추이 차트 | ✅ |
+| ProductTypeRadarChart | 타입별 성과 레이더 차트 | ✅ |
+| ProductTypeTreemapChart | 타입별 매출 트리맵 차트 | ✅ |
+| ProductTypeStatCard | 타입별 요약 통계 카드 | ✅ |
+| Analytics API 확장 | productType 필터, productTypeAnalytics 추가 | ✅ |
+| 분석 대시보드 UI 확장 | ProductType 필터, 신규 차트 탭 | ✅ |
+| Collection Prisma 스키마 | Collection, CollectionItem 모델 | ✅ |
+| CollectionType enum | SERIES, BUNDLE, PLAYLIST, CURATED | ✅ |
+| Collections API | GET/POST/PUT/DELETE + Prisma 구현 | ✅ |
+| 컬렉션 관리 페이지 | 대시보드 컬렉션 UI | ✅ |
+| 번들 구매 API | /api/collections/purchase | ✅ |
+| 컬렉션 UI 컴포넌트 | CollectionCard, BundlePriceDisplay | ✅ |
+| User 모델 확장 | artistBio, socialLinks, slug 등 | ✅ |
+| Artists API | 프로필 조회, 목록, 통계 | ✅ |
+| Artists 페이지 | /artists, /artists/[slug] | ✅ |
+| Preview API | 상품별 미리보기 콘텐츠 | ✅ |
+| Preview 컴포넌트 | BookPreview, VideoPreview, MusicPreview | ✅ |
+| UI 컴포넌트 8개 | tabs, avatar, separator, select, checkbox, scroll-area, dialog, slider | ✅ |
+
+### 아티스트 프로필 필드 (User 모델 확장)
+```prisma
+model User {
+  // 아티스트 프로필 필드
+  slug             String?   @unique
+  artistType       String?   // WRITER, MUSICIAN, FILMMAKER, DESIGNER, DEVELOPER
+  artistBio        String?   @db.Text
+  artistLocation   String?
+  artistLanguages  String[]
+  portfolioUrl     String?
+  socialLinks      Json?     // { twitter, instagram, youtube, ... }
+  isVerifiedArtist Boolean   @default(false)
+  verifiedAt       DateTime?
+  featuredWorkId   String?
+  featuredWorkType String?
+}
+```
+
+### 번들/컬렉션 구조
+```prisma
+model Collection {
+  type          CollectionType  // SERIES, BUNDLE, PLAYLIST, CURATED
+  bundlePrice   Decimal?        // 번들 가격
+  discountRate  Int?            // 할인율 (%)
+  items         CollectionItem[]
+}
+
+model Purchase {
+  bundleId              String?
+  bundleDiscountApplied Boolean  @default(false)
+  originalPrice         Decimal?
+  discountAmount        Decimal?
+}
+```
+
+### 수정된 파일
+```
+신규 파일 (16개):
+- src/components/ui/product-type-charts.tsx (ProductType 분석 차트 8종)
+- src/components/ui/tabs.tsx (Tabs 컴포넌트)
+- src/components/ui/avatar.tsx (Avatar 컴포넌트)
+- src/components/ui/separator.tsx (Separator 컴포넌트)
+- src/components/ui/select.tsx (Select 컴포넌트)
+- src/components/ui/checkbox.tsx (Checkbox 컴포넌트)
+- src/components/ui/scroll-area.tsx (ScrollArea 컴포넌트)
+- src/components/ui/dialog.tsx (Dialog 컴포넌트)
+- src/components/ui/slider.tsx (Slider 컴포넌트)
+- src/components/marketplace/collection-components.tsx (컬렉션 UI)
+- src/components/marketplace/preview-components.tsx (미리보기 UI)
+- src/app/api/collections/route.ts (컬렉션 API)
+- src/app/api/collections/purchase/route.ts (번들 구매 API)
+- src/app/api/artists/route.ts (아티스트 API)
+- src/app/api/preview/route.ts (미리보기 API)
+- src/app/artists/page.tsx (아티스트 목록)
+- src/app/artists/[slug]/page.tsx (아티스트 프로필)
+
+수정된 파일 (4개):
+- src/app/api/analytics/route.ts (productTypeAnalytics 추가)
+- src/app/dashboard/analytics/analytics-content.tsx (UI 확장)
+- src/components/ui/index.ts (신규 컴포넌트 내보내기)
+- prisma/schema.prisma (Collection, User 확장)
+```
+
+### Git 커밋
+- `845f9c7` feat: Session 64 - 판매 분석 대시보드 및 컬렉션 기능 구현
+
+---
+
+## 세션 63 (2025-12-10) - AI 콘텐츠 등록 시스템 & SEO 자동 최적화
 
 ### 작업 요약
 1. **상품 등록 폼 확장**: ProductType 선택 (디지털/도서/영상/음악) + 동적 폼 전환

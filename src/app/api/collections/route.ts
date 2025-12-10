@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { generateSlug } from "@/lib/seo-utils";
 
@@ -36,35 +37,173 @@ const COLLECTION_TYPE_LABELS: Record<string, string> = {
   CURATED: "큐레이션",
 };
 
-// NOTE: Prisma 스키마에 Collection 모델이 추가되었으나,
-// prisma generate 실행 후 이 파일의 전체 기능이 활성화됩니다.
-// 현재는 Prisma 클라이언트 재생성 전이므로 임시 응답을 반환합니다.
-
 // GET: 컬렉션 목록 조회
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get("slug");
-    
-    // 임시: Prisma generate 전에는 빈 응답
-    // TODO: prisma generate 후 실제 구현 활성화
-    
+    const type = searchParams.get("type");
+    const productType = searchParams.get("productType");
+    const sellerId = searchParams.get("sellerId");
+    const isPublished = searchParams.get("isPublished");
+    const isFeatured = searchParams.get("isFeatured");
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "20");
+    const sortBy = searchParams.get("sortBy") || "createdAt";
+    const sortOrder = searchParams.get("sortOrder") || "desc";
+
+    // 단일 컬렉션 조회 (slug)
     if (slug) {
-      return NextResponse.json(
-        { error: "컬렉션을 찾을 수 없습니다" },
-        { status: 404 }
+      const collection = await prisma.collection.findUnique({
+        where: { slug },
+        include: {
+          seller: {
+            select: { id: true, name: true, image: true },
+          },
+          items: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  title: true,
+                  price: true,
+                  thumbnail: true,
+                  productType: true,
+                  averageRating: true,
+                },
+              },
+            },
+            orderBy: { order: "asc" },
+          },
+        },
+      });
+
+      if (!collection) {
+        return NextResponse.json(
+          { error: "컬렉션을 찾을 수 없습니다" },
+          { status: 404 }
+        );
+      }
+
+      // 조회수 증가
+      await prisma.collection.update({
+        where: { id: collection.id },
+        data: { viewCount: { increment: 1 } },
+      });
+
+      // 번들 할인 가격 계산
+      const originalTotal = collection.items.reduce(
+        (sum, item) => sum + Number(item.product.price || 0),
+        0
       );
+      const bundlePriceNum = collection.bundlePrice ? Number(collection.bundlePrice) : null;
+      const bundleDiscount = bundlePriceNum
+        ? originalTotal - bundlePriceNum
+        : collection.discountRate
+        ? originalTotal * (collection.discountRate / 100)
+        : 0;
+      const finalPrice = bundlePriceNum || originalTotal - bundleDiscount;
+
+      return NextResponse.json({
+        ...collection,
+        originalTotal,
+        bundleDiscount,
+        finalPrice,
+        savings: bundleDiscount > 0 ? Math.round((bundleDiscount / originalTotal) * 100) : 0,
+      });
     }
 
+    // 필터 조건 구성
+    const where: Record<string, unknown> = {};
+    if (type) where.type = type;
+    if (productType) where.productType = productType;
+    if (sellerId) where.sellerId = sellerId;
+    if (isPublished === "true") where.isPublished = true;
+    if (isPublished === "false") where.isPublished = false;
+    if (isFeatured === "true") where.isFeatured = true;
+
+    // 정렬 조건
+    const orderBy: Record<string, string> = {};
+    if (sortBy === "salesCount") orderBy.salesCount = sortOrder;
+    else if (sortBy === "viewCount") orderBy.viewCount = sortOrder;
+    else if (sortBy === "title") orderBy.title = sortOrder;
+    else orderBy.createdAt = sortOrder;
+
+    // 컬렉션 목록 조회
+    const [collections, total] = await Promise.all([
+      prisma.collection.findMany({
+        where,
+        include: {
+          seller: {
+            select: { id: true, name: true, image: true },
+          },
+          items: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  title: true,
+                  price: true,
+                  thumbnail: true,
+                  productType: true,
+                },
+              },
+            },
+            orderBy: { order: "asc" },
+            take: 4, // 미리보기용 최대 4개
+          },
+          _count: {
+            select: { items: true },
+          },
+        },
+        orderBy,
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.collection.count({ where }),
+    ]);
+
+    // 각 컬렉션의 번들 가격 정보 추가
+    const collectionsWithPricing = await Promise.all(
+      collections.map(async (collection) => {
+        // 전체 아이템의 가격 합계 조회
+        const allItems = await prisma.collectionItem.findMany({
+          where: { collectionId: collection.id },
+          include: {
+            product: { select: { price: true } },
+          },
+        });
+
+        const originalTotal = allItems.reduce(
+          (sum, item) => sum + Number(item.product.price || 0),
+          0
+        );
+        const bundlePriceNum = collection.bundlePrice ? Number(collection.bundlePrice) : null;
+        const finalPrice = bundlePriceNum || 
+          (collection.discountRate 
+            ? originalTotal * (1 - collection.discountRate / 100)
+            : originalTotal);
+
+        return {
+          ...collection,
+          itemCount: collection._count.items,
+          originalTotal,
+          finalPrice: Math.round(finalPrice),
+          savings: originalTotal > 0 
+            ? Math.round(((originalTotal - finalPrice) / originalTotal) * 100)
+            : 0,
+        };
+      })
+    );
+
     return NextResponse.json({
-      collections: [],
+      collections: collectionsWithPricing,
       pagination: {
-        page: 1,
-        limit: 20,
-        total: 0,
-        totalPages: 0,
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
       },
-      message: "Prisma generate 실행 후 컬렉션 기능이 활성화됩니다.",
     });
   } catch (error) {
     console.error("Collections GET error:", error);
@@ -96,22 +235,54 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const data = validationResult.data;
+    const { items, ...data } = validationResult.data;
     
-    // 임시: slug 생성 테스트
-    const slug = generateSlug(data.title);
+    // 고유 slug 생성
+    let slug = generateSlug(data.title);
+    const existingSlug = await prisma.collection.findUnique({ where: { slug } });
+    if (existingSlug) {
+      slug = `${slug}-${Date.now().toString(36)}`;
+    }
 
-    // TODO: prisma generate 후 실제 DB 저장 구현
-    return NextResponse.json({
-      id: "temp-" + Date.now(),
-      ...data,
-      slug,
-      sellerId: session.user.id,
-      viewCount: 0,
-      salesCount: 0,
-      createdAt: new Date().toISOString(),
-      message: "Prisma generate 실행 후 실제 저장됩니다.",
-    }, { status: 201 });
+    // 컬렉션 생성
+    const collection = await prisma.collection.create({
+      data: {
+        ...data,
+        slug,
+        sellerId: session.user.id,
+        thumbnail: data.thumbnail || null,
+        metaKeywords: data.metaKeywords || [],
+        items: items ? {
+          create: items.map((item, index) => ({
+            productId: item.productId,
+            order: item.order ?? index,
+            itemDiscountRate: item.itemDiscountRate,
+            isRequired: item.isRequired ?? true,
+          })),
+        } : undefined,
+      },
+      include: {
+        seller: {
+          select: { id: true, name: true, image: true },
+        },
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                title: true,
+                price: true,
+                thumbnail: true,
+                productType: true,
+              },
+            },
+          },
+          orderBy: { order: "asc" },
+        },
+      },
+    });
+
+    return NextResponse.json(collection, { status: 201 });
   } catch (error) {
     console.error("Collections POST error:", error);
     return NextResponse.json(
@@ -133,12 +304,32 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, ...updateData } = body;
+    const { id, items, ...updateData } = body;
 
     if (!id) {
       return NextResponse.json(
         { error: "컬렉션 ID가 필요합니다" },
         { status: 400 }
+      );
+    }
+
+    // 기존 컬렉션 확인
+    const existing = await prisma.collection.findUnique({
+      where: { id },
+      select: { sellerId: true },
+    });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "컬렉션을 찾을 수 없습니다" },
+        { status: 404 }
+      );
+    }
+
+    if (existing.sellerId !== session.user.id) {
+      return NextResponse.json(
+        { error: "수정 권한이 없습니다" },
+        { status: 403 }
       );
     }
 
@@ -151,13 +342,51 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // TODO: prisma generate 후 실제 DB 업데이트 구현
-    return NextResponse.json({
-      id,
-      ...validationResult.data,
-      updatedAt: new Date().toISOString(),
-      message: "Prisma generate 실행 후 실제 업데이트됩니다.",
+    // 아이템 업데이트가 있으면 기존 아이템 삭제 후 재생성
+    if (items) {
+      await prisma.collectionItem.deleteMany({
+        where: { collectionId: id },
+      });
+    }
+
+    // 컬렉션 업데이트
+    const collection = await prisma.collection.update({
+      where: { id },
+      data: {
+        ...validationResult.data,
+        thumbnail: validationResult.data.thumbnail || null,
+        metaKeywords: validationResult.data.metaKeywords || undefined,
+        items: items ? {
+          create: items.map((item: { productId: string; order?: number; itemDiscountRate?: number; isRequired?: boolean }, index: number) => ({
+            productId: item.productId,
+            order: item.order ?? index,
+            itemDiscountRate: item.itemDiscountRate,
+            isRequired: item.isRequired ?? true,
+          })),
+        } : undefined,
+      },
+      include: {
+        seller: {
+          select: { id: true, name: true, image: true },
+        },
+        items: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                title: true,
+                price: true,
+                thumbnail: true,
+                productType: true,
+              },
+            },
+          },
+          orderBy: { order: "asc" },
+        },
+      },
     });
+
+    return NextResponse.json(collection);
   } catch (error) {
     console.error("Collections PATCH error:", error);
     return NextResponse.json(
@@ -188,11 +417,37 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // TODO: prisma generate 후 실제 DB 삭제 구현
-    return NextResponse.json({ 
-      success: true,
-      message: "Prisma generate 실행 후 실제 삭제됩니다.",
+    // 기존 컬렉션 확인
+    const existing = await prisma.collection.findUnique({
+      where: { id },
+      select: { sellerId: true },
     });
+
+    if (!existing) {
+      return NextResponse.json(
+        { error: "컬렉션을 찾을 수 없습니다" },
+        { status: 404 }
+      );
+    }
+
+    if (existing.sellerId !== session.user.id) {
+      return NextResponse.json(
+        { error: "삭제 권한이 없습니다" },
+        { status: 403 }
+      );
+    }
+
+    // 컬렉션 아이템 먼저 삭제
+    await prisma.collectionItem.deleteMany({
+      where: { collectionId: id },
+    });
+
+    // 컬렉션 삭제
+    await prisma.collection.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Collections DELETE error:", error);
     return NextResponse.json(
