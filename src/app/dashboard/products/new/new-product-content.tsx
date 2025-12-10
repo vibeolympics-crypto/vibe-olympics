@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -25,6 +25,12 @@ import {
   Plus,
   Check,
   ExternalLink,
+  Book,
+  Film,
+  Music,
+  Code,
+  Search,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,20 +39,91 @@ import { Badge } from "@/components/ui/badge";
 import { FileUpload } from "@/components/ui/file-upload";
 import { MarkdownEditor } from "@/components/ui/markdown-editor";
 import { cn } from "@/lib/utils";
+import { generateSeoData, generateSlug } from "@/lib/seo-utils";
+import { ProductType } from "@/types";
+import {
+  BookMetaForm,
+  BookMetaFormData,
+  VideoSeriesMetaForm,
+  VideoSeriesMetaFormData,
+  MusicAlbumMetaForm,
+  MusicAlbumMetaFormData,
+  AiGeneratedForm,
+  AiGeneratedFormData,
+} from "@/components/marketplace/product-meta-forms";
 
-// 카테고리 목록
-const categories = [
-  { id: "web-app", name: "웹 애플리케이션", icon: "🌐" },
-  { id: "mobile-app", name: "모바일 앱", icon: "📱" },
-  { id: "automation", name: "업무 자동화", icon: "⚡" },
-  { id: "data", name: "데이터 분석", icon: "📊" },
-  { id: "ai-ml", name: "AI/ML", icon: "🤖" },
-  { id: "design", name: "디자인", icon: "🎨" },
-  { id: "devtool", name: "개발 도구", icon: "🛠️" },
-  { id: "business", name: "비즈니스", icon: "💼" },
-  { id: "education", name: "교육", icon: "📚" },
-  { id: "other", name: "기타", icon: "📦" },
+// 상품 타입 옵션
+const productTypeOptions: { id: ProductType; name: string; icon: React.ReactNode; description: string }[] = [
+  { 
+    id: "DIGITAL_PRODUCT", 
+    name: "디지털 상품", 
+    icon: <Code className="w-6 h-6" />,
+    description: "소스코드, 템플릿, 플러그인 등"
+  },
+  { 
+    id: "BOOK", 
+    name: "도서/전자책", 
+    icon: <Book className="w-6 h-6" />,
+    description: "전자책, 만화, 오디오북 등"
+  },
+  { 
+    id: "VIDEO_SERIES", 
+    name: "영상 시리즈", 
+    icon: <Film className="w-6 h-6" />,
+    description: "영화, 애니메이션, 다큐 등"
+  },
+  { 
+    id: "MUSIC_ALBUM", 
+    name: "음악 앨범", 
+    icon: <Music className="w-6 h-6" />,
+    description: "음원, 앨범, BGM 등"
+  },
 ];
+
+// 상품 타입별 카테고리 (실제로는 API에서 불러옴)
+const categoriesByType: Record<ProductType, { id: string; name: string; icon: string }[]> = {
+  DIGITAL_PRODUCT: [
+    { id: "web-app", name: "웹 애플리케이션", icon: "🌐" },
+    { id: "mobile-app", name: "모바일 앱", icon: "📱" },
+    { id: "automation", name: "업무 자동화", icon: "⚡" },
+    { id: "data", name: "데이터 분석", icon: "📊" },
+    { id: "ai-ml", name: "AI/ML", icon: "🤖" },
+    { id: "design", name: "디자인", icon: "🎨" },
+    { id: "devtool", name: "개발 도구", icon: "🛠️" },
+    { id: "business", name: "비즈니스", icon: "💼" },
+    { id: "education", name: "교육", icon: "📚" },
+    { id: "other", name: "기타", icon: "📦" },
+  ],
+  BOOK: [
+    { id: "book-fiction", name: "소설/문학", icon: "📖" },
+    { id: "book-nonfiction", name: "비소설/교양", icon: "📚" },
+    { id: "book-tech", name: "기술/IT", icon: "💻" },
+    { id: "book-comic", name: "만화/웹툰", icon: "🎨" },
+    { id: "book-children", name: "아동/청소년", icon: "🧒" },
+    { id: "book-audio", name: "오디오북", icon: "🎧" },
+  ],
+  VIDEO_SERIES: [
+    { id: "video-movie", name: "영화", icon: "🎬" },
+    { id: "video-animation", name: "애니메이션", icon: "🎨" },
+    { id: "video-documentary", name: "다큐멘터리", icon: "📹" },
+    { id: "video-short", name: "단편영상", icon: "🎥" },
+    { id: "video-series", name: "시리즈물", icon: "📺" },
+    { id: "video-educational", name: "교육 영상", icon: "🎓" },
+  ],
+  MUSIC_ALBUM: [
+    { id: "music-pop", name: "팝/K-Pop", icon: "🎤" },
+    { id: "music-electronic", name: "일렉트로닉", icon: "🎹" },
+    { id: "music-ambient", name: "앰비언트/힐링", icon: "🌿" },
+    { id: "music-classical", name: "클래식/재즈", icon: "🎻" },
+    { id: "music-hiphop", name: "힙합/R&B", icon: "🎧" },
+    { id: "music-bgm", name: "BGM/효과음", icon: "🔊" },
+    { id: "music-soundtrack", name: "사운드트랙", icon: "🎼" },
+    { id: "music-world", name: "월드뮤직", icon: "🌍" },
+  ],
+};
+
+// 기본 카테고리 목록 (하위 호환성)
+const categories = categoriesByType.DIGITAL_PRODUCT;
 
 // 라이선스 옵션
 const licenseOptions = [
@@ -95,6 +172,7 @@ interface SelectedTutorial {
 
 // Form validation schema
 const productSchema = z.object({
+  productType: z.enum(["DIGITAL_PRODUCT", "BOOK", "VIDEO_SERIES", "MUSIC_ALBUM"]),
   title: z
     .string()
     .min(5, "제목은 최소 5자 이상이어야 합니다")
@@ -132,6 +210,39 @@ export function NewProductContent() {
   const [myTutorials, setMyTutorials] = useState<Tutorial[]>([]);
   const [selectedTutorials, setSelectedTutorials] = useState<SelectedTutorial[]>([]);
   const [isLoadingTutorials, setIsLoadingTutorials] = useState(false);
+  
+  // 메타데이터 상태 (상품 타입별)
+  const [bookMeta, setBookMeta] = useState<Partial<BookMetaFormData>>({
+    language: "ko",
+    format: [],
+  });
+  const [videoMeta, setVideoMeta] = useState<Partial<VideoSeriesMetaFormData>>({
+    genre: [],
+    subtitles: [],
+    cast: [],
+    resolution: "FHD",
+    audioFormat: "STEREO",
+  });
+  const [musicMeta, setMusicMeta] = useState<Partial<MusicAlbumMetaFormData>>({
+    genre: "OTHER",
+    format: [],
+    mood: [],
+    albumType: "FULL",
+  });
+  
+  // AI 생성 정보 상태
+  const [aiGeneratedData, setAiGeneratedData] = useState<Partial<AiGeneratedFormData>>({
+    isAiGenerated: false,
+    aiTool: "",
+    aiPrompt: "",
+  });
+  
+  // SEO 미리보기 상태
+  const [seoPreview, setSeoPreview] = useState<{
+    slug: string;
+    metaDescription: string;
+    keywords: string[];
+  } | null>(null);
 
   const {
     register,
@@ -142,6 +253,7 @@ export function NewProductContent() {
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
+      productType: "DIGITAL_PRODUCT",
       title: "",
       description: "",
       shortDescription: "",
@@ -157,6 +269,39 @@ export function NewProductContent() {
   const isFree = watch("isFree");
   const tags = watch("tags");
   const selectedCategory = watch("category");
+  const selectedProductType = watch("productType");
+  
+  // 상품 타입에 따른 카테고리 목록
+  const currentCategories = useMemo(() => {
+    return categoriesByType[selectedProductType] || categoriesByType.DIGITAL_PRODUCT;
+  }, [selectedProductType]);
+  
+  // 상품 타입 변경 시 카테고리 초기화
+  useEffect(() => {
+    setValue("category", "");
+  }, [selectedProductType, setValue]);
+  
+  // SEO 미리보기 자동 업데이트
+  useEffect(() => {
+    if (watchedValues.title && watchedValues.shortDescription) {
+      const seoData = generateSeoData({
+        title: watchedValues.title,
+        shortDescription: watchedValues.shortDescription,
+        description: watchedValues.description,
+        productType: watchedValues.productType as ProductType,
+        price: watchedValues.price,
+        tags: watchedValues.tags,
+        category: watchedValues.category,
+        isAiGenerated: aiGeneratedData.isAiGenerated,
+        aiTool: aiGeneratedData.aiTool || null,
+      });
+      setSeoPreview({
+        slug: seoData.slug,
+        metaDescription: seoData.metaDescription,
+        keywords: seoData.keywords,
+      });
+    }
+  }, [watchedValues.title, watchedValues.shortDescription, watchedValues.description, watchedValues.productType, watchedValues.price, watchedValues.tags, watchedValues.category, aiGeneratedData]);
 
   // 내 튜토리얼 목록 불러오기
   useEffect(() => {
@@ -232,12 +377,73 @@ export function NewProductContent() {
       toast.error("튜토리얼을 연결해주세요", {
         description: "상품 등록을 위해서는 최소 1개의 튜토리얼이 필요합니다.",
       });
-      setStep(5); // 튜토리얼 단계로 이동
+      setStep(7); // 튜토리얼 단계로 이동
       return;
+    }
+    
+    // 상품 타입별 메타데이터 검증
+    if (!isDraft) {
+      if (data.productType === "BOOK" && !bookMeta.bookType) {
+        toast.error("도서 정보를 입력해주세요", {
+          description: "도서 타입은 필수 항목입니다.",
+        });
+        setStep(3);
+        return;
+      }
+      if (data.productType === "VIDEO_SERIES" && !videoMeta.videoType) {
+        toast.error("영상 정보를 입력해주세요", {
+          description: "영상 타입은 필수 항목입니다.",
+        });
+        setStep(3);
+        return;
+      }
+      if (data.productType === "MUSIC_ALBUM" && !musicMeta.artist) {
+        toast.error("음악 정보를 입력해주세요", {
+          description: "아티스트명은 필수 항목입니다.",
+        });
+        setStep(3);
+        return;
+      }
     }
 
     setIsSubmitting(true);
     try {
+      // SEO 데이터 생성
+      const seoData = generateSeoData({
+        title: data.title,
+        shortDescription: data.shortDescription,
+        description: data.description,
+        productType: data.productType as ProductType,
+        price: data.price,
+        tags: data.tags,
+        category: data.category,
+        isAiGenerated: aiGeneratedData.isAiGenerated,
+        aiTool: aiGeneratedData.aiTool || null,
+        bookMeta: data.productType === "BOOK" ? {
+          author: bookMeta.author || null,
+          publisher: bookMeta.publisher || null,
+          isbn: bookMeta.isbn || null,
+          pageCount: bookMeta.pageCount || null,
+          language: bookMeta.language || "ko",
+          bookType: bookMeta.bookType,
+        } : undefined,
+        videoMeta: data.productType === "VIDEO_SERIES" ? {
+          director: videoMeta.director || null,
+          duration: videoMeta.duration || null,
+          episodes: videoMeta.episodes || null,
+          videoType: videoMeta.videoType,
+          trailerUrl: videoMeta.trailerUrl || null,
+          genre: videoMeta.genre || [],
+        } : undefined,
+        musicMeta: data.productType === "MUSIC_ALBUM" ? {
+          artist: musicMeta.artist || null,
+          trackCount: musicMeta.trackCount || null,
+          totalDuration: musicMeta.totalDuration || null,
+          genre: musicMeta.genre,
+          albumType: musicMeta.albumType || null,
+        } : undefined,
+      });
+
       const productData = {
         ...data,
         isDraft,
@@ -247,6 +453,18 @@ export function NewProductContent() {
           url: file.url,
         })),
         tutorials: selectedTutorials,
+        // SEO 데이터
+        slug: seoData.slug,
+        metaDescription: seoData.metaDescription,
+        keywords: seoData.keywords,
+        // AI 생성 정보
+        isAiGenerated: aiGeneratedData.isAiGenerated,
+        aiTool: aiGeneratedData.isAiGenerated ? aiGeneratedData.aiTool : null,
+        aiPrompt: aiGeneratedData.isAiGenerated ? aiGeneratedData.aiPrompt : null,
+        // 메타데이터 (상품 타입별)
+        bookMeta: data.productType === "BOOK" ? bookMeta : undefined,
+        videoMeta: data.productType === "VIDEO_SERIES" ? videoMeta : undefined,
+        musicMeta: data.productType === "MUSIC_ALBUM" ? musicMeta : undefined,
       };
 
       const response = await fetch("/api/products", {
@@ -268,7 +486,7 @@ export function NewProductContent() {
         });
       } else {
         toast.success('상품이 등록되었습니다! 🎉', {
-          description: '마켓플레이스에서 상품을 확인해보세요.',
+          description: 'SEO 최적화가 자동 적용되었습니다.',
           action: {
             label: '상품 보기',
             onClick: () => router.push(`/marketplace/${result.id}`),
@@ -287,8 +505,33 @@ export function NewProductContent() {
     }
   };
 
-  const nextStep = () => setStep((s) => Math.min(s + 1, 5));
+  // 총 스텝 수 계산 (상품 타입에 따라 메타데이터 스텝 추가)
+  const totalSteps = selectedProductType === "DIGITAL_PRODUCT" ? 6 : 7;
+  
+  const nextStep = () => setStep((s) => Math.min(s + 1, totalSteps));
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
+  
+  // 스텝 정의
+  const getSteps = () => {
+    const baseSteps = [
+      { num: 1, label: "상품 타입" },
+      { num: 2, label: "기본 정보" },
+    ];
+    
+    if (selectedProductType !== "DIGITAL_PRODUCT") {
+      baseSteps.push({ num: 3, label: "메타 정보" });
+    }
+    
+    const nextNum = selectedProductType !== "DIGITAL_PRODUCT" ? 4 : 3;
+    baseSteps.push(
+      { num: nextNum, label: "상세 설명" },
+      { num: nextNum + 1, label: "파일 업로드" },
+      { num: nextNum + 2, label: "가격 설정" },
+      { num: nextNum + 3, label: "튜토리얼" },
+    );
+    
+    return baseSteps;
+  };
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 pb-20">
@@ -311,15 +554,9 @@ export function NewProductContent() {
 
       {/* Progress Steps */}
       <div className="mb-8">
-        <div className="flex items-center justify-between max-w-3xl mx-auto">
-          {[
-            { num: 1, label: "기본 정보" },
-            { num: 2, label: "상세 설명" },
-            { num: 3, label: "파일 업로드" },
-            { num: 4, label: "가격 설정" },
-            { num: 5, label: "튜토리얼 연결" },
-          ].map((s, i) => (
-            <div key={s.num} className="flex items-center">
+        <div className="flex items-center justify-between max-w-4xl mx-auto overflow-x-auto pb-2">
+          {getSteps().map((s, i, arr) => (
+            <div key={s.num} className="flex items-center flex-shrink-0">
               <div className="flex flex-col items-center">
                 <div
                   className={cn(
@@ -333,7 +570,7 @@ export function NewProductContent() {
                 </div>
                 <span
                   className={cn(
-                    "text-[10px] sm:text-xs mt-2 hidden sm:block text-center",
+                    "text-[10px] sm:text-xs mt-2 hidden sm:block text-center whitespace-nowrap",
                     step >= s.num
                       ? "text-[var(--text-primary)]"
                       : "text-[var(--text-tertiary)]"
@@ -342,10 +579,10 @@ export function NewProductContent() {
                   {s.label}
                 </span>
               </div>
-              {i < 4 && (
+              {i < arr.length - 1 && (
                 <div
                   className={cn(
-                    "w-8 sm:w-16 h-0.5 mx-1 sm:mx-2",
+                    "w-8 sm:w-12 h-0.5 mx-1 sm:mx-2",
                     step > s.num
                       ? "bg-[var(--primary)]"
                       : "bg-[var(--bg-border)]"
@@ -358,8 +595,84 @@ export function NewProductContent() {
       </div>
 
       <form onSubmit={handleSubmit((data) => onSubmit(data, false))}>
-        {/* Step 1: Basic Info */}
+        {/* Step 1: Product Type Selection */}
         {step === 1 && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+          >
+            <Card variant="glass" className="max-w-3xl mx-auto">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-lg bg-[var(--accent-violet)]/10 flex items-center justify-center">
+                    <Package className="w-5 h-5 text-[var(--accent-violet)]" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+                      상품 타입 선택
+                    </h2>
+                    <p className="text-sm text-[var(--text-tertiary)]">
+                      등록하려는 상품의 종류를 선택해주세요
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {productTypeOptions.map((type) => (
+                    <button
+                      key={type.id}
+                      type="button"
+                      onClick={() => setValue("productType", type.id)}
+                      className={cn(
+                        "p-6 rounded-xl border-2 text-left transition-all",
+                        selectedProductType === type.id
+                          ? "border-[var(--primary)] bg-[var(--primary)]/5"
+                          : "border-[var(--bg-border)] hover:border-[var(--primary)]/50"
+                      )}
+                    >
+                      <div className={cn(
+                        "w-12 h-12 rounded-xl flex items-center justify-center mb-4",
+                        selectedProductType === type.id
+                          ? "bg-[var(--primary)] text-white"
+                          : "bg-[var(--bg-elevated)] text-[var(--text-tertiary)]"
+                      )}>
+                        {type.icon}
+                      </div>
+                      <h3 className="font-semibold text-[var(--text-primary)] mb-1">
+                        {type.name}
+                      </h3>
+                      <p className="text-sm text-[var(--text-tertiary)]">
+                        {type.description}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+
+                {/* 타입 변경 시 카테고리 안내 */}
+                <div className="mt-6 p-4 rounded-lg bg-[var(--bg-elevated)] border border-[var(--bg-border)]">
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-[var(--accent-cyan)] flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-[var(--text-primary)] mb-1">
+                        상품 타입 안내
+                      </h4>
+                      <p className="text-sm text-[var(--text-tertiary)]">
+                        {selectedProductType === "DIGITAL_PRODUCT" && "소스코드, 템플릿, 플러그인, 디자인 에셋 등 디지털 제품을 등록합니다."}
+                        {selectedProductType === "BOOK" && "전자책, 만화, 오디오북 등 도서 콘텐츠를 등록합니다. 저자, ISBN 등 도서 정보를 입력할 수 있습니다."}
+                        {selectedProductType === "VIDEO_SERIES" && "영화, 애니메이션, 다큐멘터리 등 영상 콘텐츠를 등록합니다. 에피소드, 재생시간 등을 입력할 수 있습니다."}
+                        {selectedProductType === "MUSIC_ALBUM" && "음악 앨범, 싱글, BGM 등 음원을 등록합니다. 아티스트, 트랙 정보 등을 입력할 수 있습니다."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Step 2: Basic Info */}
+        {step === 2 && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -392,6 +705,12 @@ export function NewProductContent() {
                       placeholder="예: AI 기반 스마트 할일 관리 앱"
                       error={errors.title?.message}
                     />
+                    {/* SEO Slug 미리보기 */}
+                    {seoPreview?.slug && (
+                      <p className="text-xs text-[var(--text-tertiary)] mt-1">
+                        URL: /marketplace/{seoPreview.slug}
+                      </p>
+                    )}
                   </div>
 
                   {/* Short Description */}
@@ -406,13 +725,13 @@ export function NewProductContent() {
                     />
                   </div>
 
-                  {/* Category */}
+                  {/* Category - 상품 타입별 */}
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                       카테고리 *
                     </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                      {categories.map((cat) => (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {currentCategories.map((cat) => (
                         <button
                           key={cat.id}
                           type="button"
@@ -486,14 +805,94 @@ export function NewProductContent() {
                       </p>
                     )}
                   </div>
+                  
+                  {/* AI Generated Info Section */}
+                  <div className="pt-4 border-t border-[var(--bg-border)]">
+                    <AiGeneratedForm
+                      data={aiGeneratedData}
+                      onChange={setAiGeneratedData}
+                    />
+                  </div>
+                  
+                  {/* SEO Preview */}
+                  {seoPreview && (
+                    <div className="p-4 rounded-lg bg-[var(--bg-elevated)] border border-[var(--bg-border)]">
+                      <h4 className="font-medium text-[var(--text-primary)] mb-3 flex items-center gap-2">
+                        <Search className="w-4 h-4" />
+                        SEO 미리보기
+                      </h4>
+                      <div className="space-y-2">
+                        <p className="text-sm text-[var(--accent-cyan)]">
+                          {process.env.NEXT_PUBLIC_BASE_URL || 'https://vibe-olympics.onrender.com'}/marketplace/{seoPreview.slug}
+                        </p>
+                        <p className="text-[var(--text-primary)] font-medium">
+                          {watchedValues.title || '제목'}
+                        </p>
+                        <p className="text-sm text-[var(--text-tertiary)]">
+                          {seoPreview.metaDescription}
+                        </p>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {seoPreview.keywords.slice(0, 5).map((kw, i) => (
+                            <span key={i} className="text-xs px-2 py-0.5 rounded bg-[var(--bg-border)] text-[var(--text-tertiary)]">
+                              {kw}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
           </motion.div>
         )}
 
-        {/* Step 2: Description */}
-        {step === 2 && (
+        {/* Step 3: Meta Info (for non-digital products) */}
+        {step === 3 && selectedProductType !== "DIGITAL_PRODUCT" && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+          >
+            <Card variant="glass" className="max-w-3xl mx-auto">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-lg bg-[var(--accent-cyan)]/10 flex items-center justify-center">
+                    {selectedProductType === "BOOK" && <Book className="w-5 h-5 text-[var(--accent-cyan)]" />}
+                    {selectedProductType === "VIDEO_SERIES" && <Film className="w-5 h-5 text-[var(--accent-cyan)]" />}
+                    {selectedProductType === "MUSIC_ALBUM" && <Music className="w-5 h-5 text-[var(--accent-cyan)]" />}
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+                      {selectedProductType === "BOOK" && "도서 정보"}
+                      {selectedProductType === "VIDEO_SERIES" && "영상 정보"}
+                      {selectedProductType === "MUSIC_ALBUM" && "음악 정보"}
+                    </h2>
+                    <p className="text-sm text-[var(--text-tertiary)]">
+                      {selectedProductType === "BOOK" && "도서에 대한 상세 정보를 입력해주세요"}
+                      {selectedProductType === "VIDEO_SERIES" && "영상에 대한 상세 정보를 입력해주세요"}
+                      {selectedProductType === "MUSIC_ALBUM" && "음악에 대한 상세 정보를 입력해주세요"}
+                    </p>
+                  </div>
+                </div>
+
+                {selectedProductType === "BOOK" && (
+                  <BookMetaForm data={bookMeta} onChange={setBookMeta} />
+                )}
+                {selectedProductType === "VIDEO_SERIES" && (
+                  <VideoSeriesMetaForm data={videoMeta} onChange={setVideoMeta} />
+                )}
+                {selectedProductType === "MUSIC_ALBUM" && (
+                  <MusicAlbumMetaForm data={musicMeta} onChange={setMusicMeta} />
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Step 3 or 4: Description */}
+        {((step === 3 && selectedProductType === "DIGITAL_PRODUCT") || 
+          (step === 4 && selectedProductType !== "DIGITAL_PRODUCT")) && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -570,8 +969,9 @@ export function NewProductContent() {
           </motion.div>
         )}
 
-        {/* Step 3: File Upload */}
-        {step === 3 && (
+        {/* Step 4 or 5: File Upload */}
+        {((step === 4 && selectedProductType === "DIGITAL_PRODUCT") || 
+          (step === 5 && selectedProductType !== "DIGITAL_PRODUCT")) && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -688,8 +1088,9 @@ export function NewProductContent() {
           </motion.div>
         )}
 
-        {/* Step 4: Pricing */}
-        {step === 4 && (
+        {/* Step 5 or 6: Pricing */}
+        {((step === 5 && selectedProductType === "DIGITAL_PRODUCT") || 
+          (step === 6 && selectedProductType !== "DIGITAL_PRODUCT")) && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -830,8 +1231,9 @@ export function NewProductContent() {
           </motion.div>
         )}
 
-        {/* Step 5: Tutorial Connection */}
-        {step === 5 && (
+        {/* Step 6 or 7: Tutorial Connection */}
+        {((step === 6 && selectedProductType === "DIGITAL_PRODUCT") || 
+          (step === 7 && selectedProductType !== "DIGITAL_PRODUCT")) && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -1061,7 +1463,7 @@ export function NewProductContent() {
               임시 저장
             </Button>
 
-            {step < 5 ? (
+            {step < totalSteps ? (
               <Button type="button" variant="neon" onClick={nextStep}>
                 다음
               </Button>

@@ -4,8 +4,60 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 
+// 도서 메타데이터 스키마
+const bookMetaSchema = z.object({
+  bookType: z.enum(["EBOOK", "COMIC", "PICTURE_BOOK", "PRINT_BOOK", "AUDIO_BOOK"]).optional(),
+  author: z.string().optional(),
+  publisher: z.string().optional(),
+  isbn: z.string().optional(),
+  pageCount: z.number().nullable().optional(),
+  chapters: z.number().nullable().optional(),
+  language: z.string().optional(),
+  format: z.array(z.string()).optional(),
+  ageRating: z.string().optional(),
+  seriesName: z.string().optional(),
+  seriesOrder: z.number().nullable().optional(),
+}).optional();
+
+// 영상 메타데이터 스키마
+const videoMetaSchema = z.object({
+  videoType: z.enum(["MOVIE", "ANIMATION", "DOCUMENTARY", "SHORT_FILM", "SERIES"]).optional(),
+  director: z.string().optional(),
+  cast: z.array(z.string()).optional(),
+  duration: z.number().nullable().optional(),
+  episodes: z.number().nullable().optional(),
+  seasons: z.number().nullable().optional(),
+  resolution: z.string().optional(),
+  audioFormat: z.string().optional(),
+  subtitles: z.array(z.string()).optional(),
+  ageRating: z.string().optional(),
+  genre: z.array(z.string()).optional(),
+  trailerUrl: z.string().optional(),
+  seriesName: z.string().optional(),
+  seriesOrder: z.number().nullable().optional(),
+}).optional();
+
+// 음악 메타데이터 스키마
+const musicMetaSchema = z.object({
+  artist: z.string().optional(),
+  albumType: z.string().optional(),
+  genre: z.enum(["POP", "ROCK", "HIPHOP", "RNB", "ELECTRONIC", "CLASSICAL", "JAZZ", "AMBIENT", "SOUNDTRACK", "WORLD", "OTHER"]).optional(),
+  subGenre: z.string().optional(),
+  mood: z.array(z.string()).optional(),
+  trackCount: z.number().nullable().optional(),
+  totalDuration: z.number().nullable().optional(),
+  format: z.array(z.string()).optional(),
+  bitrate: z.string().optional(),
+  sampleRate: z.string().optional(),
+  theme: z.string().optional(),
+  hasLyrics: z.boolean().optional(),
+  isInstrumental: z.boolean().optional(),
+}).optional();
+
 // 상품 생성 스키마
 const createProductSchema = z.object({
+  // 상품 타입
+  productType: z.enum(["DIGITAL_PRODUCT", "BOOK", "VIDEO_SERIES", "MUSIC_ALBUM"]).optional(),
   title: z.string().min(5, "제목은 5자 이상이어야 합니다").max(100),
   shortDescription: z.string().min(10).max(200),
   description: z.string().min(50, "설명은 50자 이상이어야 합니다"),
@@ -37,6 +89,18 @@ const createProductSchema = z.object({
     tutorialId: z.string(),
     type: z.enum(["TUTORIAL", "MAKING", "TIPS"]).optional(),
   })).optional(),
+  // AI 생성 정보
+  isAiGenerated: z.boolean().optional(),
+  aiTool: z.string().nullable().optional(),
+  aiPrompt: z.string().nullable().optional(),
+  // SEO 관련 필드
+  slug: z.string().optional(),
+  metaDescription: z.string().optional(),
+  keywords: z.array(z.string()).optional(),
+  // 상품 타입별 메타데이터
+  bookMeta: bookMetaSchema,
+  videoMeta: videoMetaSchema,
+  musicMeta: musicMetaSchema,
 });
 
 // 상품 목록 조회 (GET)
@@ -177,6 +241,9 @@ export async function GET(request: NextRequest) {
           _count: {
             select: { reviews: true, wishlists: true },
           },
+          bookMeta: true,
+          videoSeriesMeta: true,
+          musicAlbumMeta: true,
         },
       }),
       prisma.product.count({ where }),
@@ -297,8 +364,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // slug 생성
-    const slug = await generateUniqueSlug(data.title);
+    // slug 생성 (클라이언트에서 제공하거나 자동 생성)
+    const slug = data.slug || await generateUniqueSlug(data.title);
+
+    // 상품 타입 결정
+    const productType = data.productType || "DIGITAL_PRODUCT";
 
     // 상품 생성
     const product = await prisma.product.create({
@@ -310,6 +380,7 @@ export async function POST(request: NextRequest) {
         pricingType,
         licenseType,
         slug,
+        productType,
         sellerId: session.user.id,
         price: pricingType === "FREE" ? 0 : (data.price || 0),
         originalPrice: data.originalPrice,
@@ -319,6 +390,10 @@ export async function POST(request: NextRequest) {
         features: data.features || [],
         techStack: data.techStack || [],
         status,
+        // AI 생성 정보
+        isAiGenerated: data.isAiGenerated || false,
+        aiTool: data.aiTool || null,
+        aiPrompt: data.aiPrompt || null,
         // 파일 생성 (있는 경우)
         files: data.files?.length ? {
           create: data.files.map((file) => ({
@@ -335,6 +410,60 @@ export async function POST(request: NextRequest) {
             type: tutorial.type || "TUTORIAL",
             sortOrder: index,
           })),
+        } : undefined,
+        // 도서 메타데이터 (있는 경우)
+        bookMeta: productType === "BOOK" && data.bookMeta ? {
+          create: {
+            bookType: data.bookMeta.bookType || "EBOOK",
+            author: data.bookMeta.author || null,
+            publisher: data.bookMeta.publisher || null,
+            isbn: data.bookMeta.isbn || null,
+            pageCount: data.bookMeta.pageCount || null,
+            chapters: data.bookMeta.chapters || null,
+            language: data.bookMeta.language || "ko",
+            format: data.bookMeta.format || [],
+            ageRating: data.bookMeta.ageRating || null,
+            seriesName: data.bookMeta.seriesName || null,
+            seriesOrder: data.bookMeta.seriesOrder || null,
+          },
+        } : undefined,
+        // 영상 메타데이터 (있는 경우)
+        videoSeriesMeta: productType === "VIDEO_SERIES" && data.videoMeta ? {
+          create: {
+            videoType: data.videoMeta.videoType || "MOVIE",
+            director: data.videoMeta.director || null,
+            cast: data.videoMeta.cast || [],
+            duration: data.videoMeta.duration || null,
+            episodes: data.videoMeta.episodes || null,
+            seasons: data.videoMeta.seasons || null,
+            resolution: data.videoMeta.resolution || null,
+            audioFormat: data.videoMeta.audioFormat || null,
+            subtitles: data.videoMeta.subtitles || [],
+            ageRating: data.videoMeta.ageRating || null,
+            genre: data.videoMeta.genre || [],
+            trailerUrl: data.videoMeta.trailerUrl || null,
+            seriesName: data.videoMeta.seriesName || null,
+            seriesOrder: data.videoMeta.seriesOrder || null,
+          },
+        } : undefined,
+        // 음악 메타데이터 (있는 경우)
+        musicAlbumMeta: productType === "MUSIC_ALBUM" && data.musicMeta ? {
+          create: {
+            artist: data.musicMeta.artist || null,
+            albumType: data.musicMeta.albumType || null,
+            genre: data.musicMeta.genre || "OTHER",
+            subGenre: data.musicMeta.subGenre || null,
+            mood: data.musicMeta.mood || [],
+            trackCount: data.musicMeta.trackCount || null,
+            totalDuration: data.musicMeta.totalDuration || null,
+            format: data.musicMeta.format || [],
+            bitrate: data.musicMeta.bitrate || null,
+            sampleRate: data.musicMeta.sampleRate || null,
+            theme: data.musicMeta.theme || null,
+            hasLyrics: data.musicMeta.hasLyrics || false,
+            isInstrumental: data.musicMeta.isInstrumental || false,
+            previewTracks: [],
+          },
         } : undefined,
       },
       include: {
@@ -355,6 +484,9 @@ export async function POST(request: NextRequest) {
             },
           },
         },
+        bookMeta: true,
+        videoSeriesMeta: true,
+        musicAlbumMeta: true,
       },
     });
 
