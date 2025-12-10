@@ -123,7 +123,9 @@ describe('Categories API', () => {
 
       const { GET } = await import('@/app/api/categories/route');
       
-      const response = await GET();
+      // NextRequest mock 추가
+      const request = new NextRequest('http://localhost:3000/api/categories');
+      const response = await GET(request);
       const data = await response.json();
 
       expect(response.status).toBe(200);
