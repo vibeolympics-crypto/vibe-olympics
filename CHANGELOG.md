@@ -5,6 +5,63 @@
 
 ---
 
+## 세션 62 (2025-12-10) - 이커머스 UX 개선 & 상품 비교 기능 ⭐ NEW
+
+### 작업 요약
+1. **드롭다운 메가메뉴**: 디지털 상품 3그룹 서브카테고리 (비즈니스/업무, 개발도구, 라이프스타일)
+2. **최근 본 상품**: 로컬 스토리지 기반 추적 + 위젯 UI (사이드바/플로팅/수평)
+3. **상품 비교 기능**: 최대 4개 상품 비교 + 플로팅 바 + 전용 비교 페이지
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| 드롭다운 메가메뉴 | 디지털 상품 3그룹 서브카테고리 호버 메뉴 | ✅ |
+| 홈페이지 검색 바 | 카테고리/상품 검색 기능 | ✅ |
+| 빠른 필터 버튼 | 인기급상승, 신규, 평점순, AI생성 | ✅ |
+| use-recently-viewed | 로컬 스토리지 기반 최근 본 상품 훅 | ✅ |
+| recently-viewed-widget | 3종 레이아웃 위젯 (sidebar/floating/horizontal) | ✅ |
+| use-compare | 상품 비교 Context & Hook | ✅ |
+| CompareButton/Bar | 비교 버튼 및 플로팅 바 컴포넌트 | ✅ |
+| 비교 페이지 | /marketplace/compare 전용 페이지 | ✅ |
+| 상품 상세 연동 | 상품 조회 시 자동 기록 | ✅ |
+| 마켓플레이스 연동 | 사이드바 위젯 + 비교 버튼 추가 | ✅ |
+
+### 추가된 카테고리 구조
+```
+디지털 상품
+├── 비즈니스/업무 (6개)
+│   ├── 웹 앱, API/백엔드, 데이터 분석
+│   └── 업무 자동화, 문서/템플릿, 마케팅 도구
+├── 개발 도구 (6개)
+│   ├── 모바일 앱, AI/ML 모델, 브라우저 확장
+│   └── 디자인 도구, 코드 스니펫, 데이터베이스
+└── 라이프스타일 (6개)
+    ├── 게임, 건강/웰빙, 피트니스
+    └── 요리/레시피, 여행/모빌리티, 홈/인테리어
+```
+
+### 수정된 파일
+```
+신규 파일 (5개):
+- src/hooks/use-recently-viewed.ts
+- src/hooks/use-compare.tsx
+- src/components/marketplace/recently-viewed-widget.tsx
+- src/components/marketplace/compare-components.tsx
+- src/app/marketplace/compare/page.tsx
+
+수정된 파일 (4개):
+- src/components/home/categories-section.tsx (드롭다운 메가메뉴)
+- src/app/marketplace/marketplace-content.tsx (최근 본 상품, 비교 버튼)
+- src/app/marketplace/[id]/product-detail-content.tsx (조회 기록)
+- src/app/layout.tsx (CompareProvider 추가)
+```
+
+### Git 커밋
+- `43ba796` feat: 이커머스 UX 개선 - 드롭다운 메가메뉴, 최근 본 상품, 비교 기능
+- `a4afe79` docs: TODO.md 세션 62 작업 기록 추가
+
+---
+
 ## 세션 61 (2025-12-10) - 조건부확률 기반 추천 시스템 + 폭포 다이어그램 검증 + 글로벌 추천
 
 ### 작업 요약

@@ -2,7 +2,7 @@
 
 > 마지막 업데이트: 2025년 12월 10일
 > TestSprite MCP 자동 테스트용 역할별 테스트 케이스 정의
-> 총 테스트 케이스: 185개 (명세) + 160개 (Playwright E2E) + 61개 (Jest)
+> 총 테스트 케이스: 193개 (명세) + 160개 (Playwright E2E) + 61개 (Jest)
 > 
 > **🌐 배포 URL**: https://vibe-olympics.onrender.com
 
@@ -4030,6 +4030,170 @@ $$\text{일치율} = (\text{글로벌확률} \times 0.4) + (\text{그룹성공�
 | 쿠폰 발급 | `type=global-event` | 전환율 높은 상품 쿠폰 |
 | 교육 페이지 | `type=global-education` | 추천 교육 콘텐츠 순서 |
 | 관리자 대시보드 | `type=global-stats` | 전체 통계 모니터링 |
+
+---
+
+## 🛒 세션 62: 이커머스 UX 기능 테스트 (NEW)
+
+### 드롭다운 메가메뉴 테스트
+
+#### TC-UX-001: 디지털 상품 드롭다운 메가메뉴
+```yaml
+url: /
+method: GET
+precondition: 없음
+steps:
+  1. 홈페이지 접속
+  2. "디지털 상품" 탭 호버
+expected:
+  - 3그룹 드롭다운 메뉴 표시
+  - 비즈니스/업무 (6개 항목)
+  - 개발 도구 (6개 항목)
+  - 라이프스타일 (6개 항목)
+validation:
+  - 호버 시 메뉴 애니메이션 동작
+  - 각 카테고리 클릭 시 마켓플레이스로 이동
+```
+
+#### TC-UX-002: 홈페이지 카테고리 검색
+```yaml
+url: /
+method: GET
+precondition: 없음
+steps:
+  1. 홈페이지 접속
+  2. 검색 바에 "웹 앱" 입력
+expected:
+  - 검색 결과 카테고리 필터링
+  - 일치하는 카테고리만 표시
+validation:
+  - 실시간 필터링 동작
+```
+
+#### TC-UX-003: 빠른 필터 버튼
+```yaml
+url: /
+method: GET
+precondition: 없음
+steps:
+  1. 홈페이지 접속
+  2. "인기 급상승" 빠른 필터 클릭
+expected:
+  - /marketplace?filter=trending 이동
+  - 인기 상품 필터링
+validation:
+  - 각 필터 버튼 정상 동작
+```
+
+### 최근 본 상품 테스트
+
+#### TC-UX-004: 최근 본 상품 기록
+```yaml
+url: /marketplace/{productId}
+method: GET
+precondition: 없음
+steps:
+  1. 상품 상세 페이지 방문
+  2. 다른 상품 상세 페이지 방문
+  3. 마켓플레이스로 이동
+expected:
+  - 사이드바에 "최근 본 상품" 위젯 표시
+  - 방문한 상품 2개 표시
+validation:
+  - 로컬 스토리지에 상품 ID 저장
+  - 최신 방문 순으로 정렬
+```
+
+#### TC-UX-005: 최근 본 상품 삭제
+```yaml
+url: /marketplace
+method: GET
+precondition: 최근 본 상품 1개 이상
+steps:
+  1. 최근 본 상품 위젯에서 X 버튼 클릭
+expected:
+  - 해당 상품 목록에서 제거
+  - 로컬 스토리지 업데이트
+validation:
+  - UI 즉시 업데이트
+```
+
+#### TC-UX-006: 최근 본 상품 전체 삭제
+```yaml
+url: /marketplace
+method: GET
+precondition: 최근 본 상품 2개 이상
+steps:
+  1. "전체 삭제" 버튼 클릭
+expected:
+  - 모든 최근 본 상품 제거
+  - 위젯 숨김
+validation:
+  - 로컬 스토리지 비움
+```
+
+### 상품 비교 기능 테스트
+
+#### TC-UX-007: 상품 비교에 추가
+```yaml
+url: /marketplace
+method: GET
+precondition: 없음
+steps:
+  1. 상품 카드 호버
+  2. 비교 버튼(저울 아이콘) 클릭
+expected:
+  - 하단 플로팅 비교 바 표시
+  - 상품 썸네일 표시
+  - "1개 상품 비교" 텍스트
+validation:
+  - 로컬 스토리지에 상품 ID 저장
+```
+
+#### TC-UX-008: 최대 4개 상품 비교 제한
+```yaml
+url: /marketplace
+method: GET
+precondition: 비교 목록에 4개 상품
+steps:
+  1. 5번째 상품 비교 버튼 클릭
+expected:
+  - 비교 버튼 비활성화
+  - 추가 불가
+validation:
+  - canAddMore === false
+```
+
+### 비교 페이지 테스트
+
+#### TC-UX-009: 비교 페이지 접근
+```yaml
+url: /marketplace/compare
+method: GET
+precondition: 비교 목록에 2개 이상 상품
+steps:
+  1. 플로팅 바 "비교하기" 버튼 클릭
+expected:
+  - 비교 페이지 이동
+  - 테이블 형식으로 상품 비교
+  - 가격, 평점, 판매량, 기능 비교
+validation:
+  - 모든 비교 항목 정상 표시
+```
+
+#### TC-UX-010: 비교 페이지에서 상품 제거
+```yaml
+url: /marketplace/compare
+method: GET
+precondition: 비교 목록에 2개 이상 상품
+steps:
+  1. 상품 헤더의 X 버튼 클릭
+expected:
+  - 해당 상품 테이블에서 제거
+  - 비교 목록 업데이트
+validation:
+  - 1개 남으면 빈 상태 메시지
+```
 
 ---
 
