@@ -1,19 +1,23 @@
 import { defineConfig, devices } from '@playwright/test';
 
+// 프로덕션 테스트 시 환경변수로 URL 설정 가능
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
+const isProduction = baseURL.includes('render.com') || baseURL.includes('vibeolympics.com');
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  retries: process.env.CI ? 2 : isProduction ? 1 : 0,
+  workers: process.env.CI ? 1 : isProduction ? 2 : undefined,
   reporter: 'html',
-  timeout: 60000,  // 테스트 타임아웃 60초
+  timeout: isProduction ? 90000 : 60000,  // 프로덕션은 90초, 로컬은 60초
   
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    navigationTimeout: 60000,  // 네비게이션 타임아웃 60초
+    navigationTimeout: isProduction ? 90000 : 60000,
   },
 
   projects: [
@@ -32,11 +36,13 @@ export default defineConfig({
     // },
   ],
 
-  // 개발 서버 자동 시작 (선택)
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-  },
+  // 개발 서버 자동 시작 (로컬 테스트 시에만)
+  ...(isProduction ? {} : {
+    webServer: {
+      command: 'npm run dev',
+      url: 'http://localhost:3000',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+    },
+  }),
 });
