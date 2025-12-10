@@ -1,7 +1,44 @@
 # 📋 Vibe Olympics - 예정 작업 (TODO)
 
-> 마지막 업데이트: 2025년 12월 9일 (세션 59 완료)
+> 마지막 업데이트: 2025년 12월 10일 (세션 61 완료)
 > 워크플로우: TODO.md 검토 → 작업 수행 → CHANGELOG.md 기록 → TEST_SPECS.md 작성
+
+---
+
+## ✅ 세션 61 완료 - 글로벌 추천 시스템 & 버그 수정
+
+### 세션 61 (2025-12-10): 글로벌 추천 시스템 & Hydration 버그 수정
+| 작업 ID | 작업명 | 상태 | 비고 |
+|---------|--------|------|------|
+| S61-01 | 폭포 다이어그램 검증 시스템 | ✅ 완료 | 50% 임계값 기반 필터링 |
+| S61-02 | 글로벌 추천 API 4종 추가 | ✅ 완료 | global-event/education/content/stats |
+| S61-03 | Hydration Error 수정 | ✅ 완료 | ProductCard 중첩 Link → div+onClick |
+| S61-04 | 언어 전환 개선 | ✅ 완료 | router.refresh() → window.location.reload() |
+| S61-05 | TestSprite MCP 테스트 | ✅ 완료 | 20개 테스트 (4 통과, 16 OAuth 제한) |
+| S61-06 | 테스트 케이스 추가 | ✅ 완료 | TC-API-033~040 (8개 추가) |
+
+**최종 결과**: 
+- 개인+글로벌 듀얼 추천 시스템 완성
+- Hydration Error 해결 (marketplace-content.tsx)
+- 언어 전환 완전 동작 (language-switcher.tsx)
+- TestSprite 자동화 테스트 20개 생성
+
+---
+
+## ✅ 세션 60 완료 - 조건부 확률 추천 시스템 확장
+
+### 세션 60 (2025-12-09): 조건부 확률 기반 추천 시스템 구현
+| 작업 ID | 작업명 | 상태 | 비고 |
+|---------|--------|------|------|
+| S60-01 | 조건부 확률 계산 함수 | ✅ 완료 | P(B|A) 구현 |
+| S60-02 | 폭포 다이어그램 설계 | ✅ 완료 | 그룹 분석, 위치 계산 |
+| S60-03 | 추천 타입 확장 | ✅ 완료 | 12개 타입 지원 |
+| S60-04 | 학습 여정 추천 | ✅ 완료 | calculateTransitionProbabilities |
+| S60-05 | 테스트 케이스 작성 | ✅ 완료 | TC-API-029~032 |
+
+**최종 결과**: 
+- 조건부 확률 P(B|A) 기반 추천 시스템
+- 12개 추천 타입 (similar, trending, journey 등)
 
 ---
 
