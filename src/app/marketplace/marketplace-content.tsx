@@ -30,6 +30,8 @@ import { cn } from "@/lib/utils";
 import { useProducts, useCategories, useSearchSuggestions, usePopularTags } from "@/hooks/use-api";
 import { AdvancedFilter, ActiveFilters, type FilterState } from "@/components/ui/advanced-filter";
 import { RecommendationSection } from "@/components/ui/recommendation-section";
+import { RecentlyViewedWidget } from "@/components/marketplace/recently-viewed-widget";
+import { CompareButton } from "@/components/marketplace/compare-components";
 import type { Product, Category } from "@/types";
 
 // 카테고리별 아이콘 매핑
@@ -526,6 +528,11 @@ export function MarketplaceContent() {
                   ))}
                 </div>
               </div>
+
+              {/* 최근 본 상품 위젯 */}
+              <div className="mt-8">
+                <RecentlyViewedWidget variant="sidebar" maxItems={5} />
+              </div>
             </div>
           </aside>
 
@@ -795,6 +802,10 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
               <Badge variant={isFree ? "free" : "premium"}>
                 {isFree ? "무료" : `₩${formatPrice(product.price)}`}
               </Badge>
+            </div>
+            {/* Compare Button */}
+            <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
+              <CompareButton productId={product.id} variant="icon" />
             </div>
           </div>
 

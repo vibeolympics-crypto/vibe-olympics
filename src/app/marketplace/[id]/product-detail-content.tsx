@@ -35,6 +35,7 @@ import { ReactionButtons } from "@/components/ui/reaction-buttons";
 import { QASection } from "@/components/ui/comment-section";
 import { BootpayPaymentSelector } from "@/components/ui/bootpay-payment-selector";
 import { initiateBootpayPayment, verifyBootpayPayment, type BootpayPaymentMethod } from "@/lib/bootpay";
+import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
 
 interface Review {
   id: string;
@@ -98,6 +99,14 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
   const [activeTab, setActiveTab] = useState<"description" | "reviews" | "qa">("description");
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [showPaymentSelector, setShowPaymentSelector] = useState(false);
+
+  // 최근 본 상품 추적
+  const { addProduct } = useRecentlyViewed();
+  
+  // 상품 페이지 접근 시 최근 본 상품에 추가
+  useEffect(() => {
+    addProduct(product.id);
+  }, [product.id, addProduct]);
 
   const addToWishlist = useAddToWishlist();
   const removeFromWishlist = useRemoveFromWishlist();

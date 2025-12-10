@@ -9,6 +9,8 @@ import { Footer } from "@/components/layout/footer";
 import { AuthProvider, QueryProvider } from "@/components/providers";
 import { WebVitals } from "@/components/providers/web-vitals";
 import { AIChatbot } from "@/components/ui/ai-chatbot";
+import { CompareProvider } from "@/hooks/use-compare";
+import { CompareBar } from "@/components/marketplace/compare-components";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -119,23 +121,26 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           <QueryProvider>
             <AuthProvider>
-              <WebVitals />
-              <Toaster 
-                position="top-center"
-                toastOptions={{
-                  style: {
-                    background: 'var(--bg-elevated)',
-                    color: 'var(--text-primary)',
-                    border: '1px solid var(--border-default)',
-                  },
-                }}
-                richColors
-                closeButton
-              />
-              <Header />
-              <main id="main-content" className="min-h-screen pt-16" role="main">{children}</main>
-              <Footer />
-              <AIChatbot />
+              <CompareProvider>
+                <WebVitals />
+                <Toaster 
+                  position="top-center"
+                  toastOptions={{
+                    style: {
+                      background: 'var(--bg-elevated)',
+                      color: 'var(--text-primary)',
+                      border: '1px solid var(--border-default)',
+                    },
+                  }}
+                  richColors
+                  closeButton
+                />
+                <Header />
+                <main id="main-content" className="min-h-screen pt-16" role="main">{children}</main>
+                <Footer />
+                <AIChatbot />
+                <CompareBar />
+              </CompareProvider>
             </AuthProvider>
           </QueryProvider>
         </NextIntlClientProvider>
