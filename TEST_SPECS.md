@@ -2,7 +2,7 @@
 
 > 마지막 업데이트: 2025년 12월 10일
 > TestSprite MCP 자동 테스트용 역할별 테스트 케이스 정의
-> 총 테스트 케이스: 193개 (명세) + 160개 (Playwright E2E) + 61개 (Jest)
+> 총 테스트 케이스: 205개 (명세) + 160개 (Playwright E2E) + 61개 (Jest)
 > 
 > **🌐 배포 URL**: https://vibe-olympics.onrender.com
 
@@ -19,7 +19,7 @@
 |----------|------|----------|------|
 | 🔴 P0 | 방문자 | 22개 | 첫 접속, 회원가입, 로그인 |
 | 🔴 P0 | 구매자 | 35개 | 검색, 구매, 결제 핵심 플로우 |
-| 🟠 P1 | 판매자 | 26개 | 상품 등록, 관리, 정산 |
+| 🟠 P1 | 판매자 | 38개 | 상품 등록, 관리, 정산 |
 | 🟠 P1 | 커뮤니티 | 15개 | 게시글, 댓글, 팔로우 |
 | 🟡 P2 | 관리자 | 29개 | 관리 기능 |
 | 🟡 P2 | 일반유저 | 18개 | 설정, 알림 |
@@ -728,6 +728,229 @@ validation:
   - DB에 상품 레코드 생성
   - ProductTutorial 중간 테이블 생성
   - 초기 상태는 DRAFT
+```
+
+#### TC-SELLER-005A: 상품 타입 선택 (세션 63 추가)
+```yaml
+url: /dashboard/products/new
+precondition: 판매자 계정 로그인
+steps:
+  1. Step 1: 상품 타입 선택 페이지 진입
+  2. 4종 상품 타입 카드 중 선택:
+     - 디지털 상품 (소스코드, 템플릿, 플러그인)
+     - 도서/전자책 (전자책, 만화, 오디오북)
+     - 영상 시리즈 (영화, 애니메이션, 다큐)
+     - 음악 앨범 (음원, BGM)
+  3. "다음" 버튼 클릭
+expected:
+  - 선택된 타입 하이라이트 표시
+  - 타입별 안내 메시지 업데이트
+  - Step 2 기본 정보 페이지로 이동
+  - 카테고리 목록이 선택한 타입에 맞게 변경
+validation:
+  - 타입 변경 시 카테고리 자동 초기화
+```
+
+#### TC-SELLER-005B: 도서 메타데이터 입력 (세션 63 추가)
+```yaml
+url: /dashboard/products/new
+precondition: 상품 타입 "도서/전자책" 선택
+steps:
+  1. Step 3: 도서 정보 페이지 진입
+  2. 필수 항목 입력:
+     - 도서 타입 선택 (전자책/만화/오디오북)
+     - 저자명 입력
+     - 언어 선택
+     - 제공 포맷 선택 (PDF/EPUB/MP3)
+  3. 선택 항목 입력:
+     - 출판사, ISBN, 페이지수
+     - 이용 등급, 시리즈 정보
+  4. "다음" 버튼 클릭
+expected:
+  - 도서 타입 카드 UI 정상 표시
+  - 포맷 뱃지 다중 선택 가능
+  - Step 4 상세 설명으로 이동
+validation:
+  - 필수 필드 미입력 시 에러 표시
+  - bookMeta 객체 생성
+```
+
+#### TC-SELLER-005C: 영상 메타데이터 입력 (세션 63 추가)
+```yaml
+url: /dashboard/products/new
+precondition: 상품 타입 "영상 시리즈" 선택
+steps:
+  1. Step 3: 영상 정보 페이지 진입
+  2. 필수 항목 입력:
+     - 영상 타입 선택 (영화/애니메이션/다큐/단편/시리즈)
+  3. 선택 항목 입력:
+     - 감독/제작자, 출연진 (쉼표 구분)
+     - 에피소드 수, 시즌 수, 총 재생시간
+     - 해상도 (SD/HD/FHD/4K)
+     - 오디오 포맷 (스테레오/5.1/Atmos)
+     - 장르 다중 선택
+     - 자막 언어 선택
+     - 트레일러 URL
+     - 이용 등급
+  4. "다음" 버튼 클릭
+expected:
+  - 영상 타입 카드 UI 정상 표시
+  - 장르/자막 뱃지 다중 선택
+  - Step 4 상세 설명으로 이동
+validation:
+  - videoSeriesMeta 객체 생성
+```
+
+#### TC-SELLER-005D: 음악 메타데이터 입력 (세션 63 추가)
+```yaml
+url: /dashboard/products/new
+precondition: 상품 타입 "음악 앨범" 선택
+steps:
+  1. Step 3: 음악 정보 페이지 진입
+  2. 필수 항목 입력:
+     - 아티스트/작곡가명
+     - 장르 선택 (팝/록/힙합/클래식/앰비언트 등)
+     - 트랙 수
+     - 제공 음질 (MP3/FLAC/WAV)
+  3. 선택 항목 입력:
+     - 앨범 타입 (정규/EP/싱글)
+     - 서브 장르, 총 재생시간
+     - 분위기/무드 다중 선택
+     - 가사 포함 여부, 인스트루멘탈 여부
+     - 테마/용도
+  4. "다음" 버튼 클릭
+expected:
+  - 무드 뱃지 다중 선택 가능
+  - 음질 포맷 뱃지 다중 선택
+  - Step 4 상세 설명으로 이동
+validation:
+  - musicAlbumMeta 객체 생성
+```
+
+#### TC-SELLER-005E: AI 생성 정보 입력 (세션 63 추가)
+```yaml
+url: /dashboard/products/new
+precondition: Step 2 기본 정보 페이지
+steps:
+  1. "AI로 생성된 콘텐츠" 토글 활성화
+  2. AI 도구 선택:
+     - ChatGPT, Claude, Midjourney, DALL-E
+     - Stable Diffusion, Suno AI, Udio
+     - Runway, Pika, Kaiber, 기타
+  3. 프롬프트 입력 (선택)
+  4. "다음" 버튼 클릭
+expected:
+  - 토글 활성화 시 추가 필드 표시
+  - AI 도구 드롭다운 정상 동작
+  - 프롬프트 텍스트 영역 표시
+validation:
+  - isAiGenerated: true
+  - aiTool, aiPrompt 필드 저장
+```
+
+#### TC-SELLER-005F: SEO 자동 최적화 (세션 63 추가)
+```yaml
+url: /dashboard/products/new
+precondition: 제목, 간단한 설명 입력
+steps:
+  1. 제목 입력 후 SEO 미리보기 확인
+  2. SEO 미리보기 표시 내용:
+     - 자동 생성 URL (한글→로마자 변환)
+     - 메타 설명 (155자)
+     - 키워드 목록
+expected:
+  - 실시간 SEO 미리보기 업데이트
+  - 한글 제목 → 로마자 slug 변환
+  - 태그 기반 키워드 자동 생성
+validation:
+  - generateSlug() 정상 동작
+  - generateMetaDescription() 155자 제한
+  - generateKeywords() 최대 15개
+```
+
+#### TC-SELLER-005G: 상품 등록 API 확장 (세션 63 추가)
+```yaml
+url: /api/products
+method: POST
+precondition: 판매자 권한
+request_body:
+  productType: "BOOK" | "VIDEO_SERIES" | "MUSIC_ALBUM" | "DIGITAL_PRODUCT"
+  title: "AI 생성 소설집"
+  shortDescription: "..."
+  description: "..."
+  category: "book-fiction"
+  isAiGenerated: true
+  aiTool: "chatgpt"
+  aiPrompt: "..."
+  bookMeta:
+    bookType: "EBOOK"
+    author: "AI 작가"
+    language: "ko"
+    format: ["PDF", "EPUB"]
+expected:
+  - HTTP 201
+  - Product 생성
+  - BookMeta 생성 (1:1 관계)
+  - SEO slug 자동 생성
+validation:
+  - productType 저장
+  - 메타데이터 테이블 생성
+```
+
+#### TC-SELLER-005H: 카테고리 API productType 필터 (세션 63 추가)
+```yaml
+url: /api/categories?productType=BOOK
+method: GET
+expected:
+  - HTTP 200
+  - 도서 카테고리만 반환
+  - categories 배열
+validation:
+  - BOOK 타입 카테고리만 필터링
+  - _count.products 포함
+```
+
+#### TC-SELLER-005I: 카테고리 API groupByType 옵션 (세션 63 추가)
+```yaml
+url: /api/categories?groupByType=true
+method: GET
+expected:
+  - HTTP 200
+  - grouped 객체 반환
+  - DIGITAL_PRODUCT, BOOK, VIDEO_SERIES, MUSIC_ALBUM 키
+validation:
+  - 각 타입별 카테고리 배열
+```
+
+#### TC-SELLER-005J: JSON-LD 구조화 데이터 생성 (세션 63 추가)
+```yaml
+scenario: SEO 구조화 데이터
+steps:
+  1. 도서 등록 시 generateBookJsonLd() 호출
+  2. 영상 등록 시 generateVideoJsonLd() 호출
+  3. 음악 등록 시 generateMusicJsonLd() 호출
+expected:
+  - Book: @type=Book, author, isbn, numberOfPages
+  - Video: @type=Movie/TVSeries, director, duration
+  - Music: @type=MusicAlbum, byArtist, numTracks
+validation:
+  - Schema.org 스펙 준수
+  - 필수 속성 포함
+```
+
+#### TC-SELLER-005K: 타입별 동적 스텝 (세션 63 추가)
+```yaml
+url: /dashboard/products/new
+scenario: 상품 타입에 따른 스텝 수 변경
+steps:
+  1. 디지털 상품 선택 → 6단계 (메타 스텝 제외)
+  2. 도서/영상/음악 선택 → 7단계 (메타 스텝 포함)
+expected:
+  - 디지털 상품: 상품타입 → 기본정보 → 상세설명 → 파일 → 가격 → 튜토리얼
+  - 콘텐츠 상품: 상품타입 → 기본정보 → 메타정보 → 상세설명 → 파일 → 가격 → 튜토리얼
+validation:
+  - totalSteps 동적 계산
+  - 진행 바 정상 표시
 ```
 
 #### TC-SELLER-006: 상품 목록 조회
