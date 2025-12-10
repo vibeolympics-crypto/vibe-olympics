@@ -16,19 +16,31 @@ export function useRecentlyViewed() {
 
   // 로컬 스토리지에서 데이터 로드
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored) as RecentlyViewedItem[];
-        // 유효한 항목만 필터링 (30일 이내)
-        const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
-        const validItems = parsed.filter(item => item.viewedAt > thirtyDaysAgo);
-        setRecentlyViewed(validItems);
+    let isMounted = true;
+    
+    const loadRecentlyViewed = () => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored && isMounted) {
+          const parsed = JSON.parse(stored) as RecentlyViewedItem[];
+          // 유효한 항목만 필터링 (30일 이내)
+          const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+          const validItems = parsed.filter(item => item.viewedAt > thirtyDaysAgo);
+          setRecentlyViewed(validItems);
+        }
+      } catch (error) {
+        console.error("Failed to load recently viewed:", error);
       }
-    } catch (error) {
-      console.error("Failed to load recently viewed:", error);
-    }
-    setIsLoaded(true);
+      if (isMounted) {
+        setIsLoaded(true);
+      }
+    };
+    
+    loadRecentlyViewed();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // 데이터 변경 시 로컬 스토리지에 저장

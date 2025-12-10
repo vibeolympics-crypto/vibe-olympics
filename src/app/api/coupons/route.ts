@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
       select: { role: true, isSeller: true },
     });
 
-    let where: Prisma.CouponWhereInput = {};
+    const where: Prisma.CouponWhereInput = {};
 
     if (user?.role === "ADMIN") {
       // 관리자는 모든 쿠폰 조회 가능

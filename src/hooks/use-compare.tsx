@@ -28,16 +28,28 @@ export function CompareProvider({ children }: { children: ReactNode }) {
 
   // 로컬 스토리지에서 데이터 로드
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored) as string[];
-        setCompareItems(parsed.slice(0, MAX_COMPARE_ITEMS));
+    let isMounted = true;
+    
+    const loadCompareItems = () => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored && isMounted) {
+          const parsed = JSON.parse(stored) as string[];
+          setCompareItems(parsed.slice(0, MAX_COMPARE_ITEMS));
+        }
+      } catch (error) {
+        console.error("Failed to load compare items:", error);
       }
-    } catch (error) {
-      console.error("Failed to load compare items:", error);
-    }
-    setIsLoaded(true);
+      if (isMounted) {
+        setIsLoaded(true);
+      }
+    };
+    
+    loadCompareItems();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // 데이터 변경 시 로컬 스토리지에 저장

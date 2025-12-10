@@ -172,7 +172,7 @@ async function analyzeGroupTransactions(
   
   // 가격대 필터링
   const filteredProducts = groupProducts.filter(p => 
-    getPriceRange(p.price) === priceRange
+    getPriceRange(Number(p.price)) === priceRange
   );
   const productIds = filteredProducts.map(p => p.id);
   
@@ -198,7 +198,7 @@ async function analyzeGroupTransactions(
   });
   
   // 환불 건수 조회
-  const refunds = await prisma.refund.findMany({
+  const refunds = await prisma.refundRequest.findMany({
     where: { 
       purchase: { productId: { in: productIds } },
       status: "APPROVED",
@@ -271,7 +271,7 @@ async function calculatePositionInGroup(
   
   // 가격대 필터링
   const filteredProducts = groupProducts.filter(p => 
-    getPriceRange(p.price) === priceRange
+    getPriceRange(Number(p.price)) === priceRange
   );
   
   if (filteredProducts.length === 0) {
@@ -334,7 +334,7 @@ async function validateWithWaterfall(
     return createDefaultValidation(productId, conditionalProbability);
   }
   
-  const priceRange = getPriceRange(product.price);
+  const priceRange = getPriceRange(Number(product.price));
   
   // 1. 그룹 분석 (참/거짓 분류)
   const group = await analyzeGroupTransactions(product.categoryId, priceRange);
@@ -367,7 +367,7 @@ async function validateWithWaterfall(
     product: {
       id: productId,
       categoryId: product.categoryId,
-      price: product.price,
+      price: Number(product.price),
       priceRange,
     },
     group,
@@ -1675,12 +1675,11 @@ async function calculateContentTypeStats(type: "product" | "tutorial" | "post" |
   } else if (type === "tutorial" || type === "education") {
     // 튜토리얼/교육 통계
     const tutorials = await prisma.tutorial.findMany({
-      where: { status: "PUBLISHED" },
+      where: { isPublished: true },
       select: { 
         id: true, 
         viewCount: true,
         likeCount: true,
-        averageRating: true,
         type: true,
       },
       orderBy: { viewCount: "desc" },
@@ -1709,19 +1708,19 @@ async function calculateContentTypeStats(type: "product" | "tutorial" | "post" |
       select: { 
         id: true, 
         viewCount: true,
-        commentCount: true,
+        likeCount: true,
       },
       orderBy: { viewCount: "desc" },
       take: 100,
     });
     
     totalViews = posts.reduce((sum, p) => sum + p.viewCount, 0);
-    totalEngagements = posts.reduce((sum, p) => sum + p.commentCount, 0);
+    totalEngagements = posts.reduce((sum, p) => sum + p.likeCount, 0);
     topPerformers = posts.slice(0, 10).map(p => p.id);
     
-    // 폭포 성공률: 조회수 대비 댓글 비율 3% 이상
+    // 폭포 성공률: 조회수 대비 좋아요 비율 3% 이상
     const successfulPosts = posts.filter(p => 
-      p.viewCount > 0 && (p.commentCount / p.viewCount) >= 0.03
+      p.viewCount > 0 && (p.likeCount / p.viewCount) >= 0.03
     );
     successRate = posts.length > 0 ? successfulPosts.length / posts.length : 0;
   }
@@ -1925,7 +1924,7 @@ async function validateGlobalWaterfall(
       
       // 포지션: 조회수 기준
       const allTutorials = await prisma.tutorial.findMany({
-        where: { status: "PUBLISHED" },
+        where: { isPublished: true },
         select: { id: true, viewCount: true },
         orderBy: { viewCount: "desc" },
       });
@@ -1935,7 +1934,7 @@ async function validateGlobalWaterfall(
   } else if (contentType === "post") {
     const post = await prisma.post.findUnique({
       where: { id: contentId },
-      select: { viewCount: true, commentCount: true },
+      select: { viewCount: true, likeCount: true },
     });
     
     if (post) {
@@ -1943,7 +1942,7 @@ async function validateGlobalWaterfall(
       
       // 글로벌 확률
       const postEngagement = post.viewCount > 0 
-        ? post.commentCount / post.viewCount 
+        ? post.likeCount / post.viewCount 
         : 0;
       globalProbability = Math.min(1, postEngagement / (postStats.conversionRate || 0.01));
       
@@ -2096,7 +2095,7 @@ async function getGlobalEducationRecommendations(limit: number) {
   const tutorials = await prisma.tutorial.findMany({
     where: { 
       id: { in: topTutorialIds },
-      status: "PUBLISHED",
+      isPublished: true,
     },
     select: {
       id: true,
@@ -2106,7 +2105,6 @@ async function getGlobalEducationRecommendations(limit: number) {
       type: true,
       viewCount: true,
       likeCount: true,
-      averageRating: true,
       author: { select: { id: true, name: true, image: true } },
     },
   });
@@ -2181,10 +2179,10 @@ async function getGlobalContentRecommendations(limit: number) {
       title: true,
       content: true,
       viewCount: true,
-      commentCount: true,
+      likeCount: true,
       createdAt: true,
+      category: true,
       author: { select: { id: true, name: true, image: true } },
-      category: { select: { id: true, name: true } },
     },
   });
   
@@ -2197,7 +2195,7 @@ async function getGlobalContentRecommendations(limit: number) {
         ...post,
         content: post.content.substring(0, 200) + "...", // 미리보기
         engagementRate: post.viewCount > 0 
-          ? Math.round((post.commentCount / post.viewCount) * 100) 
+          ? Math.round((post.likeCount / post.viewCount) * 100) 
           : 0,
         globalValidation: {
           matchRate: Math.round(validation.matchRate * 100),

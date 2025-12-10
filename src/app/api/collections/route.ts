@@ -456,6 +456,3 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
-
-// Export labels and schema for use elsewhere
-export { COLLECTION_TYPE_LABELS, createCollectionSchema };

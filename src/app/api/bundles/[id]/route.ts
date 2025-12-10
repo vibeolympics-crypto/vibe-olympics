@@ -122,7 +122,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       endDate,
     } = body;
 
-    let updateData: Record<string, unknown> = {};
+    const updateData: Record<string, unknown> = {};
     
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
