@@ -421,5 +421,51 @@
     "generatedBy": "AI 생성",
     "aiTool": "사용 도구",
     "viewPrompt": "프롬프트 보기"
+  },
+  "subscription": {
+    "title": "구독 관리",
+    "subtitle": "내 구독 현황을 확인하고 관리하세요",
+    "noSubscriptions": "구독이 없습니다",
+    "noSubscriptionsDesc": "다양한 구독 플랜을 둘러보고 콘텐츠에 무제한 접근하세요",
+    "browsePlans": "플랜 둘러보기",
+    "status": {
+      "active": "활성",
+      "paused": "일시정지",
+      "cancelled": "취소됨",
+      "expired": "만료됨",
+      "pastDue": "연체"
+    },
+    "info": {
+      "billingCycle": "결제 주기",
+      "nextBilling": "다음 결제일",
+      "period": "구독 기간",
+      "totalPaid": "총 결제 금액",
+      "monthly": "월",
+      "yearly": "년"
+    },
+    "trial": {
+      "inTrial": "무료 체험 중",
+      "trialEnds": "무료 체험이 {date}에 종료됩니다"
+    },
+    "pastDueWarning": "결제가 실패했습니다. 결제 수단을 확인해주세요.",
+    "cancelledInfo": "{date}에 취소됨",
+    "availableUntil": "{date}까지 이용 가능합니다",
+    "actions": {
+      "pause": "일시정지",
+      "resume": "재개하기",
+      "cancel": "구독 취소",
+      "updatePayment": "결제 수단 변경",
+      "showPayments": "결제 내역 보기",
+      "hidePayments": "결제 내역 숨기기"
+    },
+    "payments": {
+      "title": "결제 내역",
+      "noPayments": "결제 내역이 없습니다",
+      "completed": "완료",
+      "failed": "실패",
+      "refunded": "환불"
+    },
+    "features": "플랜 혜택",
+    "confirmCancel": "정말 구독을 취소하시겠습니까? 현재 기간이 종료되면 만료됩니다."
   }
 }

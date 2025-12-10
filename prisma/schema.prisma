@@ -152,6 +152,10 @@ model User {
   // 컬렉션 시스템
   collections      Collection[]      // 판매자의 컬렉션
   
+  // 구독 시스템
+  subscriptions    Subscription[]                      // 내 구독
+  subscriptionPlans SubscriptionPlan[] @relation("SellerSubscriptionPlans") // 내가 만든 구독 플랜 (판매자)
+  
   @@index([email])
 }
 
@@ -1369,4 +1373,197 @@ enum CouponApplicableType {
   PRODUCTS        // 특정 상품
   CATEGORIES      // 특정 카테고리
   SELLER          // 특정 판매자의 상품
+}
+
+// ==========================================
+// 구독 플랜 및 구독 모델
+// ==========================================
+
+enum SubscriptionPlanInterval {
+  MONTHLY         // 월간
+  YEARLY          // 연간
+}
+
+enum SubscriptionStatus {
+  ACTIVE          // 활성
+  PAUSED          // 일시정지
+  CANCELLED       // 취소됨
+  EXPIRED         // 만료됨
+  PAST_DUE        // 결제 연체
+}
+
+enum PaymentRetryStatus {
+  PENDING         // 대기중
+  RETRYING        // 재시도중
+  SUCCEEDED       // 성공
+  FAILED          // 최종 실패
+}
+
+// 구독 플랜 (판매자가 생성)
+model SubscriptionPlan {
+  id              String   @id @default(cuid())
+  
+  // 플랜 기본 정보
+  name            String
+  description     String?  @db.Text
+  slug            String   @unique
+  
+  // 가격 정보
+  price           Decimal  @db.Decimal(10, 2)
+  currency        String   @default("KRW")
+  interval        SubscriptionPlanInterval @default(MONTHLY)
+  
+  // 혜택
+  features        String[] // 플랜 혜택 목록
+  downloadLimit   Int?     // 월간 다운로드 제한 (null = 무제한)
+  accessLevel     Int      @default(1) // 접근 레벨 (1=기본, 2=프리미엄, 3=프로)
+  
+  // 포함된 상품/컬렉션
+  includedProductIds String[] // 구독에 포함된 상품 ID 목록
+  includedCollectionIds String[] // 구독에 포함된 컬렉션 ID 목록
+  
+  // 트라이얼 기간
+  trialDays       Int      @default(0)
+  
+  // 판매자
+  sellerId        String?  // null이면 플랫폼 플랜
+  seller          User?    @relation("SellerSubscriptionPlans", fields: [sellerId], references: [id])
+  
+  // 상태
+  isActive        Boolean  @default(true)
+  isPublic        Boolean  @default(true)
+  
+  // 통계
+  subscriberCount Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // 관계
+  subscriptions   Subscription[]
+  
+  @@index([sellerId])
+  @@index([isActive, isPublic])
+  @@index([slug])
+}
+
+// 사용자 구독
+model Subscription {
+  id              String   @id @default(cuid())
+  
+  // 구독자
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // 구독 플랜
+  planId          String
+  plan            SubscriptionPlan @relation(fields: [planId], references: [id])
+  
+  // 결제 정보 (부트페이 빌링키)
+  billingKey      String?  // 부트페이 빌링키
+  paymentMethod   String?  // 결제 수단
+  
+  // 구독 기간
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  
+  // 트라이얼
+  trialStart      DateTime?
+  trialEnd        DateTime?
+  isTrialUsed     Boolean  @default(false)
+  
+  // 상태
+  status          SubscriptionStatus @default(ACTIVE)
+  cancelledAt     DateTime?
+  cancelReason    String?
+  
+  // 다음 결제
+  nextBillingDate DateTime?
+  lastBillingDate DateTime?
+  
+  // 통계
+  totalPaid       Decimal  @default(0) @db.Decimal(10, 2)
+  paymentCount    Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // 관계
+  payments        SubscriptionPayment[]
+  paymentRetries  PaymentRetry[]
+  
+  @@unique([userId, planId])
+  @@index([userId])
+  @@index([planId])
+  @@index([status])
+  @@index([nextBillingDate])
+}
+
+// 구독 결제 내역
+model SubscriptionPayment {
+  id              String   @id @default(cuid())
+  
+  subscriptionId  String
+  subscription    Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  
+  // 결제 정보
+  amount          Decimal  @db.Decimal(10, 2)
+  currency        String   @default("KRW")
+  paymentMethod   String?
+  
+  // 외부 결제 시스템 정보
+  receiptId       String?  // 부트페이 영수증 ID
+  orderId         String?  // 주문 ID
+  
+  // 결제 기간
+  periodStart     DateTime
+  periodEnd       DateTime
+  
+  // 상태
+  status          String   @default("COMPLETED") // COMPLETED, FAILED, REFUNDED
+  failedReason    String?
+  
+  // 환불 정보
+  refundedAt      DateTime?
+  refundAmount    Decimal? @db.Decimal(10, 2)
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([subscriptionId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// 결제 재시도 로그
+model PaymentRetry {
+  id              String   @id @default(cuid())
+  
+  subscriptionId  String
+  subscription    Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  
+  // 재시도 정보
+  attemptNumber   Int      @default(1)
+  maxAttempts     Int      @default(3)
+  
+  // 결제 시도 정보
+  amount          Decimal  @db.Decimal(10, 2)
+  
+  // 상태
+  status          PaymentRetryStatus @default(PENDING)
+  errorMessage    String?
+  receiptId       String?  // 성공 시 영수증 ID
+  
+  // 스케줄
+  scheduledAt     DateTime // 재시도 예정 시간
+  processedAt     DateTime? // 실제 처리 시간
+  
+  // 알림 발송 여부
+  notificationSent Boolean @default(false)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([subscriptionId])
+  @@index([status])
+  @@index([scheduledAt])
 }

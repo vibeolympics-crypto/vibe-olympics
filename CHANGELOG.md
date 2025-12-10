@@ -1,11 +1,63 @@
 # 📜 Vibe Olympics - 변경 이력 (CHANGELOG)
 
-> 마지막 업데이트: 2025년 12월 10일
+> 마지막 업데이트: 2025년 12월 11일
 > 형식: 세션별 완료 작업 + 수정된 파일 목록
 
 ---
 
-## 세션 65 (2025-12-10) - 검색/필터 UX 개선 ⭐ NEW
+## 세션 66 (2025-12-11) - 정기 구독 결제 시스템 ⭐ NEW
+
+### 작업 요약
+1. **구독 플랜 시스템**: Prisma 스키마 4개 모델 추가
+2. **구독 API**: 플랜 CRUD, 구독 관리, 결제 내역 조회
+3. **정기 결제 로직**: 부트페이 빌링키 기반 자동 갱신
+4. **결제 실패 재시도**: 1일/3일/7일 스케줄 기반 자동 재시도
+5. **구독 관리 UI**: 대시보드 페이지, 결제 내역, 액션 버튼
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| Prisma 스키마 확장 | SubscriptionPlan, Subscription, SubscriptionPayment, PaymentRetry 모델 | ✅ |
+| 구독 플랜 API | /api/subscriptions/plans - CRUD | ✅ |
+| 구독 관리 API | /api/subscriptions - 생성, 조회, 상태 변경, 해지 | ✅ |
+| 빌링키 발급 API | /api/subscriptions/billing - 부트페이 빌링키 연동 | ✅ |
+| 자동 갱신 API | /api/subscriptions/renew - Cron Job 지원 | ✅ |
+| 결제 재시도 API | /api/subscriptions/retry - 실패 재시도 스케줄러 | ✅ |
+| 결제 내역 API | /api/subscriptions/[id]/payments - 결제 이력 조회 | ✅ |
+| 구독 관리 페이지 | /dashboard/subscriptions - 구독 현황, 결제 내역, 액션 | ✅ |
+| 다국어 지원 | subscription.* 번역 키 (ko/en) | ✅ |
+
+### 수정된 파일
+```
+prisma/schema.prisma                           # 4개 모델 추가 (193줄)
+src/app/api/subscriptions/route.ts             # 구독 목록/생성
+src/app/api/subscriptions/[id]/route.ts        # 구독 상세/상태변경/해지
+src/app/api/subscriptions/[id]/payments/route.ts # 결제 내역
+src/app/api/subscriptions/plans/route.ts       # 플랜 목록/생성
+src/app/api/subscriptions/plans/[id]/route.ts  # 플랜 상세/수정/삭제
+src/app/api/subscriptions/billing/route.ts     # 빌링키 발급
+src/app/api/subscriptions/renew/route.ts       # 자동 갱신
+src/app/api/subscriptions/retry/route.ts       # 결제 재시도
+src/app/dashboard/subscriptions/page.tsx       # 구독 관리 UI
+messages/ko.json                               # 한국어 번역
+messages/en.json                               # 영어 번역
+```
+
+### 신규 데이터베이스 모델
+- `SubscriptionPlan`: 월간/연간 플랜, 트라이얼, 혜택 목록
+- `Subscription`: 사용자 구독, 빌링키, 기간, 상태 (ACTIVE/PAUSED/CANCELLED/EXPIRED/PAST_DUE)
+- `SubscriptionPayment`: 결제 내역, 영수증 ID, 기간
+- `PaymentRetry`: 재시도 스케줄, 시도 횟수, 상태
+
+### 주요 기능
+- **구독 상태**: 활성/일시정지/취소/만료/연체
+- **트라이얼**: 무료 체험 기간 지원
+- **결제 재시도**: 1일 → 3일 → 7일 스케줄
+- **구독자 수**: 자동 집계 및 표시
+
+---
+
+## 세션 65 (2025-12-10) - 검색/필터 UX 개선
 
 ### 작업 요약
 1. **검색 자동완성 개선**: 카테고리 자동완성 추가, 키보드 네비게이션

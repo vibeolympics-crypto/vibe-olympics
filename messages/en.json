@@ -421,5 +421,51 @@
     "generatedBy": "AI Generated",
     "aiTool": "Tool Used",
     "viewPrompt": "View Prompt"
+  },
+  "subscription": {
+    "title": "Subscription Management",
+    "subtitle": "View and manage your subscriptions",
+    "noSubscriptions": "No subscriptions",
+    "noSubscriptionsDesc": "Browse subscription plans and get unlimited access to content",
+    "browsePlans": "Browse Plans",
+    "status": {
+      "active": "Active",
+      "paused": "Paused",
+      "cancelled": "Cancelled",
+      "expired": "Expired",
+      "pastDue": "Past Due"
+    },
+    "info": {
+      "billingCycle": "Billing Cycle",
+      "nextBilling": "Next Billing",
+      "period": "Subscription Period",
+      "totalPaid": "Total Paid",
+      "monthly": "mo",
+      "yearly": "yr"
+    },
+    "trial": {
+      "inTrial": "Free Trial",
+      "trialEnds": "Free trial ends on {date}"
+    },
+    "pastDueWarning": "Payment failed. Please update your payment method.",
+    "cancelledInfo": "Cancelled on {date}",
+    "availableUntil": "Available until {date}",
+    "actions": {
+      "pause": "Pause",
+      "resume": "Resume",
+      "cancel": "Cancel Subscription",
+      "updatePayment": "Update Payment Method",
+      "showPayments": "Show Payment History",
+      "hidePayments": "Hide Payment History"
+    },
+    "payments": {
+      "title": "Payment History",
+      "noPayments": "No payment history",
+      "completed": "Completed",
+      "failed": "Failed",
+      "refunded": "Refunded"
+    },
+    "features": "Plan Features",
+    "confirmCancel": "Are you sure you want to cancel? Your subscription will expire at the end of the current period."
   }
 }
