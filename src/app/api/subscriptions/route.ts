@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
 
     // 새 구독 생성
     const now = new Date();
-    let periodStart = now;
+    const periodStart = now;
     let periodEnd = new Date(now);
     let trialStart = null;
     let trialEnd = null;
