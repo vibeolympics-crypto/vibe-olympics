@@ -27,6 +27,16 @@ export interface User {
 export type PricingType = "FREE" | "PAID";
 export type LicenseType = "PERSONAL" | "COMMERCIAL" | "EXTENDED";
 export type ProductStatus = "DRAFT" | "PENDING_REVIEW" | "PUBLISHED" | "REJECTED" | "SUSPENDED";
+export type ProductType = "DIGITAL_PRODUCT" | "BOOK" | "VIDEO_SERIES" | "MUSIC_ALBUM";
+
+// 도서 타입
+export type BookType = "EBOOK" | "COMIC" | "PICTURE_BOOK" | "PRINT_BOOK" | "AUDIO_BOOK";
+
+// 영상 시리즈 타입
+export type VideoSeriesType = "MOVIE" | "ANIMATION" | "DOCUMENTARY" | "SHORT_FILM" | "SERIES";
+
+// 음악 장르
+export type MusicGenre = "POP" | "ROCK" | "HIPHOP" | "RNB" | "ELECTRONIC" | "CLASSICAL" | "JAZZ" | "AMBIENT" | "SOUNDTRACK" | "WORLD" | "OTHER";
 
 export interface Product {
   id: string;
@@ -34,6 +44,7 @@ export interface Product {
   slug: string;
   shortDescription: string;
   description: string;
+  productType: ProductType;
   categoryId: string;
   sellerId: string;
   pricingType: PricingType;
@@ -43,9 +54,14 @@ export interface Product {
   thumbnail: string | null;
   thumbnailUrl?: string | null; // API 응답에서 반환되는 필드
   images: string[];
+  previewUrl: string | null;
   tags: string[];
   features: string[];
   techStack: string[];
+  // AI 생성 정보
+  isAiGenerated: boolean;
+  aiTool: string | null;
+  aiPrompt: string | null;
   status: ProductStatus;
   isPublished: boolean;
   publishedAt: Date | null;
@@ -62,11 +78,72 @@ export interface Product {
   seller?: User;
   files?: ProductFile[];
   reviews?: Review[];
+  bookMeta?: BookMeta;
+  videoSeriesMeta?: VideoSeriesMeta;
+  musicAlbumMeta?: MusicAlbumMeta;
   _count?: {
     reviews: number;
     wishlists: number;
     purchases: number;
   };
+}
+
+// 도서 메타데이터
+export interface BookMeta {
+  id: string;
+  productId: string;
+  bookType: BookType;
+  author: string | null;
+  publisher: string | null;
+  isbn: string | null;
+  pageCount: number | null;
+  chapters: number | null;
+  language: string;
+  format: string[];
+  ageRating: string | null;
+  seriesName: string | null;
+  seriesOrder: number | null;
+  sampleUrl: string | null;
+}
+
+// 영상 시리즈 메타데이터
+export interface VideoSeriesMeta {
+  id: string;
+  productId: string;
+  videoType: VideoSeriesType;
+  director: string | null;
+  cast: string[];
+  duration: number | null;
+  episodes: number | null;
+  seasons: number | null;
+  resolution: string | null;
+  audioFormat: string | null;
+  subtitles: string[];
+  ageRating: string | null;
+  genre: string[];
+  trailerUrl: string | null;
+  seriesName: string | null;
+  seriesOrder: number | null;
+}
+
+// 음악 앨범 메타데이터
+export interface MusicAlbumMeta {
+  id: string;
+  productId: string;
+  artist: string | null;
+  albumType: string | null;
+  genre: MusicGenre;
+  subGenre: string | null;
+  mood: string[];
+  trackCount: number | null;
+  totalDuration: number | null;
+  format: string[];
+  bitrate: string | null;
+  sampleRate: string | null;
+  theme: string | null;
+  hasLyrics: boolean;
+  isInstrumental: boolean;
+  previewTracks: string[];
 }
 
 export interface ProductFile {
@@ -91,8 +168,12 @@ export interface Category {
   icon: string | null;
   color: string | null;
   sortOrder: number;
+  parentId: string | null;
+  productType: ProductType;
   createdAt: Date;
   updatedAt: Date;
+  parent?: Category;
+  children?: Category[];
   _count?: {
     products: number;
   };

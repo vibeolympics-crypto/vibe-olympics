@@ -54,9 +54,19 @@ const sortOptions = [
   { id: "rating", name: "평점순" },
 ];
 
+// 콘텐츠 타입 필터
+const contentTypes = [
+  { id: "all", name: "전체", icon: Grid3X3 },
+  { id: "DIGITAL_PRODUCT", name: "디지털 상품", icon: Code2 },
+  { id: "BOOK", name: "AI 도서", icon: Briefcase },
+  { id: "VIDEO_SERIES", name: "AI 영상", icon: Heart },
+  { id: "MUSIC_ALBUM", name: "AI 음악", icon: Zap },
+];
+
 export function MarketplaceContent() {
   const { data: session } = useSession();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedContentType, setSelectedContentType] = useState<string>("all");
   const [sortBy, setSortBy] = useState("latest");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState("");
@@ -189,6 +199,7 @@ export function MarketplaceContent() {
     isFree: priceFilter === "free" ? true : priceFilter === "paid" ? false : undefined,
     sortBy: currentSort.sortBy,
     sortOrder: currentSort.sortOrder,
+    productType: selectedContentType !== "all" ? selectedContentType : undefined,
   });
 
   // 카테고리 목록 (전체 포함)
@@ -392,6 +403,33 @@ export function MarketplaceContent() {
               />
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Content Type Tabs */}
+      <section className="py-4 bg-[var(--bg-surface)] border-b border-[var(--bg-border)] sticky top-16 z-40">
+        <div className="container-app">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {contentTypes.map((type) => (
+              <button
+                key={type.id}
+                onClick={() => {
+                  setSelectedContentType(type.id);
+                  setSelectedCategory(null);
+                  setPage(1);
+                }}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all",
+                  selectedContentType === type.id
+                    ? "bg-[var(--primary)] text-white shadow-md"
+                    : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
+                )}
+              >
+                <type.icon className="w-4 h-4" />
+                {type.name}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 

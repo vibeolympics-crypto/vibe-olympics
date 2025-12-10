@@ -1,9 +1,11 @@
-import { PrismaClient, PricingType, LicenseType, ProductStatus } from "@prisma/client";
+import { PrismaClient, PricingType, LicenseType, ProductStatus, ProductType, BookType, VideoSeriesType, MusicGenre } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// 초기 카테고리 데이터
-const categories = [
+// ==========================================
+// 디지털 상품 카테고리 (기존)
+// ==========================================
+const digitalProductCategories = [
   {
     name: "웹 앱",
     slug: "web-app",
@@ -11,6 +13,7 @@ const categories = [
     icon: "Globe",
     color: "#00D4FF",
     sortOrder: 1,
+    productType: "DIGITAL_PRODUCT" as const,
   },
   {
     name: "모바일 앱",
@@ -19,6 +22,7 @@ const categories = [
     icon: "Smartphone",
     color: "#FF6B35",
     sortOrder: 2,
+    productType: "DIGITAL_PRODUCT" as const,
   },
   {
     name: "AI/ML 모델",
@@ -27,6 +31,7 @@ const categories = [
     icon: "Brain",
     color: "#BD00FF",
     sortOrder: 3,
+    productType: "DIGITAL_PRODUCT" as const,
   },
   {
     name: "자동화 도구",
@@ -35,6 +40,7 @@ const categories = [
     icon: "Zap",
     color: "#00FF9F",
     sortOrder: 4,
+    productType: "DIGITAL_PRODUCT" as const,
   },
   {
     name: "API/백엔드",
@@ -43,6 +49,7 @@ const categories = [
     icon: "Server",
     color: "#FFD93D",
     sortOrder: 5,
+    productType: "DIGITAL_PRODUCT" as const,
   },
   {
     name: "데이터 분석",
@@ -51,6 +58,7 @@ const categories = [
     icon: "BarChart3",
     color: "#FF6B6B",
     sortOrder: 6,
+    productType: "DIGITAL_PRODUCT" as const,
   },
   {
     name: "크롬 확장",
@@ -59,6 +67,7 @@ const categories = [
     icon: "Chrome",
     color: "#4285F4",
     sortOrder: 7,
+    productType: "DIGITAL_PRODUCT" as const,
   },
   {
     name: "디자인 도구",
@@ -67,6 +76,7 @@ const categories = [
     icon: "Palette",
     color: "#FF85A2",
     sortOrder: 8,
+    productType: "DIGITAL_PRODUCT" as const,
   },
   {
     name: "게임",
@@ -75,6 +85,7 @@ const categories = [
     icon: "Gamepad2",
     color: "#9B59B6",
     sortOrder: 9,
+    productType: "DIGITAL_PRODUCT" as const,
   },
   {
     name: "기타",
@@ -83,7 +94,214 @@ const categories = [
     icon: "Package",
     color: "#95A5A6",
     sortOrder: 10,
+    productType: "DIGITAL_PRODUCT" as const,
   },
+];
+
+// ==========================================
+// 도서 카테고리 (AI 생성 콘텐츠)
+// ==========================================
+const bookCategories = [
+  {
+    name: "만화/웹툰",
+    slug: "book-comic",
+    description: "AI로 제작한 만화책, 웹툰",
+    icon: "BookImage",
+    color: "#FF6B6B",
+    sortOrder: 1,
+    productType: "BOOK" as const,
+  },
+  {
+    name: "전자책",
+    slug: "book-ebook",
+    description: "AI 작성 전자책, 에세이, 소설",
+    icon: "BookOpen",
+    color: "#4ECDC4",
+    sortOrder: 2,
+    productType: "BOOK" as const,
+  },
+  {
+    name: "동화/그림책",
+    slug: "book-picture",
+    description: "어린이용 동화책, 그림책",
+    icon: "Baby",
+    color: "#FFE66D",
+    sortOrder: 3,
+    productType: "BOOK" as const,
+  },
+  {
+    name: "교육/학습",
+    slug: "book-education",
+    description: "학습서, 교재, 가이드북",
+    icon: "GraduationCap",
+    color: "#95E1D3",
+    sortOrder: 4,
+    productType: "BOOK" as const,
+  },
+  {
+    name: "자기계발",
+    slug: "book-selfhelp",
+    description: "자기계발, 비즈니스 도서",
+    icon: "TrendingUp",
+    color: "#DDA0DD",
+    sortOrder: 5,
+    productType: "BOOK" as const,
+  },
+  {
+    name: "오디오북",
+    slug: "book-audio",
+    description: "AI 음성으로 제작한 오디오북",
+    icon: "Headphones",
+    color: "#87CEEB",
+    sortOrder: 6,
+    productType: "BOOK" as const,
+  },
+];
+
+// ==========================================
+// 영상 시리즈 카테고리 (AI 생성 콘텐츠)
+// ==========================================
+const videoCategories = [
+  {
+    name: "애니메이션",
+    slug: "video-animation",
+    description: "AI 생성 애니메이션, 카툰",
+    icon: "Clapperboard",
+    color: "#FF85A2",
+    sortOrder: 1,
+    productType: "VIDEO_SERIES" as const,
+  },
+  {
+    name: "단편 영화",
+    slug: "video-shortfilm",
+    description: "AI 생성 단편 영화, 뮤직비디오",
+    icon: "Film",
+    color: "#B19CD9",
+    sortOrder: 2,
+    productType: "VIDEO_SERIES" as const,
+  },
+  {
+    name: "다큐멘터리",
+    slug: "video-documentary",
+    description: "교육용 다큐, 설명 영상",
+    icon: "Video",
+    color: "#77DD77",
+    sortOrder: 3,
+    productType: "VIDEO_SERIES" as const,
+  },
+  {
+    name: "웹 시리즈",
+    slug: "video-webseries",
+    description: "에피소드 형식의 웹 시리즈",
+    icon: "Tv",
+    color: "#FFB347",
+    sortOrder: 4,
+    productType: "VIDEO_SERIES" as const,
+  },
+  {
+    name: "교육 영상",
+    slug: "video-tutorial",
+    description: "강좌, 튜토리얼, How-to 영상",
+    icon: "MonitorPlay",
+    color: "#AEC6CF",
+    sortOrder: 5,
+    productType: "VIDEO_SERIES" as const,
+  },
+  {
+    name: "버추얼 콘텐츠",
+    slug: "video-virtual",
+    description: "VR/360도 영상, 가상 투어",
+    icon: "View",
+    color: "#FDFD96",
+    sortOrder: 6,
+    productType: "VIDEO_SERIES" as const,
+  },
+];
+
+// ==========================================
+// 음악 앨범 카테고리 (AI 생성 콘텐츠)
+// ==========================================
+const musicCategories = [
+  {
+    name: "작업용 BGM",
+    slug: "music-work",
+    description: "집중력 향상, 작업/공부용 음악",
+    icon: "Laptop",
+    color: "#00CED1",
+    sortOrder: 1,
+    productType: "MUSIC_ALBUM" as const,
+  },
+  {
+    name: "명상/힐링",
+    slug: "music-meditation",
+    description: "명상, 수면, 힐링 음악",
+    icon: "Moon",
+    color: "#9370DB",
+    sortOrder: 2,
+    productType: "MUSIC_ALBUM" as const,
+  },
+  {
+    name: "영상 배경음악",
+    slug: "music-bgm",
+    description: "유튜브, 팟캐스트용 배경음악",
+    icon: "Music",
+    color: "#FF6347",
+    sortOrder: 3,
+    productType: "MUSIC_ALBUM" as const,
+  },
+  {
+    name: "게임 사운드트랙",
+    slug: "music-game",
+    description: "게임용 OST, 효과음",
+    icon: "Gamepad2",
+    color: "#32CD32",
+    sortOrder: 4,
+    productType: "MUSIC_ALBUM" as const,
+  },
+  {
+    name: "팝/일렉트로닉",
+    slug: "music-pop",
+    description: "팝, EDM, 일렉트로닉 음악",
+    icon: "Disc3",
+    color: "#FF69B4",
+    sortOrder: 5,
+    productType: "MUSIC_ALBUM" as const,
+  },
+  {
+    name: "클래식/재즈",
+    slug: "music-classical",
+    description: "클래식, 재즈, 어쿠스틱",
+    icon: "Piano",
+    color: "#DAA520",
+    sortOrder: 6,
+    productType: "MUSIC_ALBUM" as const,
+  },
+  {
+    name: "앰비언트/자연",
+    slug: "music-ambient",
+    description: "자연 소리, 앰비언트, ASMR",
+    icon: "TreePine",
+    color: "#228B22",
+    sortOrder: 7,
+    productType: "MUSIC_ALBUM" as const,
+  },
+  {
+    name: "로열티 프리",
+    slug: "music-royaltyfree",
+    description: "상업적 사용 가능한 음원",
+    icon: "BadgeCheck",
+    color: "#4169E1",
+    sortOrder: 8,
+    productType: "MUSIC_ALBUM" as const,
+  },
+];
+
+// 모든 카테고리 합치기
+const categories = [
+  ...digitalProductCategories,
+  ...bookCategories,
+  ...videoCategories,
+  ...musicCategories,
 ];
 
 async function main() {

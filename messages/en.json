@@ -369,5 +369,57 @@
     "allowedTypes": "Allowed formats: {types}",
     "fileTooLarge": "File size is too large",
     "invalidType": "Unsupported file format"
+  },
+  "contentTypes": {
+    "all": "All",
+    "digitalProduct": "Digital Products",
+    "book": "AI Books",
+    "videoSeries": "AI Videos",
+    "musicAlbum": "AI Music"
+  },
+  "categories": {
+    "digital": {
+      "webApp": "Web App",
+      "mobileApp": "Mobile App",
+      "aiMl": "AI/ML Model",
+      "automation": "Automation Tool",
+      "apiBackend": "API/Backend",
+      "dataAnalytics": "Data Analytics",
+      "chromeExtension": "Chrome Extension",
+      "designTools": "Design Tools",
+      "games": "Games",
+      "others": "Others"
+    },
+    "book": {
+      "comic": "Comics/Webtoon",
+      "ebook": "E-book",
+      "picture": "Picture Book",
+      "education": "Education",
+      "selfHelp": "Self-Help",
+      "audioBook": "Audiobook"
+    },
+    "video": {
+      "animation": "Animation",
+      "shortFilm": "Short Film",
+      "documentary": "Documentary",
+      "webSeries": "Web Series",
+      "tutorial": "Tutorial Video",
+      "virtual": "Virtual Content"
+    },
+    "music": {
+      "work": "Work BGM",
+      "meditation": "Meditation/Healing",
+      "bgm": "Video BGM",
+      "game": "Game Soundtrack",
+      "pop": "Pop/Electronic",
+      "classical": "Classical/Jazz",
+      "ambient": "Ambient/Nature",
+      "royaltyFree": "Royalty Free"
+    }
+  },
+  "aiContent": {
+    "generatedBy": "AI Generated",
+    "aiTool": "Tool Used",
+    "viewPrompt": "View Prompt"
   }
 }

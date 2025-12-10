@@ -30,6 +30,7 @@ export interface ProductsParams {
   pricingType?: "FREE" | "PAID";
   isFree?: boolean;
   sellerId?: string;
+  productType?: string; // DIGITAL_PRODUCT, BOOK, VIDEO_SERIES, MUSIC_ALBUM
 }
 
 export interface ProductsResponse {

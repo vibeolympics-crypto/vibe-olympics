@@ -165,6 +165,47 @@ model Follow {
 // 상품 모델
 // ==========================================
 
+// 상품 타입 (콘텐츠 분류)
+enum ProductType {
+  DIGITAL_PRODUCT   // 기존 디지털 상품 (템플릿, 도구 등)
+  BOOK              // 도서 (만화책, 전자책, 동화책, 종이책)
+  VIDEO_SERIES      // 영상 시리즈 (영화, 애니메이션)
+  MUSIC_ALBUM       // 음악 앨범
+}
+
+// 도서 유형
+enum BookType {
+  EBOOK             // 전자책
+  COMIC             // 만화책
+  PICTURE_BOOK      // 동화책/그림책
+  PRINT_BOOK        // 종이책
+  AUDIO_BOOK        // 오디오북
+}
+
+// 영상 시리즈 유형
+enum VideoSeriesType {
+  MOVIE             // 영화
+  ANIMATION         // 애니메이션
+  DOCUMENTARY       // 다큐멘터리
+  SHORT_FILM        // 단편
+  SERIES            // 시리즈물
+}
+
+// 음악 장르
+enum MusicGenre {
+  POP               // 팝
+  ROCK              // 록
+  HIPHOP            // 힙합
+  RNB               // R&B
+  ELECTRONIC        // 일렉트로닉
+  CLASSICAL         // 클래식
+  JAZZ              // 재즈
+  AMBIENT           // 앰비언트
+  SOUNDTRACK        // 사운드트랙
+  WORLD             // 월드뮤직
+  OTHER             // 기타
+}
+
 model Category {
   id          String    @id @default(cuid())
   name        String    @unique
@@ -174,12 +215,22 @@ model Category {
   color       String?
   sortOrder   Int       @default(0)
   
+  // 상위 카테고리 (계층 구조)
+  parentId    String?
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  
+  // 어떤 상품 타입에 속하는 카테고리인지
+  productType ProductType @default(DIGITAL_PRODUCT)
+  
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   
   products    Product[]
   
   @@index([slug])
+  @@index([parentId])
+  @@index([productType])
 }
 
 model Product {
@@ -190,6 +241,9 @@ model Product {
   slug            String   @unique
   shortDescription String  @db.VarChar(200)
   description     String   @db.Text  // Markdown
+  
+  // 상품 타입 (콘텐츠 분류)
+  productType     ProductType @default(DIGITAL_PRODUCT)
   
   // 카테고리
   categoryId      String
@@ -210,6 +264,7 @@ model Product {
   // 미디어
   thumbnail       String?
   images          String[]    // JSON array of image URLs
+  previewUrl      String?     // 미리보기 URL (영상/음악)
   
   // 파일
   files           ProductFile[]
@@ -222,6 +277,11 @@ model Product {
   
   // 기술 스택
   techStack       String[]
+  
+  // AI 생성 정보
+  isAiGenerated   Boolean   @default(false)
+  aiTool          String?   // 사용된 AI 도구 (예: Midjourney, Suno, Runway)
+  aiPrompt        String?   @db.Text  // AI 프롬프트 (공개용)
   
   // 상태
   status          ProductStatus @default(DRAFT)
@@ -245,11 +305,18 @@ model Product {
   wishlists       Wishlist[]
   tutorials       ProductTutorial[]  // 연결된 튜토리얼
   
+  // 미디어별 메타데이터 (1:1 관계)
+  bookMeta        BookMeta?
+  videoSeriesMeta VideoSeriesMeta?
+  musicAlbumMeta  MusicAlbumMeta?
+  
   @@index([sellerId])
   @@index([categoryId])
   @@index([slug])
   @@index([status, isPublished])
   @@index([createdAt])
+  @@index([productType])
+  @@index([isAiGenerated])
 }
 
 model ProductFile {
@@ -265,6 +332,129 @@ model ProductFile {
   createdAt   DateTime @default(now())
   
   @@index([productId])
+}
+
+// ==========================================
+// 미디어별 메타데이터 모델
+// ==========================================
+
+// 도서 메타데이터
+model BookMeta {
+  id          String    @id @default(cuid())
+  productId   String    @unique
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // 도서 정보
+  bookType    BookType  @default(EBOOK)
+  author      String?                    // 저자 (AI 또는 사람)
+  publisher   String?                    // 출판사
+  isbn        String?                    // ISBN (종이책)
+  
+  // 콘텐츠 정보
+  pageCount   Int?                       // 페이지 수
+  chapters    Int?                       // 챕터 수
+  language    String    @default("ko")   // 언어
+  
+  // 전자책 형식
+  format      String[]                   // PDF, EPUB, MOBI 등
+  
+  // 연령 등급
+  ageRating   String?                    // 전체이용가, 12세, 15세, 19세
+  
+  // 시리즈 정보
+  seriesName  String?                    // 시리즈명
+  seriesOrder Int?                       // 시리즈 내 순서
+  
+  // 샘플
+  sampleUrl   String?                    // 미리보기 샘플
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([bookType])
+  @@index([seriesName])
+}
+
+// 영상 시리즈 메타데이터
+model VideoSeriesMeta {
+  id          String    @id @default(cuid())
+  productId   String    @unique
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // 영상 정보
+  videoType   VideoSeriesType @default(MOVIE)
+  director    String?                    // 감독
+  cast        String[]                   // 출연진/캐릭터
+  
+  // 콘텐츠 정보
+  duration    Int?                       // 총 러닝타임 (분)
+  episodes    Int?                       // 에피소드 수 (시리즈)
+  seasons     Int?                       // 시즌 수
+  
+  // 기술 정보
+  resolution  String?                    // 4K, 1080p, 720p
+  audioFormat String?                    // Stereo, 5.1, Dolby Atmos
+  subtitles   String[]                   // 자막 언어들
+  
+  // 등급
+  ageRating   String?                    // 전체, 12세, 15세, 청불
+  
+  // 장르
+  genre       String[]                   // 액션, 로맨스, SF 등
+  
+  // 트레일러
+  trailerUrl  String?                    // 예고편 URL
+  
+  // 시리즈 정보
+  seriesName  String?
+  seriesOrder Int?
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([videoType])
+  @@index([seriesName])
+}
+
+// 음악 앨범 메타데이터
+model MusicAlbumMeta {
+  id          String    @id @default(cuid())
+  productId   String    @unique
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  // 앨범 정보
+  artist      String?                    // 아티스트명
+  albumType   String?                    // Single, EP, Full Album, Compilation
+  
+  // 장르
+  genre       MusicGenre @default(OTHER)
+  subGenre    String?                    // 세부 장르
+  mood        String[]                   // 분위기 태그 (chill, energetic, melancholic)
+  
+  // 트랙 정보
+  trackCount  Int?                       // 트랙 수
+  totalDuration Int?                     // 총 재생시간 (초)
+  
+  // 음원 정보
+  format      String[]                   // MP3, FLAC, WAV
+  bitrate     String?                    // 320kbps, Lossless
+  sampleRate  String?                    // 44.1kHz, 48kHz, 96kHz
+  
+  // 테마
+  theme       String?                    // 테마 (작업용, 수면용, 운동용)
+  
+  // 가사
+  hasLyrics   Boolean   @default(false)  // 가사 포함 여부
+  isInstrumental Boolean @default(false) // 인스트루멘탈
+  
+  // 미리듣기
+  previewTracks String[]                 // 미리듣기 트랙 URL들
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([genre])
+  @@index([theme])
 }
 
 // ==========================================
