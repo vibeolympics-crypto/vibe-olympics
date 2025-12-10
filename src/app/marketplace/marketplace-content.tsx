@@ -198,10 +198,22 @@ export function MarketplaceContent() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 검색어 변경 시 하이라이트 초기화
-  useEffect(() => {
+  // 태그 선택/해제
+  const handleTagToggle = useCallback((tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+    setSearchQuery(tag);
+    setShowSuggestions(false);
     setHighlightedIndex(-1);
-  }, [suggestionQuery]);
+  }, []);
+
+  // 자동완성 항목 클릭
+  const handleSuggestionClick = useCallback((value: string) => {
+    setSearchQuery(value);
+    setShowSuggestions(false);
+    setHighlightedIndex(-1);
+  }, []);
 
   // 키보드 네비게이션 핸들러
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -244,24 +256,7 @@ export function MarketplaceContent() {
         inputRef.current?.blur();
         break;
     }
-  }, [showSuggestions, suggestionItems, highlightedIndex, searchQuery]);
-
-  // 태그 선택/해제
-  const handleTagToggle = (tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
-    setSearchQuery(tag);
-    setShowSuggestions(false);
-    setHighlightedIndex(-1);
-  };
-
-  // 자동완성 항목 클릭
-  const handleSuggestionClick = (value: string) => {
-    setSearchQuery(value);
-    setShowSuggestions(false);
-    setHighlightedIndex(-1);
-  };
+  }, [showSuggestions, suggestionItems, highlightedIndex, searchQuery, handleTagToggle]);
 
   // 카테고리 데이터
   const { data: categoriesData, isLoading: categoriesLoading } = useCategories();
@@ -348,7 +343,10 @@ export function MarketplaceContent() {
                     placeholder="상품 검색..."
                     icon={<Search className="w-5 h-5" />}
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setHighlightedIndex(-1);
+                    }}
                     onFocus={() => setShowSuggestions(true)}
                     onKeyDown={handleKeyDown}
                     className="flex-1"
@@ -381,7 +379,6 @@ export function MarketplaceContent() {
                   >
                     {/* 검색 결과가 있을 때 */}
                     {suggestionQuery && suggestionsData && (() => {
-                      let itemIndex = 0;
                       const categoryCount = suggestionsData.categories?.slice(0, 4).length || 0;
                       const productCount = suggestionsData.products?.slice(0, 5).length || 0;
                       
