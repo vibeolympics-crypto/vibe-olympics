@@ -1,0 +1,78 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "Next.js 14",
+    "React 18",
+    "Prisma ORM",
+    "PostgreSQL (Supabase)",
+    "NextAuth.js",
+    "next-intl",
+    "TailwindCSS",
+    "Framer Motion",
+    "React Query",
+    "Playwright",
+    "Jest"
+  ],
+  "features": [
+    {
+      "name": "User Authentication",
+      "description": "Email/password and OAuth (GitHub, Google) authentication using NextAuth.js with JWT strategy",
+      "files": ["src/lib/auth.ts", "src/app/api/auth/[...nextauth]/route.ts", "src/app/auth/login/login-content.tsx", "src/app/auth/signup/signup-content.tsx"]
+    },
+    {
+      "name": "Digital Product Marketplace",
+      "description": "Browse, search, filter, and purchase digital products with category filtering and keyword search",
+      "files": ["src/app/marketplace/page.tsx", "src/app/marketplace/marketplace-content.tsx", "src/app/marketplace/[id]/page.tsx", "src/app/api/products/route.ts"]
+    },
+    {
+      "name": "Seller Dashboard",
+      "description": "Seller product management, sales analytics, and revenue tracking",
+      "files": ["src/app/seller/page.tsx", "src/app/seller/products/page.tsx", "src/app/api/seller/route.ts"]
+    },
+    {
+      "name": "Education Center",
+      "description": "Tutorial content, courses, and educational resources with progress tracking",
+      "files": ["src/app/education/page.tsx", "src/app/education/[id]/page.tsx", "src/app/api/tutorials/route.ts"]
+    },
+    {
+      "name": "Community Forum",
+      "description": "User posts, comments, reactions, and threaded discussions",
+      "files": ["src/app/community/page.tsx", "src/app/community/[id]/page.tsx", "src/app/api/posts/route.ts", "src/app/api/comments/route.ts"]
+    },
+    {
+      "name": "AI Recommendation System",
+      "description": "Conditional probability based product recommendations with waterfall diagram validation and global statistics",
+      "files": ["src/app/api/recommendations/route.ts"]
+    },
+    {
+      "name": "Multi-language Support",
+      "description": "Korean and English language switching with next-intl, cookie-based locale persistence",
+      "files": ["src/i18n/request.ts", "src/components/ui/language-switcher.tsx", "messages/ko.json", "messages/en.json"]
+    },
+    {
+      "name": "Notification System",
+      "description": "Push notifications, in-app notifications with read/unread status and deletion",
+      "files": ["src/app/api/notifications/route.ts", "src/lib/notifications.ts", "src/hooks/use-push-notifications.ts"]
+    },
+    {
+      "name": "Payment Integration",
+      "description": "Stripe and Portone payment processing for digital product purchases",
+      "files": ["src/lib/stripe.ts", "src/lib/portone.ts", "src/app/api/payments/route.ts"]
+    },
+    {
+      "name": "Admin Dashboard",
+      "description": "User management, product moderation, and system analytics for administrators",
+      "files": ["src/app/admin/page.tsx", "src/lib/admin.ts", "src/app/api/admin/route.ts"]
+    },
+    {
+      "name": "Responsive UI Components",
+      "description": "Glass-morphism design system with accessible UI components",
+      "files": ["src/components/ui/button.tsx", "src/components/ui/card.tsx", "src/components/ui/input.tsx", "src/components/layout/header.tsx", "src/components/layout/footer.tsx"]
+    },
+    {
+      "name": "Search and Filtering",
+      "description": "Product search with autocomplete, category filtering, and sorting options",
+      "files": ["src/app/marketplace/marketplace-content.tsx", "src/app/api/products/route.ts"]
+    }
+  ]
+}

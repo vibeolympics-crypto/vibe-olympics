@@ -1,7 +1,131 @@
 # 📜 Vibe Olympics - 변경 이력 (CHANGELOG)
 
-> 마지막 업데이트: 2025년 12월 9일
+> 마지막 업데이트: 2025년 12월 10일
 > 형식: 세션별 완료 작업 + 수정된 파일 목록
+
+---
+
+## 세션 61 (2025-12-10) - 조건부확률 기반 추천 시스템 + 폭포 다이어그램 검증 + 글로벌 추천
+
+### 작업 요약
+1. 개인화 추천: 1명의 사용자 행동 기반 조건부확률 + 폭포 다이어그램 검증
+2. **글로벌 추천**: 웹사이트 전체 통계 기반 사전 계산 추천 (이벤트/쿠폰/교육/콘텐츠)
+
+### 완료 항목 (Part 1: 조건부확률 - 개인화)
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| 구매 전이 확률 함수 | P(상품B\|상품A 구매) 계산 로직 | ✅ |
+| 카테고리 전이 행렬 | P(카테고리Y\|카테고리X) 행렬 생성 | ✅ |
+| 유사 상품 추천 API | type=similar&productId={id} | ✅ |
+| 고객 여정 추천 API | type=journey&categoryId={id} | ✅ |
+| 마케팅 타겟팅 API | type=marketing (VIP, 이탈위험) | ✅ |
+| 시간 기반 가중치 | 최근 구매일수록 높은 점수 | ✅ |
+| 번들 추천 로직 | 동시 구매 확률 높은 상품 쌍 | ✅ |
+
+### 완료 항목 (Part 2: 폭포 다이어그램 검증)
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| 그룹 참/거짓 분류 | analyzeGroupTransactions() - 성공/실패 거래 분석 | ✅ |
+| 그룹 내 포지션 계산 | calculatePositionInGroup() - 백분위 산출 | ✅ |
+| 폭포 검증 함수 | validateWithWaterfall() - 일치율 계산 | ✅ |
+| 필터링 함수 | filterRecommendationsWithWaterfall() - 50% 임계값 | ✅ |
+| similar API 적용 | 폭포 검증 후 추천 목록 필터링 | ✅ |
+| journey API 적용 | 카테고리별 상품 폭포 검증 | ✅ |
+| bundle 추천 적용 | 번들 쌍 양쪽 상품 검증 | ✅ |
+
+### 완료 항목 (Part 3: 글로벌 추천 - 사이트 전체 통계) ⭐ NEW
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| 글로벌 통계 수집 | collectGlobalStatistics() - 1시간 캐시 | ✅ |
+| 콘텐츠 유형별 통계 | calculateContentTypeStats() - 상품/튜토리얼/게시글/교육 | ✅ |
+| 카테고리별 통계 | calculateCategoryGlobalStats() - 전환율/성공률 | ✅ |
+| 시간대 패턴 | calculateTimePatterns() - 활동 피크 시간 | ✅ |
+| 글로벌 폭포 검증 | validateGlobalWaterfall() - 콘텐츠별 글로벌 검증 | ✅ |
+| 이벤트/쿠폰 추천 | type=global-event - 카테고리별 이벤트 대상 | ✅ |
+| 교육 콘텐츠 추천 | type=global-education - 교육 콘텐츠 우선순위 | ✅ |
+| 콘텐츠 추천 | type=global-content - 통합 콘텐츠 추천 | ✅ |
+| 통계 조회 | type=global-stats - 관리자용 전체 통계 | ✅ |
+| 테스트 케이스 | TC-API-037~040 추가 | ✅ |
+| 문서화 | 글로벌 추천 가이드 추가 | ✅ |
+
+### 두 가지 추천 전략
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    추천 시스템 아키텍처                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  [A] 개인화 추천 (Individual)      [B] 글로벌 추천 (Global)  │
+│  ─────────────────────────────    ────────────────────────  │
+│  • 1명의 사용자 행동 기반           • 웹사이트 전체 통계 기반  │
+│  • 실시간 계산 (비용 높음)          • 사전 계산 + 1시간 캐시   │
+│  • 상품 상세, 장바구니 활용         • 이벤트, 쿠폰, 배너 활용  │
+│                                                             │
+│  type=similar, journey, marketing  type=global-event,       │
+│                                    global-education,        │
+│                                    global-content           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 핵심 수식
+```
+# 조건부확률 (개인화)
+P(상품B|상품A 구매) = (A와 B 함께 구매 수) / (A 구매 수)
+
+# 폭포 다이어그램 일치율 (개인화)
+일치율 = (조건부확률 × 0.4) + (그룹성공률 × 0.3) + (포지션점수 × 0.3)
+
+# 폭포 다이어그램 일치율 (글로벌)
+일치율 = (글로벌확률 × 0.4) + (그룹성공률 × 0.3) + (포지션점수 × 0.3)
+
+추천조건: 일치율 ≥ 50%
+```
+
+### 새로운 API 엔드포인트
+```
+# 개인화 추천
+GET /api/recommendations?type=similar&productId={id}  # 함께 구매한 상품
+GET /api/recommendations?type=journey&categoryId={id} # 고객 여정 추천
+GET /api/recommendations?type=marketing              # 마케팅 타겟팅
+
+# 글로벌 추천 (NEW)
+GET /api/recommendations?type=global-event     # 이벤트/쿠폰 대상 추천
+GET /api/recommendations?type=global-education # 교육 콘텐츠 추천
+GET /api/recommendations?type=global-content   # 통합 콘텐츠 추천
+GET /api/recommendations?type=global-stats     # 전체 통계 조회 (관리자)
+```
+
+### 글로벌 추천 활용 시나리오
+| 시나리오 | API | 결과 활용 |
+|----------|-----|----------|
+| 홈페이지 배너 | type=global-content | 인기 콘텐츠 배너 노출 |
+| 이벤트 기획 | type=global-event | 대상 카테고리 및 시간 선정 |
+| 쿠폰 발급 | type=global-event | 전환율 높은 상품 쿠폰 |
+| 교육 페이지 | type=global-education | 추천 교육 콘텐츠 순서 |
+| 관리자 대시보드 | type=global-stats | 전체 통계 모니터링 |
+
+### 생성/수정된 파일
+```
+~ src/app/api/recommendations/route.ts  # 글로벌 추천 시스템 추가 (1485줄 → 2100줄+)
+~ TEST_SPECS.md                         # TC-API-037~040 테스트 케이스, 글로벌 추천 가이드 추가
+~ CHANGELOG.md                          # 세션 61 기록 업데이트
+```
+```
+
+### 마케팅 활용 시나리오
+| 시나리오 | API | 활용 |
+|----------|-----|------|
+| 상품 상세 | type=similar | "함께 구매한 상품" 섹션 |
+| 결제 완료 | type=journey | "다음 관심 상품" |
+| 쿠폰 발급 | type=marketing | VIP 고객 타겟팅 |
+| 번들 구성 | type=marketing | 동시구매율 높은 상품 |
+| 재구매 유도 | type=marketing | 이탈 위험 고객 알림 |
+
+### 생성/수정된 파일
+```
+~ src/app/api/recommendations/route.ts  # 폭포 다이어그램 검증 시스템 추가 (993줄 → 1400줄+)
+~ TEST_SPECS.md                         # TC-API-033~036 테스트 케이스, 폭포 다이어그램 가이드 추가
+~ CHANGELOG.md                          # 세션 61 기록 업데이트
+```
 
 ---
 

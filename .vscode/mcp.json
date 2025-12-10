@@ -1,15 +1,15 @@
 {
   "servers": {
     "testsprite": {
-      "type": "http",
-      "url": "https://mcp.testsprite.com/mcp",
-        "headers": {
-          "x-testsprite-api-key": "sk-user-BP5dA4z7hDJyDiQPBj3Dn9CjEL7xpWVS"
-        }
-      },
-      "context7": {
-        "command": "npx",
-        "args": ["-y", "@upstash/context7-mcp", "--api-key", "ctx7sk-ef634880-4de6-4e46-8983-70b49add844c"]
+      "command": "npx",
+      "args": ["@testsprite/testsprite-mcp@latest"],
+      "env": {
+        "API_KEY": "sk-user-Iv2hfvd7FtHsY7ZX7L_bzF07_R5csyXhPC7gv-CpcvKwatcmY7yC8T9ZD7ueGxjRuUWteo5agTWZAKFYbP5BzC1-M4D-ksBG6k9jCQlbLiT8g_tl64psq28NGDW3sAoSVrA"
       }
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp", "--api-key", "ctx7sk-ef634880-4de6-4e46-8983-70b49add844c"]
     }
   }
+}

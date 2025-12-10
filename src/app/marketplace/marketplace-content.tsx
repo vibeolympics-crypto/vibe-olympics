@@ -782,10 +782,13 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
 
             {/* Footer */}
             <div className="flex items-center justify-between pt-3 border-t border-[var(--bg-border)]">
-              <Link 
-                href={`/seller/${product.seller?.id}`}
-                onClick={(e) => e.stopPropagation()}
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              <div 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  window.location.href = `/seller/${product.seller?.id}`;
+                }}
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
               >
                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--accent-cyan)] to-[var(--accent-violet)] flex items-center justify-center overflow-hidden">
                   {product.seller?.image ? (
@@ -803,7 +806,7 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
                 <span className="text-xs text-[var(--text-tertiary)] hover:text-[var(--primary)] transition-colors">
                   {sellerName}
                 </span>
-              </Link>
+              </div>
               <div className="flex items-center gap-3 text-xs text-[var(--text-disabled)]">
                 <span className="flex items-center gap-1">
                   <Star className="w-3 h-3 text-[var(--accent-amber)]" />

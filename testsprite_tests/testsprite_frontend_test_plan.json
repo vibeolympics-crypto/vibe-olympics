@@ -1,0 +1,650 @@
+[
+  {
+    "id": "TC001",
+    "title": "User Authentication via Credentials",
+    "description": "Verify users can successfully sign up, log in, and log out using email and password credentials, ensuring session is created and maintained securely.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to the signup page"
+      },
+      {
+        "type": "action",
+        "description": "Input valid email and password and submit the signup form"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that user account is created and confirmation message or redirect is presented"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to the login page"
+      },
+      {
+        "type": "action",
+        "description": "Input the same valid email and password and submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify login is successful, session is established, and user dashboard is accessible"
+      },
+      {
+        "type": "action",
+        "description": "Perform logout action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify session is terminated and user is redirected to public homepage"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "User Authentication via OAuth Providers",
+    "description": "Validate login and signup flows using GitHub and Google OAuth providers with secure session handling.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to login page"
+      },
+      {
+        "type": "action",
+        "description": "Click 'Login with GitHub' button and complete OAuth consent flow"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user is logged in and redirected to dashboard"
+      },
+      {
+        "type": "action",
+        "description": "Logout user"
+      },
+      {
+        "type": "action",
+        "description": "Repeat the login process using 'Login with Google' button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify successful login and session creation"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Authentication Failure Handling",
+    "description": "Ensure correct error messages and security measures are in place when login fails due to invalid credentials or canceled OAuth flows.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to login page"
+      },
+      {
+        "type": "action",
+        "description": "Input incorrect email/password combination and submit"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify error message is shown and user is not logged in"
+      },
+      {
+        "type": "action",
+        "description": "Initiate GitHub OAuth login and cancel consent"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify appropriate error or cancellation message is displayed"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Digital Product Search and Filtering",
+    "description": "Verify marketplace supports keyword search, category filters, and advanced filtering options with accurate results and no performance lag.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to marketplace page"
+      },
+      {
+        "type": "action",
+        "description": "Enter a product keyword in search bar and submit"
+      },
+      {
+        "type": "assertion",
+        "description": "Check that displayed products are relevant to the query"
+      },
+      {
+        "type": "action",
+        "description": "Select a category and apply filters such as price range and rating"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify filtered results match selected criteria"
+      },
+      {
+        "type": "action",
+        "description": "Clear filters and validate all products are shown again"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Product Details Display and File Download",
+    "description": "Ensure product detail pages render correctly with all details, tutorials, and allow buyers to download purchased digital content.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to a product detail page from marketplace"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product images, description, pricing, tutorials, and seller info are displayed"
+      },
+      {
+        "type": "action",
+        "description": "Login as a buyer who purchased the product"
+      },
+      {
+        "type": "action",
+        "description": "Access the download link or button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify digital files download successfully and are accessible only to authorized users"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Seller Product Management Wizard",
+    "description": "Test the multi-step product registration process for sellers including input validations and file uploads while persisting data correctly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as a seller"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to product registration wizard"
+      },
+      {
+        "type": "action",
+        "description": "Fill in basic info (name, category, thumbnail)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify thumbnail upload via Cloudinary works and size/format constraints are enforced"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to detailed description step and input markdown content"
+      },
+      {
+        "type": "action",
+        "description": "Set pricing, upload product files, and tutorials"
+      },
+      {
+        "type": "action",
+        "description": "Submit product for creation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify product is created in database and visible in seller's products list"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "Bootpay Payment Flow Success",
+    "description": "Validate successful Bootpay payment flows across all supported payment methods, confirm purchase and update database and UI accordingly.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as a buyer"
+      },
+      {
+        "type": "action",
+        "description": "Add product to cart and initiate payment"
+      },
+      {
+        "type": "action",
+        "description": "Complete payment using each Bootpay supported method (cards, KakaoPay, NaverPay, TossPay, mobile, bank transfer, virtual account) in separate tests"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify payment success response, purchase records update, and download access granted"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Bootpay Payment Failure and Cancellation Handling",
+    "description": "Verify system handles payment failures, cancellations, and refunds properly with correct UI feedback, database consistency, and webhook processing.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Initiate a Bootpay payment and simulate failure or cancellation"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm failure or cancellation message displayed and no purchase record created"
+      },
+      {
+        "type": "action",
+        "description": "Test refund processing through webhook or admin panel"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify refund records update, user is notified, and funds are returned"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Wishlist Functionality and Restrictions",
+    "description": "Check buyer can add/remove products from wishlist, wishlist persists across sessions, and unauthorized attempts are blocked.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as a buyer"
+      },
+      {
+        "type": "action",
+        "description": "Add multiple products to wishlist from marketplace"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify wishlist UI updates accordingly and products are saved in database"
+      },
+      {
+        "type": "action",
+        "description": "Logout and log back in"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify wishlist contents persist"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to add or remove wishlist item while not logged in"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify action is blocked and appropriate error shown"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Community Post CRUD Operations with Comments and Reactions",
+    "description": "Validate users can create, edit, delete posts and add comments, replies, reactions, with role-based restrictions and data consistency.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as a community user"
+      },
+      {
+        "type": "action",
+        "description": "Create a new post with title and content"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify post appears on community page and is retrievable"
+      },
+      {
+        "type": "action",
+        "description": "Edit the post content and save"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm updated content is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Add comments and replies to the post"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm comments and replies render correctly"
+      },
+      {
+        "type": "action",
+        "description": "React to post (like, etc.)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify reaction count updates and is user-specific"
+      },
+      {
+        "type": "action",
+        "description": "Delete the post"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm post and associated data are removed"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Role-Based Access Control",
+    "description": "Ensure visitors, buyers, sellers, and administrators can only access authorized UI pages and API endpoints; unauthorized access is denied.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Try accessing seller dashboard pages as visitor and buyer"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access denied or redirected to login"
+      },
+      {
+        "type": "action",
+        "description": "Try accessing admin panel pages as buyer and seller"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access denied"
+      },
+      {
+        "type": "action",
+        "description": "Check API endpoints with unauthorized tokens and without tokens for sensitive operations"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify proper HTTP 401/403 responses"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Multi-language and UI Responsiveness",
+    "description": "Verify Korean and English locales load correctly, content keys are used, and UI resizes and reflows properly on mobile, tablet, desktop, and large screens.",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Switch language locale to Korean and English"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify translated text appears on all key pages and locale persists across navigation"
+      },
+      {
+        "type": "action",
+        "description": "Resize browser to different screen sizes: mobile, tablet, desktop, large"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI elements resize, reposition, and remain accessible and usable"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Cloudinary Image Upload Constraints",
+    "description": "Test image uploads obey maximum size and accepted formats with proper error messages and successful URL returns for valid uploads.",
+    "category": "error handling",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Upload various image files via Cloudinary API endpoint with valid sizes and formats"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm successful upload with correct Cloudinary URL returned"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to upload an image exceeding size limits or unsupported format"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify error response and client displays appropriate message"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Notifications and Push Subscription",
+    "description": "Validate notification settings can be updated by user, push subscription is supported and notifications are received accordingly.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as user and navigate to notification settings"
+      },
+      {
+        "type": "action",
+        "description": "Update notification preferences and save"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm settings updated in database and UI confirmation shown"
+      },
+      {
+        "type": "action",
+        "description": "Subscribe to push notifications"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify push subscription confirmation and receiving of test notifications"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Admin Panel User and Product Management",
+    "description": "Test admin can view, search, edit, approve, or delete users and products, trigger exports, and monitor analytics with UI updates and database consistency.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as administrator"
+      },
+      {
+        "type": "action",
+        "description": "Access admin dashboard user and product sections"
+      },
+      {
+        "type": "action",
+        "description": "Search for users and products by various criteria"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify search results are accurate and paginated"
+      },
+      {
+        "type": "action",
+        "description": "Approve or reject product submissions"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm product status changes and notifications sent"
+      },
+      {
+        "type": "action",
+        "description": "Edit user roles and revoke or grant access"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify user permissions updated successfully"
+      },
+      {
+        "type": "action",
+        "description": "Export user or product data and check exported file"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm export success and correct formatting"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "AI-Powered Personalized Recommendations",
+    "description": "Check recommended products and content feed update dynamically per user activity and that API returns relevant items.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as user and browse various product categories"
+      },
+      {
+        "type": "action",
+        "description": "Observe personalized recommendation sections on marketplace and dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify recommendations reflect user interests and previously viewed/purchased items"
+      },
+      {
+        "type": "action",
+        "description": "Call recommendations API with user token"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm API returns relevant recommendations in proper JSON format"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Bundle and Coupon Management",
+    "description": "Verify sellers and admins can create, edit, validate, and apply bundles and coupons correctly affecting pricing and purchases.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as seller"
+      },
+      {
+        "type": "action",
+        "description": "Create a product bundle and attach valid coupons"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify bundle and coupon creation success with valid constraints"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to apply invalid or expired coupon during purchase"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify coupon validation API rejects and UI shows error"
+      },
+      {
+        "type": "action",
+        "description": "Apply valid coupon and complete purchase"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm discounted price applied and purchase records correct"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "FAQ Filtering and Search",
+    "description": "Ensure FAQ page loads all categories, supports accordion UI for answers, and filtering/search returns accurate results.",
+    "category": "functional",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to FAQ page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all FAQ categories are visible with expanded/collapsed answers"
+      },
+      {
+        "type": "action",
+        "description": "Use search bar to query FAQs"
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm search results contain relevant questions and answers"
+      },
+      {
+        "type": "action",
+        "description": "Apply category filters"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify FAQ list updates to selected category"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "API Health Check Endpoint",
+    "description": "Validate health endpoint returns correct status code and response indicating system health and uptime.",
+    "category": "functional",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send GET request to /api/health"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify HTTP 200 response with JSON body including status and uptime"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Error Handling for Invalid API Requests",
+    "description": "Test API endpoints respond with appropriate HTTP codes and error messages when invalid data or unauthorized access occurs.",
+    "category": "error handling",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Send requests to marketplace, payments, admin, and seller APIs with invalid parameters or missing fields"
+      },
+      {
+        "type": "assertion",
+        "description": "All respond with meaningful errors (400, 401, 403, 404) in JSON format"
+      },
+      {
+        "type": "action",
+        "description": "Attempt accessing secured endpoints without authentication"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify 401 Unauthorized responses"
+      }
+    ]
+  }
+]

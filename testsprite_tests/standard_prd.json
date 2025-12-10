@@ -1,0 +1,261 @@
+{
+  "meta": {
+    "project": "Vibe Olympics",
+    "date": "2025-12-10",
+    "prepared_by": "Vibe Olympics 개발팀"
+  },
+  "product_overview": "Vibe Olympics is a comprehensive online platform offering a digital product marketplace, education center, and community forum. It supports user authentication, seamless payment integration via Bootpay, and extensive role-based features for visitors, buyers, sellers, administrators, and community participants.",
+  "core_goals": [
+    "Provide a secure and flexible authentication system supporting multiple providers.",
+    "Offer a rich digital marketplace with advanced search, filtering, and personalized AI recommendations.",
+    "Enable sellers to manage products, bundles, coupons, and view detailed analytics.",
+    "Support buyers with wishlist, purchase management, reviews, and multiple payment methods.",
+    "Facilitate active community engagement with posts, comments, reactions, and follow features.",
+    "Provide administrators with full control over users, products, settlements, refunds, and analytics.",
+    "Ensure multi-language support and accessible, responsive UI/UX design.",
+    "Implement robust testing including unit, integration, E2E, accessibility, and performance tests."
+  ],
+  "key_features": [
+    "Multi-provider authentication with NextAuth.js (credentials, GitHub, Google).",
+    "Digital product marketplace featuring search, filtering, categories, and product details.",
+    "Education center hosting tutorials with filtering and markdown content support.",
+    "Community forum with posts, comments, reactions, follows, and Q&A sections.",
+    "Bootpay payment integration supporting seven payment methods (cards, KakaoPay, NaverPay, TossPay, mobile payments, bank transfers, virtual accounts).",
+    "User dashboards for managing purchases, products, analytics, reviews, and settings.",
+    "Admin panel for user and product management, including statistics, settlements, refunds, and coupon control.",
+    "Seller-specific features: product registration wizard, bundle and coupon management, response to reviews and Q&As, and sales analytics.",
+    "AI-powered personalized recommendations and content feed.",
+    "Cloudinary integration for image uploads and management.",
+    "Notifications with push subscription support and comprehensive settings.",
+    "Internationalization supporting Korean and English languages.",
+    "Static legal pages and FAQ with filtering and search.",
+    "Comprehensive error handling, access control, and session management."
+  ],
+  "user_flow_summary": [
+    "Visitors explore public pages like homepage, marketplace, education center, community, and FAQ without authentication.",
+    "Visitors can sign up or log in via email/password or OAuth providers.",
+    "Buyers search and filter products, add items to wishlist, make purchases using Bootpay with multiple payment options, and download purchased content.",
+    "Sellers create and manage digital products stepwise (basic info, detailed description, pricing, files, tutorials), view sales analytics, manage bundles and coupons, and respond to reviews and Q&A.",
+    "Community users create, edit, and delete posts, add comments and replies, react to posts, and follow sellers.",
+    "Administrators access a secure admin dashboard to manage users, products, settlements, refunds, and perform exports.",
+    "Users manage profiles, notification settings, and receive push notifications.",
+    "AI chatbot provides interactive support for logged-in users.",
+    "Multi-language and responsive UI ensure seamless experience across devices and locales.",
+    "Robust API endpoints support CRUD operations, authentication, and analytics for tailored user experiences."
+  ],
+  "validation_criteria": [
+    "All public and authenticated API endpoints must return correct HTTP status codes and JSON responses.",
+    "Authentication flows for credentials and OAuth providers must securely create and manage sessions.",
+    "Bootpay payment flows and webhook handlers are expected to handle success, failure, cancellation, and refunds accurately.",
+    "Purchases, reviews, wishlist manipulations must reflect in the database and UI consistently without duplicates or unauthorized access.",
+    "Role-based access control ensures users cannot access unauthorized pages or APIs.",
+    "Admin functionalities for user, product, settlement, refund, coupon, and bundle management must update database states and trigger corresponding notifications or exports correctly.",
+    "UI components resize and reflow properly for mobile, tablet, desktop, and large screens with accessibility standards met.",
+    "Internationalization keys are properly loaded and translations applied with locale persistence.",
+    "File uploads via Cloudinary and Supabase must obey size and format constraints with correct URLs returned.",
+    "Automated tests cover unit, integration, E2E, accessibility, and performance aspects with results matching test case specifications."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "TypeScript",
+      "Next.js 14 (App Router)",
+      "React 18",
+      "Prisma ORM",
+      "PostgreSQL (Supabase)",
+      "NextAuth.js",
+      "Tailwind CSS",
+      "Cloudinary",
+      "Bootpay",
+      "Playwright",
+      "Jest"
+    ],
+    "features": [
+      {
+        "name": "Authentication",
+        "description": "User authentication with NextAuth.js supporting credentials, GitHub, and Google OAuth providers",
+        "files": [
+          "src/lib/auth.ts",
+          "src/app/api/auth/[...nextauth]/route.ts",
+          "src/app/auth/login/page.tsx",
+          "src/app/auth/signup/page.tsx",
+          "src/app/auth/forgot-password/page.tsx",
+          "src/components/providers/auth-provider.tsx"
+        ]
+      },
+      {
+        "name": "Marketplace",
+        "description": "Digital product marketplace with search, filtering, categories, and product details",
+        "files": [
+          "src/app/marketplace/page.tsx",
+          "src/app/marketplace/[slug]/page.tsx",
+          "src/app/api/products/route.ts",
+          "src/app/api/products/[id]/route.ts",
+          "src/app/api/categories/route.ts"
+        ]
+      },
+      {
+        "name": "Education Center",
+        "description": "Tutorial and educational content management with filtering by type and difficulty",
+        "files": [
+          "src/app/education/page.tsx",
+          "src/app/education/[id]/page.tsx",
+          "src/app/api/tutorials/route.ts",
+          "src/app/api/tutorials/[id]/route.ts"
+        ]
+      },
+      {
+        "name": "Community",
+        "description": "Community forum with posts, comments, and reactions",
+        "files": [
+          "src/app/community/page.tsx",
+          "src/app/community/[id]/page.tsx",
+          "src/app/api/posts/route.ts",
+          "src/app/api/posts/[id]/route.ts"
+        ]
+      },
+      {
+        "name": "Payment System",
+        "description": "Bootpay integration for payments with 7 payment methods (card, kakao, naver, toss, etc.)",
+        "files": [
+          "src/lib/bootpay.ts",
+          "src/app/api/payments/bootpay/route.ts",
+          "src/app/api/payments/bootpay/webhook/route.ts"
+        ]
+      },
+      {
+        "name": "User Dashboard",
+        "description": "User dashboard for managing purchases, products, analytics, and settings",
+        "files": [
+          "src/app/dashboard/page.tsx",
+          "src/app/dashboard/products/page.tsx",
+          "src/app/dashboard/purchases/page.tsx",
+          "src/app/dashboard/analytics/page.tsx",
+          "src/app/dashboard/settings/page.tsx"
+        ]
+      },
+      {
+        "name": "Admin Panel",
+        "description": "Admin dashboard for user management, product approval, and analytics",
+        "files": [
+          "src/app/admin/page.tsx",
+          "src/app/api/admin/stats/route.ts",
+          "src/app/api/admin/users/route.ts",
+          "src/lib/admin.ts"
+        ]
+      },
+      {
+        "name": "Seller Features",
+        "description": "Seller profile and product management for digital product creators",
+        "files": [
+          "src/app/seller/[id]/page.tsx",
+          "src/app/api/seller/products/route.ts",
+          "src/app/api/seller/analytics/route.ts"
+        ]
+      },
+      {
+        "name": "Recommendations",
+        "description": "AI-powered product and content recommendations",
+        "files": [
+          "src/app/api/recommendations/route.ts"
+        ]
+      },
+      {
+        "name": "Search",
+        "description": "Full-text search for products, tutorials, and posts",
+        "files": [
+          "src/app/api/search/route.ts",
+          "src/app/api/search/suggestions/route.ts",
+          "src/app/api/search/popular/route.ts"
+        ]
+      },
+      {
+        "name": "File Upload",
+        "description": "Cloudinary integration for image and file uploads",
+        "files": [
+          "src/app/api/upload/route.ts",
+          "src/app/api/upload/cloudinary/route.ts"
+        ]
+      },
+      {
+        "name": "Notifications",
+        "description": "User notification system with push notifications support",
+        "files": [
+          "src/lib/notifications.ts",
+          "src/lib/push-notifications.ts",
+          "src/app/api/notifications/route.ts"
+        ]
+      },
+      {
+        "name": "Internationalization",
+        "description": "Multi-language support (Korean, English) using next-intl",
+        "files": [
+          "src/i18n/request.ts",
+          "messages/ko.json",
+          "messages/en.json"
+        ]
+      },
+      {
+        "name": "Bundle & Coupon",
+        "description": "Product bundling and coupon/discount system",
+        "files": [
+          "src/app/api/bundles/route.ts",
+          "src/app/api/coupons/route.ts",
+          "src/app/api/coupons/validate/route.ts"
+        ]
+      },
+      {
+        "name": "Health Check",
+        "description": "API health monitoring endpoint",
+        "files": [
+          "src/app/api/health/route.ts"
+        ]
+      },
+      {
+        "name": "RSS Feed",
+        "description": "RSS and Atom feed generation for content syndication",
+        "files": [
+          "src/app/api/feed/rss/route.ts",
+          "src/app/api/feed/atom/route.ts"
+        ]
+      },
+      {
+        "name": "Legal Pages",
+        "description": "Terms of service, privacy policy, and refund policy pages",
+        "files": [
+          "src/app/terms/page.tsx",
+          "src/app/privacy/page.tsx",
+          "src/app/refund/page.tsx"
+        ]
+      },
+      {
+        "name": "FAQ",
+        "description": "Frequently asked questions with accordion UI and category filtering",
+        "files": [
+          "src/app/faq/page.tsx",
+          "src/data/faq.json",
+          "src/data/faq.en.json"
+        ]
+      },
+      {
+        "name": "UI Components",
+        "description": "Reusable UI components including buttons, cards, forms, modals",
+        "files": [
+          "src/components/ui/button.tsx",
+          "src/components/ui/card.tsx",
+          "src/components/ui/input.tsx",
+          "src/components/ui/dialog.tsx",
+          "src/components/ui/accordion.tsx"
+        ]
+      },
+      {
+        "name": "Layout Components",
+        "description": "Header, footer, and navigation components",
+        "files": [
+          "src/components/layout/header.tsx",
+          "src/components/layout/footer.tsx",
+          "src/app/layout.tsx"
+        ]
+      }
+    ]
+  }
+}
