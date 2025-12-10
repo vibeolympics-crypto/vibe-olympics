@@ -11,6 +11,8 @@ import {
   DollarSign,
   Check,
   RotateCcw,
+  Sparkles,
+  Package,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +25,8 @@ export interface FilterState {
   licenses: string[];
   sortBy: string;
   tags: string[];
+  isAIGenerated?: boolean;
+  contentType?: string;
 }
 
 interface AdvancedFilterProps {
@@ -51,6 +55,14 @@ const priceRanges = [
   { label: "₩100,000+", value: [100000, 1000000] as [number, number] },
 ];
 
+const contentTypeOptions = [
+  { id: "all", name: "전체 유형" },
+  { id: "DIGITAL_PRODUCT", name: "디지털 상품" },
+  { id: "BOOK", name: "AI 도서" },
+  { id: "VIDEO_SERIES", name: "AI 영상" },
+  { id: "MUSIC_ALBUM", name: "AI 음악" },
+];
+
 export function AdvancedFilter({
   filters,
   onChange,
@@ -63,6 +75,8 @@ export function AdvancedFilter({
     "price",
     "rating",
     "license",
+    "contentType",
+    "aiGenerated",
   ]);
 
   const toggleSection = (section: string) => {
@@ -99,7 +113,9 @@ export function AdvancedFilter({
     (filters.rating > 0 ? 1 : 0) +
     (filters.pricingType !== "all" ? 1 : 0) +
     filters.licenses.length +
-    filters.tags.length;
+    filters.tags.length +
+    (filters.isAIGenerated ? 1 : 0) +
+    (filters.contentType && filters.contentType !== "all" ? 1 : 0);
 
   return (
     <div className="relative">
@@ -158,6 +174,120 @@ export function AdvancedFilter({
             </div>
 
             <div className="max-h-[60vh] overflow-y-auto p-4 space-y-4">
+              {/* AI Generated Filter */}
+              <div className="space-y-2">
+                <button
+                  onClick={() => toggleSection("aiGenerated")}
+                  className="flex items-center justify-between w-full text-left"
+                >
+                  <span className="font-medium text-[var(--text-primary)] flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[var(--accent-purple)]" />
+                    AI 생성
+                  </span>
+                  {expandedSections.includes("aiGenerated") ? (
+                    <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)]" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)]" />
+                  )}
+                </button>
+                <AnimatePresence>
+                  {expandedSections.includes("aiGenerated") && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="flex gap-2 pt-2">
+                        <button
+                          onClick={() => updateFilter("isAIGenerated", undefined)}
+                          className={cn(
+                            "flex-1 px-3 py-2 rounded-lg text-sm transition-colors",
+                            filters.isAIGenerated === undefined
+                              ? "bg-[var(--primary)] text-white"
+                              : "bg-[var(--bg-base)] text-[var(--text-secondary)] hover:bg-[var(--bg-border)]"
+                          )}
+                        >
+                          전체
+                        </button>
+                        <button
+                          onClick={() => updateFilter("isAIGenerated", true)}
+                          className={cn(
+                            "flex-1 px-3 py-2 rounded-lg text-sm transition-colors flex items-center justify-center gap-1",
+                            filters.isAIGenerated === true
+                              ? "bg-[var(--accent-purple)] text-white"
+                              : "bg-[var(--bg-base)] text-[var(--text-secondary)] hover:bg-[var(--bg-border)]"
+                          )}
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          AI 생성
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Content Type Filter */}
+              <div className="space-y-2">
+                <button
+                  onClick={() => toggleSection("contentType")}
+                  className="flex items-center justify-between w-full text-left"
+                >
+                  <span className="font-medium text-[var(--text-primary)] flex items-center gap-2">
+                    <Package className="w-4 h-4" />
+                    콘텐츠 유형
+                  </span>
+                  {expandedSections.includes("contentType") ? (
+                    <ChevronUp className="w-4 h-4 text-[var(--text-tertiary)]" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4 text-[var(--text-tertiary)]" />
+                  )}
+                </button>
+                <AnimatePresence>
+                  {expandedSections.includes("contentType") && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="space-y-1 pt-2">
+                        {contentTypeOptions.map((option) => {
+                          const isSelected = (filters.contentType || "all") === option.id;
+                          return (
+                            <button
+                              key={option.id}
+                              onClick={() => updateFilter("contentType", option.id === "all" ? undefined : option.id)}
+                              className={cn(
+                                "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm transition-colors",
+                                isSelected
+                                  ? "bg-[var(--primary)] text-white"
+                                  : "hover:bg-[var(--bg-border)]"
+                              )}
+                            >
+                              <div
+                                className={cn(
+                                  "w-4 h-4 rounded-full border-2 flex items-center justify-center",
+                                  isSelected
+                                    ? "border-white"
+                                    : "border-[var(--bg-border)]"
+                                )}
+                              >
+                                {isSelected && (
+                                  <div className="w-2 h-2 rounded-full bg-white" />
+                                )}
+                              </div>
+                              {option.name}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               {/* Price Range */}
               <div className="space-y-2">
                 <button
@@ -414,6 +544,23 @@ interface ActiveFiltersProps {
 
 export function ActiveFilters({ filters, onRemove, onReset }: ActiveFiltersProps) {
   const activeFilters: { key: keyof FilterState; label: string; value?: string }[] = [];
+
+  // AI Generated 필터
+  if (filters.isAIGenerated) {
+    activeFilters.push({
+      key: "isAIGenerated",
+      label: "AI 생성",
+    });
+  }
+
+  // 콘텐츠 타입 필터
+  if (filters.contentType && filters.contentType !== "all") {
+    const option = contentTypeOptions.find((o) => o.id === filters.contentType);
+    activeFilters.push({
+      key: "contentType",
+      label: option?.name || filters.contentType,
+    });
+  }
 
   if (filters.priceRange[0] !== 0 || filters.priceRange[1] !== 1000000) {
     const range = priceRanges.find(

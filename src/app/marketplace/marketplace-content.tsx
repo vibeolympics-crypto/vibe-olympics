@@ -52,9 +52,11 @@ const categoryIcons: Record<string, React.ComponentType<{ className?: string }>>
 const sortOptions = [
   { id: "latest", name: "최신순" },
   { id: "popular", name: "인기순" },
+  { id: "downloads", name: "다운로드순" },
   { id: "price-low", name: "가격 낮은순" },
   { id: "price-high", name: "가격 높은순" },
   { id: "rating", name: "평점순" },
+  { id: "sales", name: "판매량순" },
 ];
 
 // 콘텐츠 타입 필터
@@ -93,6 +95,8 @@ export function MarketplaceContent() {
     licenses: [],
     sortBy: "latest",
     tags: [],
+    isAIGenerated: undefined,
+    contentType: undefined,
   });
 
   const defaultFilters: FilterState = {
@@ -102,6 +106,8 @@ export function MarketplaceContent() {
     licenses: [],
     sortBy: "latest",
     tags: [],
+    isAIGenerated: undefined,
+    contentType: undefined,
   };
 
   const resetFilters = () => {
@@ -125,6 +131,10 @@ export function MarketplaceContent() {
       setAdvancedFilters((prev) => ({ ...prev, rating: 0 }));
     } else if (key === "pricingType") {
       setAdvancedFilters((prev) => ({ ...prev, pricingType: "all" }));
+    } else if (key === "isAIGenerated") {
+      setAdvancedFilters((prev) => ({ ...prev, isAIGenerated: undefined }));
+    } else if (key === "contentType") {
+      setAdvancedFilters((prev) => ({ ...prev, contentType: undefined }));
     }
   };
 
@@ -259,10 +269,12 @@ export function MarketplaceContent() {
   // sortBy를 API 파라미터로 변환
   const sortMapping: Record<string, { sortBy: string; sortOrder: "asc" | "desc" }> = {
     latest: { sortBy: "createdAt", sortOrder: "desc" },
-    popular: { sortBy: "downloadCount", sortOrder: "desc" },
+    popular: { sortBy: "viewCount", sortOrder: "desc" },
+    downloads: { sortBy: "downloadCount", sortOrder: "desc" },
     "price-low": { sortBy: "price", sortOrder: "asc" },
     "price-high": { sortBy: "price", sortOrder: "desc" },
     rating: { sortBy: "rating", sortOrder: "desc" },
+    sales: { sortBy: "salesCount", sortOrder: "desc" },
   };
 
   const currentSort = sortMapping[sortBy] || sortMapping.latest;
