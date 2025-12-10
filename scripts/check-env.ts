@@ -7,7 +7,17 @@
  * npx ts-node scripts/check-env.ts
  * or
  * npm run check-env
+ * 
+ * Environment variables:
+ * - SKIP_ENV_VALIDATION: Set to "true" to skip validation (for CI/CD builds)
+ * - CI: If set, will use softer exit (warning instead of error)
  */
+
+// Skip validation in CI environment or when explicitly requested
+if (process.env.SKIP_ENV_VALIDATION === "true") {
+  console.log("\n[ENV CHECK] Skipped (SKIP_ENV_VALIDATION=true)\n");
+  process.exit(0);
+}
 
 interface EnvVar {
   name: string;

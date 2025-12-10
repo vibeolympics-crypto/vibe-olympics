@@ -38,11 +38,19 @@ jobs:
       - name: Check build
         run: npm run build
         env:
+          CI: "true"
+          SKIP_ENV_VALIDATION: "true"
           DATABASE_URL: "postgresql://user:pass@localhost:5432/db"
           NEXTAUTH_URL: "http://localhost:3000"
-          NEXTAUTH_SECRET: "dummy-secret-for-build"
-          GITHUB_ID: "dummy"
-          GITHUB_SECRET: "dummy"
+          NEXTAUTH_SECRET: "dummy-secret-for-build-minimum-32-chars"
+          GITHUB_ID: "dummy-github-id"
+          GITHUB_SECRET: "dummy-github-secret"
+          NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-anon-key"
+          SUPABASE_SERVICE_ROLE_KEY: "dummy-service-role-key"
+          STRIPE_SECRET_KEY: "sk_test_dummy"
+          STRIPE_WEBHOOK_SECRET: "whsec_dummy"
+          RESEND_API_KEY: "re_dummy"
 
       - name: Comment on PR
         uses: actions/github-script@v7
