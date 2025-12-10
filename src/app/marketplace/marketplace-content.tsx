@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
@@ -21,6 +21,7 @@ import {
   AlertCircle,
   TrendingUp,
   X,
+  FolderOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,9 +77,13 @@ export function MarketplaceContent() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [priceFilter, setPriceFilter] = useState<"all" | "free" | "paid">("all");
   const [page, setPage] = useState(1);
   const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
+  
+  // 키보드 네비게이션 상태
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   // 고급 필터 상태
   const [advancedFilters, setAdvancedFilters] = useState<FilterState>({
@@ -147,16 +152,89 @@ export function MarketplaceContent() {
   });
   const { data: popularTagsData } = usePopularTags(10);
 
+  // 자동완성 항목 리스트 생성 (키보드 네비게이션용)
+  const suggestionItems = useMemo(() => {
+    if (!suggestionQuery || !suggestionsData) return [];
+    
+    const items: { type: "category" | "product" | "tag"; value: string; id?: string; data?: unknown }[] = [];
+    
+    // 카테고리 추가
+    suggestionsData.categories?.slice(0, 4).forEach((cat: { id: string; name: string; slug: string; productCount: number }) => {
+      items.push({ type: "category", value: cat.name, id: cat.id, data: cat });
+    });
+    
+    // 상품 추가
+    suggestionsData.products?.slice(0, 5).forEach((product: { id: string; title: string }) => {
+      items.push({ type: "product", value: product.title, id: product.id, data: product });
+    });
+    
+    // 태그 추가
+    suggestionsData.tags?.slice(0, 8).forEach((tag: string) => {
+      items.push({ type: "tag", value: tag });
+    });
+    
+    return items;
+  }, [suggestionQuery, suggestionsData]);
+
   // 외부 클릭 시 검색 드롭다운 닫기
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
+        setHighlightedIndex(-1);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // 검색어 변경 시 하이라이트 초기화
+  useEffect(() => {
+    setHighlightedIndex(-1);
+  }, [suggestionQuery]);
+
+  // 키보드 네비게이션 핸들러
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showSuggestions) return;
+    
+    const itemCount = suggestionItems.length;
+    
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setHighlightedIndex((prev) => (prev < itemCount - 1 ? prev + 1 : 0));
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : itemCount - 1));
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (highlightedIndex >= 0 && highlightedIndex < itemCount) {
+          const item = suggestionItems[highlightedIndex];
+          if (item.type === "category" && item.id) {
+            setSelectedCategory(item.id);
+            setSearchQuery("");
+          } else if (item.type === "product") {
+            setSearchQuery(item.value);
+          } else if (item.type === "tag") {
+            handleTagToggle(item.value);
+          }
+          setShowSuggestions(false);
+          setHighlightedIndex(-1);
+        } else if (searchQuery.trim()) {
+          // 선택된 항목 없이 Enter 시 검색 실행
+          setShowSuggestions(false);
+          setHighlightedIndex(-1);
+        }
+        break;
+      case "Escape":
+        setShowSuggestions(false);
+        setHighlightedIndex(-1);
+        inputRef.current?.blur();
+        break;
+    }
+  }, [showSuggestions, suggestionItems, highlightedIndex, searchQuery]);
 
   // 태그 선택/해제
   const handleTagToggle = (tag: string) => {
@@ -165,12 +243,14 @@ export function MarketplaceContent() {
     );
     setSearchQuery(tag);
     setShowSuggestions(false);
+    setHighlightedIndex(-1);
   };
 
   // 자동완성 항목 클릭
   const handleSuggestionClick = (value: string) => {
     setSearchQuery(value);
     setShowSuggestions(false);
+    setHighlightedIndex(-1);
   };
 
   // 카테고리 데이터
@@ -252,12 +332,18 @@ export function MarketplaceContent() {
               <div className="flex gap-3">
                 <div className="relative flex-1">
                   <Input
+                    ref={inputRef}
                     placeholder="상품 검색..."
                     icon={<Search className="w-5 h-5" />}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => setShowSuggestions(true)}
+                    onKeyDown={handleKeyDown}
                     className="flex-1"
+                    aria-label="상품 검색"
+                    aria-expanded={showSuggestions}
+                    aria-autocomplete="list"
+                    role="combobox"
                   />
                 </div>
                 <AdvancedFilter
@@ -277,66 +363,145 @@ export function MarketplaceContent() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-full left-0 right-12 mt-2 bg-[var(--bg-surface)] border border-[var(--bg-border)] rounded-xl shadow-lg z-50 overflow-hidden"
+                    className="absolute top-full left-0 right-12 mt-2 bg-[var(--bg-surface)] border border-[var(--bg-border)] rounded-xl shadow-lg z-50 overflow-hidden max-h-[400px] overflow-y-auto"
+                    role="listbox"
+                    aria-label="검색 제안"
                   >
                     {/* 검색 결과가 있을 때 */}
-                    {suggestionQuery && suggestionsData && (
-                      <>
-                        {suggestionsData.products?.length > 0 && (
-                          <div className="p-3">
-                            <p className="text-xs font-medium text-[var(--text-tertiary)] mb-2">
-                              상품
-                            </p>
-                            {suggestionsData.products.slice(0, 5).map((product: { id: string; title: string; thumbnail?: string | null; price: number }) => (
-                              <button
-                                key={product.id}
-                                onClick={() => handleSuggestionClick(product.title)}
-                                className="w-full flex items-center gap-3 p-2 hover:bg-[var(--bg-elevated)] rounded-lg transition-colors text-left"
-                              >
-                                <div className="w-10 h-10 rounded-lg bg-[var(--bg-elevated)] flex items-center justify-center overflow-hidden">
-                                  {product.thumbnail ? (
-                                    <img src={product.thumbnail} alt="" className="w-full h-full object-cover" />
-                                  ) : (
-                                    <Puzzle className="w-5 h-5 text-[var(--text-tertiary)]" />
-                                  )}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-[var(--text-primary)] truncate">
-                                    {product.title}
-                                  </p>
-                                  <p className="text-xs text-[var(--text-tertiary)]">
-                                    {product.price === 0 ? "무료" : `₩${product.price.toLocaleString()}`}
-                                  </p>
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        {suggestionsData.tags?.length > 0 && (
-                          <div className="p-3 border-t border-[var(--bg-border)]">
-                            <p className="text-xs font-medium text-[var(--text-tertiary)] mb-2">
-                              태그
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                              {suggestionsData.tags.slice(0, 8).map((tag: string) => (
-                                <button
-                                  key={tag}
-                                  onClick={() => handleTagToggle(tag)}
-                                  className="px-2 py-1 text-xs bg-[var(--bg-elevated)] text-[var(--text-secondary)] rounded-md hover:bg-[var(--accent-primary)] hover:text-white transition-colors"
-                                >
-                                  #{tag}
-                                </button>
-                              ))}
+                    {suggestionQuery && suggestionsData && (() => {
+                      let itemIndex = 0;
+                      const categoryCount = suggestionsData.categories?.slice(0, 4).length || 0;
+                      const productCount = suggestionsData.products?.slice(0, 5).length || 0;
+                      
+                      return (
+                        <>
+                          {/* 카테고리 섹션 */}
+                          {suggestionsData.categories?.length > 0 && (
+                            <div className="p-3 border-b border-[var(--bg-border)]">
+                              <div className="flex items-center gap-2 mb-2">
+                                <FolderOpen className="w-4 h-4 text-[var(--accent-primary)]" />
+                                <p className="text-xs font-medium text-[var(--text-tertiary)]">
+                                  카테고리
+                                </p>
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {suggestionsData.categories.slice(0, 4).map((category: { id: string; name: string; slug: string; productCount: number }, idx: number) => {
+                                  const currentIndex = idx;
+                                  return (
+                                    <button
+                                      key={category.id}
+                                      onClick={() => {
+                                        setSelectedCategory(category.id);
+                                        setSearchQuery("");
+                                        setShowSuggestions(false);
+                                        setHighlightedIndex(-1);
+                                      }}
+                                      onMouseEnter={() => setHighlightedIndex(currentIndex)}
+                                      className={cn(
+                                        "flex items-center gap-2 px-3 py-2 rounded-lg transition-colors",
+                                        highlightedIndex === currentIndex
+                                          ? "bg-[var(--accent-primary)] text-white"
+                                          : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--accent-primary)] hover:text-white"
+                                      )}
+                                      role="option"
+                                      aria-selected={highlightedIndex === currentIndex}
+                                    >
+                                      <span className="text-sm font-medium">{category.name}</span>
+                                      <span className="text-xs opacity-60">({category.productCount})</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
                             </div>
-                          </div>
-                        )}
-                        {(!suggestionsData.products?.length && !suggestionsData.tags?.length) && (
-                          <div className="p-4 text-center text-sm text-[var(--text-tertiary)]">
-                            검색 결과가 없습니다
-                          </div>
-                        )}
-                      </>
-                    )}
+                          )}
+                          
+                          {/* 상품 섹션 */}
+                          {suggestionsData.products?.length > 0 && (
+                            <div className="p-3">
+                              <p className="text-xs font-medium text-[var(--text-tertiary)] mb-2">
+                                상품
+                              </p>
+                              {suggestionsData.products.slice(0, 5).map((product: { id: string; title: string; thumbnail?: string | null; price: number }, idx: number) => {
+                                const currentIndex = categoryCount + idx;
+                                return (
+                                  <button
+                                    key={product.id}
+                                    onClick={() => handleSuggestionClick(product.title)}
+                                    onMouseEnter={() => setHighlightedIndex(currentIndex)}
+                                    className={cn(
+                                      "w-full flex items-center gap-3 p-2 rounded-lg transition-colors text-left",
+                                      highlightedIndex === currentIndex
+                                        ? "bg-[var(--accent-primary)] text-white"
+                                        : "hover:bg-[var(--bg-elevated)]"
+                                    )}
+                                    role="option"
+                                    aria-selected={highlightedIndex === currentIndex}
+                                  >
+                                    <div className="w-10 h-10 rounded-lg bg-[var(--bg-elevated)] flex items-center justify-center overflow-hidden">
+                                      {product.thumbnail ? (
+                                        <img src={product.thumbnail} alt="" className="w-full h-full object-cover" />
+                                      ) : (
+                                        <Puzzle className="w-5 h-5 text-[var(--text-tertiary)]" />
+                                      )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className={cn(
+                                        "text-sm font-medium truncate",
+                                        highlightedIndex === currentIndex ? "text-white" : "text-[var(--text-primary)]"
+                                      )}>
+                                        {product.title}
+                                      </p>
+                                      <p className={cn(
+                                        "text-xs",
+                                        highlightedIndex === currentIndex ? "text-white/70" : "text-[var(--text-tertiary)]"
+                                      )}>
+                                        {product.price === 0 ? "무료" : `₩${product.price.toLocaleString()}`}
+                                      </p>
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                          
+                          {/* 태그 섹션 */}
+                          {suggestionsData.tags?.length > 0 && (
+                            <div className="p-3 border-t border-[var(--bg-border)]">
+                              <p className="text-xs font-medium text-[var(--text-tertiary)] mb-2">
+                                태그
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                {suggestionsData.tags.slice(0, 8).map((tag: string, idx: number) => {
+                                  const currentIndex = categoryCount + productCount + idx;
+                                  return (
+                                    <button
+                                      key={tag}
+                                      onClick={() => handleTagToggle(tag)}
+                                      onMouseEnter={() => setHighlightedIndex(currentIndex)}
+                                      className={cn(
+                                        "px-2 py-1 text-xs rounded-md transition-colors",
+                                        highlightedIndex === currentIndex
+                                          ? "bg-[var(--accent-primary)] text-white"
+                                          : "bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:bg-[var(--accent-primary)] hover:text-white"
+                                      )}
+                                      role="option"
+                                      aria-selected={highlightedIndex === currentIndex}
+                                    >
+                                      #{tag}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                          {(!suggestionsData.products?.length && !suggestionsData.tags?.length && !suggestionsData.categories?.length) && (
+                            <div className="p-4 text-center text-sm text-[var(--text-tertiary)]">
+                              검색 결과가 없습니다
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
 
                     {/* 인기 태그 (검색어가 없을 때) */}
                     {!suggestionQuery && popularTagsData?.tags && popularTagsData.tags.length > 0 && (

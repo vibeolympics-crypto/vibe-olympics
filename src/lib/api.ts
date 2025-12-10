@@ -94,7 +94,8 @@ export const categoriesApi = {
 // ==========================================
 
 export interface SearchSuggestionsResponse {
-  products: { id: string; title: string; thumbnail?: string | null; price: number; category?: string }[];
+  products: { id: string; title: string; thumbnail?: string | null; price: number; category?: string; categorySlug?: string }[];
+  categories: { id: string; name: string; slug: string; productCount: number }[];
   tags: string[];
 }
 
