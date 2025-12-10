@@ -14,6 +14,7 @@ import {
   HelpCircle,
   Plus,
   Users,
+  Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,11 @@ const sidebarLinks = [
     name: "내 상품",
     href: "/dashboard/products",
     icon: Package,
+  },
+  {
+    name: "컬렉션",
+    href: "/dashboard/collections",
+    icon: Layers,
   },
   {
     name: "구매 내역",

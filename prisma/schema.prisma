@@ -135,6 +135,9 @@ model User {
   settlements      Settlement[]      // 정산 내역 (판매자)
   refundRequests   RefundRequest[]   // 환불 요청 (구매자)
   
+  // 컬렉션 시스템
+  collections      Collection[]      // 판매자의 컬렉션
+  
   @@index([email])
 }
 
@@ -455,6 +458,94 @@ model MusicAlbumMeta {
   
   @@index([genre])
   @@index([theme])
+}
+
+// ==========================================
+// 컬렉션 모델 (상품 묶음/시리즈)
+// ==========================================
+
+// 컬렉션 유형
+enum CollectionType {
+  SERIES        // 시리즈 (순차적 구성)
+  BUNDLE        // 번들 (세트 상품)
+  PLAYLIST      // 플레이리스트 (음악용)
+  CURATED       // 큐레이션 (선별된 상품 모음)
+}
+
+model Collection {
+  id            String    @id @default(cuid())
+  
+  // 소유자 (판매자)
+  sellerId      String
+  seller        User      @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  
+  // 기본 정보
+  title         String
+  slug          String    @unique
+  description   String?   @db.Text
+  thumbnail     String?
+  
+  // 컬렉션 유형
+  type          CollectionType @default(BUNDLE)
+  
+  // 상품 유형 (컬렉션 내 상품 유형 통일을 위해)
+  productType   ProductType?
+  
+  // 가격/할인
+  bundlePrice   Decimal?  @db.Decimal(10, 2)  // 번들 가격 (개별 구매보다 저렴)
+  discountRate  Int?      // 할인율 (%)
+  
+  // 상태
+  isPublished   Boolean   @default(false)
+  isFeatured    Boolean   @default(false)
+  
+  // 통계
+  viewCount     Int       @default(0)
+  salesCount    Int       @default(0)
+  
+  // SEO
+  seoSlug       String?
+  metaDescription String? @db.VarChar(160)
+  metaKeywords  String[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // 관계
+  items         CollectionItem[]
+  
+  @@index([sellerId])
+  @@index([type])
+  @@index([productType])
+  @@index([isPublished, isFeatured])
+  @@index([slug])
+}
+
+model CollectionItem {
+  id            String    @id @default(cuid())
+  
+  // 컬렉션
+  collectionId  String
+  collection    Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  
+  // 상품
+  productId     String
+  
+  // 순서 (시리즈의 경우 순서 중요)
+  order         Int       @default(0)
+  
+  // 개별 할인 (번들 내 특정 상품 추가 할인)
+  itemDiscountRate Int?
+  
+  // 필수 여부 (번들에서 필수 포함 상품)
+  isRequired    Boolean   @default(true)
+  
+  createdAt     DateTime  @default(now())
+  
+  @@unique([collectionId, productId])
+  @@index([collectionId])
+  @@index([productId])
+  @@index([order])
 }
 
 // ==========================================

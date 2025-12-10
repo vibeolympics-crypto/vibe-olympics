@@ -16,6 +16,11 @@ import {
   BarChart2,
   Activity,
   FileSpreadsheet,
+  Book,
+  Film,
+  Music,
+  Package,
+  Layers,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,6 +32,17 @@ import {
   ConversionChart,
   Sparkline,
 } from "@/components/ui/charts";
+import {
+  ProductTypeRevenuePieChart,
+  ProductTypeTrendChart,
+  ProductTypeBarChart,
+  ProductTypeRadarChart,
+  PeriodComparisonChart,
+  ProductTypeStatCard,
+  PRODUCT_TYPE_LABELS,
+  PRODUCT_TYPE_ICONS,
+  PRODUCT_TYPE_COLORS,
+} from "@/components/ui/product-type-charts";
 
 // 기간 옵션
 const periodOptions = [
@@ -35,6 +51,63 @@ const periodOptions = [
   { id: "90d", name: "90일" },
   { id: "1y", name: "1년" },
 ];
+
+// ProductType 필터 옵션
+const productTypeOptions = [
+  { id: "all", name: "전체", icon: Layers },
+  { id: "DIGITAL_PRODUCT", name: "디지털 상품", icon: Package },
+  { id: "BOOK", name: "도서", icon: Book },
+  { id: "VIDEO_SERIES", name: "영상 시리즈", icon: Film },
+  { id: "MUSIC_ALBUM", name: "음악 앨범", icon: Music },
+];
+
+interface ProductTypeAnalytics {
+  revenue: {
+    productType: string;
+    name: string;
+    revenue: number;
+    sales: number;
+    percentage: number;
+  }[];
+  growth: {
+    productType: string;
+    name: string;
+    current: number;
+    previous: number;
+    change: number;
+  }[];
+  dailyTrend: {
+    date: string;
+    DIGITAL_PRODUCT: number;
+    BOOK: number;
+    VIDEO_SERIES: number;
+    MUSIC_ALBUM: number;
+  }[];
+  weeklyComparison: {
+    period: string;
+    DIGITAL_PRODUCT: number;
+    BOOK: number;
+    VIDEO_SERIES: number;
+    MUSIC_ALBUM: number;
+  }[];
+  performanceRadar: {
+    metric: string;
+    DIGITAL_PRODUCT: number;
+    BOOK: number;
+    VIDEO_SERIES: number;
+    MUSIC_ALBUM: number;
+    fullMark: number;
+  }[];
+  stats: Record<string, {
+    revenue: number;
+    sales: number;
+    previousRevenue: number;
+    previousSales: number;
+    viewCount: number;
+    growth: number;
+    conversionRate: number;
+  }>;
+}
 
 interface AnalyticsData {
   stats: {
@@ -55,19 +128,25 @@ interface AnalyticsData {
   categoryBreakdown: { name: string; value: number }[];
   conversionData: { date: string; views: number; conversions: number; rate: number }[];
   weeklyComparison: { name: string; sales: number; revenue: number }[];
+  productTypeAnalytics?: ProductTypeAnalytics;
 }
+
+type ChartTabType = "revenue" | "conversion" | "category" | "weekly" | "productType" | "productTypeTrend" | "productTypeWeekly" | "productTypeRadar";
 
 export function AnalyticsContent() {
   const [selectedPeriod, setSelectedPeriod] = useState("30d");
+  const [selectedProductType, setSelectedProductType] = useState("all");
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeChart, setActiveChart] = useState<"revenue" | "conversion" | "category" | "weekly">("revenue");
+  const [activeChart, setActiveChart] = useState<ChartTabType>("revenue");
+  const [showProductTypeCards, setShowProductTypeCards] = useState(true);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/analytics?period=${selectedPeriod}`);
+        const productTypeParam = selectedProductType !== "all" ? `&productType=${selectedProductType}` : "";
+        const response = await fetch(`/api/analytics?period=${selectedPeriod}${productTypeParam}`);
         if (response.ok) {
           const analyticsData = await response.json();
           
@@ -96,6 +175,7 @@ export function AnalyticsContent() {
             categoryBreakdown: analyticsData.categoryBreakdown || generateCategoryData(),
             conversionData: analyticsData.conversionData || generateConversionData(analyticsData.dailyRevenue),
             weeklyComparison: analyticsData.weeklyComparison || generateWeeklyData(),
+            productTypeAnalytics: analyticsData.productTypeAnalytics,
           };
           
           setData(enhancedData);
@@ -108,7 +188,7 @@ export function AnalyticsContent() {
     };
 
     fetchAnalytics();
-  }, [selectedPeriod]);
+  }, [selectedPeriod, selectedProductType]);
 
   // 트렌드 데이터 생성 (서버에서 안올 경우)
   function generateTrend(days: number, currentValue: number): number[] {
@@ -195,6 +275,7 @@ export function AnalyticsContent() {
   const categoryBreakdown = data?.categoryBreakdown || [];
   const conversionData = data?.conversionData || [];
   const weeklyComparison = data?.weeklyComparison || [];
+  const productTypeAnalytics = data?.productTypeAnalytics;
 
   return (
     <div className="px-4 sm:px-6 lg:px-8">
@@ -208,7 +289,7 @@ export function AnalyticsContent() {
             판매 현황과 수익을 분석하세요
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <Button
             variant="outline"
             size="sm"
@@ -235,6 +316,27 @@ export function AnalyticsContent() {
             내보내기
           </Button>
         </div>
+      </div>
+
+      {/* ProductType Filter */}
+      <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
+        <span className="text-sm text-[var(--text-tertiary)] whitespace-nowrap">상품 유형:</span>
+        {productTypeOptions.map((option) => {
+          const Icon = option.icon;
+          return (
+            <Button
+              key={option.id}
+              variant={selectedProductType === option.id ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedProductType(option.id)}
+              disabled={isLoading}
+              className="gap-1.5 whitespace-nowrap"
+            >
+              <Icon className="w-4 h-4" />
+              {option.name}
+            </Button>
+          );
+        })}
       </div>
 
       {/* Loading State */}
@@ -303,6 +405,49 @@ export function AnalyticsContent() {
             })}
           </div>
 
+          {/* ProductType별 분석 카드 */}
+          {productTypeAnalytics && selectedProductType === "all" && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="mb-8"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">
+                  📊 상품 유형별 분석
+                </h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowProductTypeCards(!showProductTypeCards)}
+                >
+                  {showProductTypeCards ? "접기" : "펼치기"}
+                </Button>
+              </div>
+              
+              {showProductTypeCards && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {(["DIGITAL_PRODUCT", "BOOK", "VIDEO_SERIES", "MUSIC_ALBUM"] as const).map((type) => {
+                    const stats = productTypeAnalytics.stats[type];
+                    if (!stats) return null;
+                    return (
+                      <ProductTypeStatCard
+                        key={type}
+                        productType={type}
+                        revenue={stats.revenue}
+                        sales={stats.sales}
+                        growth={stats.growth}
+                        viewCount={stats.viewCount}
+                        conversionRate={stats.conversionRate}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          )}
+
           {/* Main Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             {/* Main Chart */}
@@ -315,14 +460,19 @@ export function AnalyticsContent() {
               <Card variant="glass">
                 <CardContent className="p-6">
                   {/* Chart Tabs */}
-                  <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
                     <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                       {activeChart === "revenue" && "수익 추이"}
                       {activeChart === "conversion" && "전환율 분석"}
                       {activeChart === "category" && "카테고리별 판매"}
                       {activeChart === "weekly" && "주간 비교"}
+                      {activeChart === "productType" && "상품 유형별 매출"}
+                      {activeChart === "productTypeTrend" && "유형별 매출 추이"}
+                      {activeChart === "productTypeWeekly" && "유형별 주간 비교"}
+                      {activeChart === "productTypeRadar" && "유형별 성과 비교"}
                     </h2>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 flex-wrap">
+                      {/* 기본 차트 탭 */}
                       <Button
                         variant={activeChart === "revenue" ? "default" : "ghost"}
                         size="sm"
@@ -359,6 +509,39 @@ export function AnalyticsContent() {
                         <BarChart2 className="w-4 h-4" />
                         주간
                       </Button>
+                      {/* ProductType 차트 탭 */}
+                      {productTypeAnalytics && (
+                        <>
+                          <div className="w-px h-6 bg-[var(--bg-border)] mx-1" />
+                          <Button
+                            variant={activeChart === "productType" ? "default" : "ghost"}
+                            size="sm"
+                            onClick={() => setActiveChart("productType")}
+                            className="gap-1"
+                          >
+                            <Package className="w-4 h-4" />
+                            유형
+                          </Button>
+                          <Button
+                            variant={activeChart === "productTypeTrend" ? "default" : "ghost"}
+                            size="sm"
+                            onClick={() => setActiveChart("productTypeTrend")}
+                            className="gap-1"
+                          >
+                            <TrendingUp className="w-4 h-4" />
+                            트렌드
+                          </Button>
+                          <Button
+                            variant={activeChart === "productTypeWeekly" ? "default" : "ghost"}
+                            size="sm"
+                            onClick={() => setActiveChart("productTypeWeekly")}
+                            className="gap-1"
+                          >
+                            <BarChart2 className="w-4 h-4" />
+                            비교
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -375,6 +558,27 @@ export function AnalyticsContent() {
                     )}
                     {activeChart === "weekly" && (
                       <SalesBarChart data={weeklyComparison} height={350} />
+                    )}
+                    {/* ProductType 차트들 */}
+                    {activeChart === "productType" && productTypeAnalytics && (
+                      <ProductTypeRevenuePieChart 
+                        data={productTypeAnalytics.revenue} 
+                        height={350} 
+                      />
+                    )}
+                    {activeChart === "productTypeTrend" && productTypeAnalytics && (
+                      <ProductTypeTrendChart 
+                        data={productTypeAnalytics.dailyTrend} 
+                        height={350}
+                        metric="revenue"
+                      />
+                    )}
+                    {activeChart === "productTypeWeekly" && productTypeAnalytics && (
+                      <ProductTypeBarChart 
+                        data={productTypeAnalytics.weeklyComparison} 
+                        height={350}
+                        stacked={false}
+                      />
                     )}
                   </div>
                 </CardContent>
@@ -508,6 +712,30 @@ export function AnalyticsContent() {
               </CardContent>
             </Card>
           </motion.div>
+
+          {/* ProductType 기간 비교 차트 */}
+          {productTypeAnalytics && productTypeAnalytics.growth.some(g => g.current > 0 || g.previous > 0) && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="mt-8"
+            >
+              <Card variant="glass">
+                <CardContent className="p-6">
+                  <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-6">
+                    📈 상품 유형별 기간 비교
+                  </h2>
+                  <div className="h-[300px]">
+                    <PeriodComparisonChart 
+                      data={productTypeAnalytics.growth.filter(g => g.current > 0 || g.previous > 0)} 
+                      height={300} 
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
         </>
       )}
     </div>
