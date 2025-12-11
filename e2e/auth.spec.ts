@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Authentication - Login', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/auth/login');
-    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('load');
   });
 
   test('TC-AUTH-001: should display login page with all form elements', async ({ page }) => {
@@ -67,23 +67,19 @@ test.describe('Authentication - Login', () => {
   });
 
   test('TC-AUTH-007: should navigate to signup page from login', async ({ page }) => {
-    // 회원가입 링크 클릭 (본문 내 링크 사용)
-    const signupLink = page.getByRole('link', { name: '회원가입' });
-    if (await signupLink.count() > 0) {
-      await signupLink.click();
-      await expect(page).toHaveURL(/\/auth\/signup/);
-    } else {
-      // 대체 방법: 직접 이동
-      await page.goto('/auth/signup');
-      await expect(page).toHaveURL(/\/auth\/signup/);
-    }
+    // 회원가입 링크 클릭 - 페이지 하단의 링크 사용
+    const signupLink = page.locator('a[href="/auth/signup"]').last();
+    await expect(signupLink).toBeVisible({ timeout: 10000 });
+    await signupLink.click();
+    await page.waitForURL(/\/auth\/signup/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/auth\/signup/);
   });
 });
 
 test.describe('Authentication - Signup', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/auth/signup');
-    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('load');
   });
 
   test('TC-AUTH-008: should display signup page with all form elements', async ({ page }) => {
@@ -135,7 +131,7 @@ test.describe('Authentication - Signup', () => {
 test.describe('Authentication - Forgot Password', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/auth/forgot-password');
-    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('load');
   });
 
   test('TC-AUTH-011: should display forgot password page', async ({ page }) => {
