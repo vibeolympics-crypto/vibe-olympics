@@ -17,6 +17,9 @@ export interface ServerToClientEvents {
   "notification:count": (data: { unreadCount: number }) => void;
   "user:online": (data: { userId: string }) => void;
   "user:offline": (data: { userId: string }) => void;
+  // 실시간 판매 알림 이벤트
+  "sale:new": (data: SaleNotificationPayload) => void;
+  "sale:realtime": (data: RealtimeSalePayload) => void;
   error: (data: { message: string }) => void;
 }
 
@@ -27,6 +30,9 @@ export interface ClientToServerEvents {
   "notification:delete": (data: { notificationId: string }) => void;
   "notification:subscribe": () => void;
   "notification:unsubscribe": () => void;
+  // 판매 알림 구독
+  "sale:subscribe": () => void;
+  "sale:unsubscribe": () => void;
 }
 
 export interface NotificationPayload {
@@ -36,6 +42,30 @@ export interface NotificationPayload {
   message: string;
   data?: Record<string, unknown>;
   isRead: boolean;
+  createdAt: string;
+}
+
+// 실시간 판매 알림 페이로드
+export interface SaleNotificationPayload {
+  id: string;
+  productId: string;
+  productTitle: string;
+  productThumbnail?: string;
+  buyerName: string;
+  price: number;
+  quantity: number;
+  createdAt: string;
+}
+
+// 관리자용 실시간 판매 페이로드
+export interface RealtimeSalePayload {
+  id: string;
+  productId: string;
+  productTitle: string;
+  sellerId: string;
+  sellerName: string;
+  buyerName: string;
+  price: number;
   createdAt: string;
 }
 
@@ -188,4 +218,35 @@ export function getOnlineUsersCount(): number {
 // 특정 사용자의 소켓 수 가져오기
 export function getUserSocketCount(userId: string): number {
   return userSocketMap.get(userId)?.size ?? 0;
+}
+
+// 판매자에게 실시간 판매 알림 전송
+export function sendSaleNotificationToSeller(
+  sellerId: string,
+  sale: SaleNotificationPayload
+) {
+  return emitToUser(sellerId, "sale:new", sale);
+}
+
+// 관리자에게 실시간 판매 알림 브로드캐스트
+export function broadcastRealtimeSale(sale: RealtimeSalePayload) {
+  if (!io) {
+    console.warn("[Socket] Server not initialized");
+    return false;
+  }
+
+  // 관리자 룸에 브로드캐스트
+  io.to("admin:realtime").emit("sale:realtime", sale);
+  return true;
+}
+
+// 관리자 실시간 피드 룸 조인
+export function joinAdminRealtimeRoom(socketId: string) {
+  if (!io) return false;
+  const socket = io.sockets.sockets.get(socketId);
+  if (socket) {
+    socket.join("admin:realtime");
+    return true;
+  }
+  return false;
 }

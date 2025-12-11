@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendRefundRequestedEmail } from "@/lib/email";
 
 // 환불 요청 목록 조회
 export async function GET(request: NextRequest) {
@@ -172,6 +173,22 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // 환불 요청 접수 이메일 발송
+    try {
+      if (refundRequest.user.email) {
+        await sendRefundRequestedEmail(refundRequest.user.email, {
+          buyerName: refundRequest.user.name || "고객",
+          productTitle: refundRequest.purchase.product.title,
+          price: Number(refundRequest.amount),
+          refundId: refundRequest.id,
+          reason: reason + (reasonDetail ? ` - ${reasonDetail}` : ''),
+          requestDate: new Date().toLocaleDateString("ko-KR"),
+        });
+      }
+    } catch (emailError) {
+      console.error("환불 요청 이메일 발송 실패:", emailError);
+    }
 
     return NextResponse.json(refundRequest, { status: 201 });
   } catch (error) {

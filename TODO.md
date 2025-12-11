@@ -1,6 +1,6 @@
 # 📋 Vibe Olympics - 예정 작업 (TODO)
 
-> 마지막 업데이트: 2025년 12월 12일 (세션 71 완료)
+> 마지막 업데이트: 2025년 12월 11일 (세션 77 완료)
 > 배포 URL: https://vibe-olympics.onrender.com
 > 워크플로우: TODO.md 검토 → 작업 수행 → CHANGELOG.md 기록 → TEST_SPECS.md 작성
 
@@ -11,28 +11,36 @@
 ### 🔴 긴급 (High Priority) - 배포/운영 필수
 | 순위 | 작업 ID | 작업명 | 상태 | 비고 |
 |------|---------|--------|------|------|
-| 1 | CI-01 | GitHub Actions CI/CD 통과 확인 | ✅ 완료 | Jest coverage threshold 수정 |
-| 2 | DEPLOY-01 | Render 배포 상태 확인 | ✅ 정상 | https://vibe-olympics.onrender.com |
-| 3 | DEPLOY-02 | Vercel 환경변수 설정 | ⏳ 대기 | 11개 환경변수 |
-| 4 | S68-01~06 | 실시간 알림 웹소켓 | ✅ 완료 | Socket.io 구현 |
-| 5 | S69-01~03 | TypeScript 타입 오류 수정 | ✅ 완료 | server.ts 타입 수정 |
-| 6 | S70-01~04 | img → next/image 변환 | ✅ 완료 | LCP 성능 개선 |
-| 7 | S71-01~04 | Google Analytics 4 연동 | ✅ 완료 | GA4 이벤트 트래킹 |
+| 1 | S75-01~04 | 결제/환불 이메일 알림 | ✅ 완료 | 영수증, 환불 요청/완료/거절 알림 |
+| 2 | BACK-04 | Vercel 환경변수 설정 | ⏳ 대기 | 11개 환경변수 (수동 작업 필요) |
 
 ### 🟡 중간 (Medium Priority) - 기능 개선
 | 순위 | 작업 ID | 작업명 | 상태 | 비고 |
 |------|---------|--------|------|------|
-| 8 | S67-01~05 | 알림 시스템 고도화 | ✅ 완료 | 구독 알림, 이메일 템플릿, 설정 UI |
-| 9 | S66-01~05 | 정기 구독 결제 시스템 | ✅ 완료 | 구독 플랜, 빌링키, 자동 갱신, 재시도 |
-| 10 | S65-01~04 | 검색/필터 UX 개선 | ✅ 완료 | 카테고리 자동완성, AI 필터, 정렬 확장 |
-| 11 | BACK-01 | Anthropic API 크레딧 충전 | ⏳ 대기 | AI 챗봇 활성화 |
+| 3 | BACK-01 | Anthropic API 크레딧 충전 | ⏳ 대기 | AI 챗봇 활성화 (수동 작업 필요) |
+| 4 | BACK-05 | 광고 슬롯 재구성 | ⏳ 보류 | 3D/카테고리 결정 대기 |
 
 ### 🟢 낮음 (Low Priority) - 최적화/부가 기능
 | 순위 | 작업 ID | 작업명 | 상태 | 비고 |
 |------|---------|--------|------|------|
-| 12 | BACK-14 | GA4 연동 | ✅ 완료 | Google Analytics 4 (세션 71) |
-| 13 | BACK-16 | 검색 콘솔 등록 | ⏳ 대기 | Google/Naver/Bing |
-| 14 | BACK-13 | 커스텀 도메인 연결 | ⏳ 대기 | Vercel 도메인 설정 |
+| 5 | BACK-16 | 검색 콘솔 등록 | ⏳ 대기 | Google/Naver/Bing (수동 작업 필요) |
+| 6 | BACK-13 | 커스텀 도메인 연결 | ⏳ 대기 | Vercel 도메인 설정 (수동 작업 필요) |
+| 7 | BACK-12 | Context7 MCP 자동 글 발행 | ⏳ 대기 | 외부 API 연동 |
+
+### ✅ 최근 완료 (세션 67-77)
+| 세션 | 작업명 | 완료일 |
+|------|--------|--------|
+| S77 | A/B 테스트 관리 대시보드 | 2025-12-11 |
+| S76 | 대시보드 기능 강화 (5개 항목) | 2025-12-11 |
+| S75 | 결제/환불 이메일 알림 시스템 | 2025-12-11 |
+| S74 | A/B 테스트 프레임워크 | 2025-12-11 |
+| S73 | PWA 오프라인 지원 강화 | 2025-12-11 |
+| S72 | 추천 시스템 DB 스키마 검증 | 2025-12-12 |
+| S71 | Google Analytics 4 연동 | 2025-12-12 |
+| S70 | img → next/image 변환 (LCP 개선) | 2025-12-12 |
+| S69 | TypeScript 타입 오류 수정 | 2025-12-12 |
+| S68 | 실시간 알림 웹소켓 (Socket.io) | 2025-12-12 |
+| S67 | 알림 시스템 고도화 | 2025-12-12 |
 
 ---
 
@@ -40,10 +48,74 @@
 
 | 구분 | 완료 | 대기 | 총계 |
 |------|------|------|------|
-| 세션 작업 | 71개 | - | 71개 |
+| 세션 작업 | 77개 | - | 77개 |
 | 테스트 케이스 | 520개 | - | 520개 |
-| API 엔드포인트 | 59+개 | - | 59+개 |
-| UI 컴포넌트 | 36+개 | - | 36+개 |
+| API 엔드포인트 | 70+개 | - | 70+개 |
+| UI 컴포넌트 | 46+개 | - | 46+개 |
+
+---
+
+## ✅ 세션 77 완료 - A/B 테스트 관리 대시보드
+
+### 세션 77 (2025-12-11): 기존 A/B 프레임워크에 관리자 UI 추가
+| 작업 ID | 작업명 | 상태 | 비고 |
+|---------|--------|------|------|
+| S77-01 | Admin AB Test API | ✅ 완료 | 대시보드 통계, 일괄 작업, 분석 API |
+| S77-02 | ABTestDashboard | ✅ 완료 | 실험 목록/필터/일괄작업 UI |
+| S77-03 | CreateExperimentDialog | ✅ 완료 | 2단계 실험 생성 폼 |
+| S77-04 | ExperimentDetailModal | ✅ 완료 | 상세 통계/승자 선택 모달 |
+| S77-05 | Admin Page | ✅ 완료 | /admin/ab-test 페이지 |
+| S77-06 | 빌드 테스트 | ✅ 완료 | `npm run build` 성공 |
+
+---
+
+## ✅ 세션 76 완료 - 대시보드 기능 강화
+
+### 세션 76 (2025-12-11): 관리자/판매자 대시보드 고도화
+| 작업 ID | 작업명 | 상태 | 비고 |
+|---------|--------|------|------|
+| S76-01 | Admin Dashboard Enhanced API | ✅ 완료 | 전체 통계, 매출, 환불률, 판매자 순위 |
+| S76-02 | Realtime Sales Notification | ✅ 완료 | Socket.io 실시간 판매 알림 위젯 |
+| S76-03 | Settlement Report API | ✅ 완료 | 기간별 정산 리포트 상세 조회 |
+| S76-04 | Product Stats Widget | ✅ 완료 | 상품별 조회수/판매 통계 위젯 |
+| S76-05 | Coupon Management UI | ✅ 완료 | 쿠폰 생성/관리 페이지 |
+| S76-06 | UI 컴포넌트 추가 | ✅ 완료 | Label, Table, DropdownMenu, Switch |
+| S76-07 | 빌드 테스트 | ✅ 완료 | `npm run build` 성공 |
+
+**신규 API**:
+- `GET /api/admin/dashboard` - 관리자 전체 통계 (매출, 환불률, 판매자/상품 순위, 일별 추이)
+- `GET /api/dashboard/product-stats` - 판매자 상품별 통계 (조회수, 판매, 전환율)
+- `GET /api/settlements/report` - 기간별 정산 리포트 (주/월/분기/연)
+
+**신규 컴포넌트**:
+- `realtime-sales-widget.tsx` - 실시간 판매 알림 위젯 (Socket.io)
+- `product-stats-widget.tsx` - 상품별 통계 위젯
+- `seller/coupons/page.tsx` - 쿠폰 관리 페이지 (생성/수정/삭제)
+
+---
+
+## ✅ 세션 75 완료 - 결제/환불 이메일 알림 시스템 (부트페이)
+
+### 세션 75 (2025-12-11): 결제/환불 이메일 알림 통합
+| 작업 ID | 작업명 | 상태 | 비고 |
+|---------|--------|------|------|
+| S75-01 | 결제 영수증 이메일 템플릿 | ✅ 완료 | paymentReceiptEmail - 상세 영수증 포함 |
+| S75-02 | 환불 요청 접수 이메일 템플릿 | ✅ 완료 | refundRequestedEmail - 처리 안내 |
+| S75-03 | 판매자 환불 알림 이메일 템플릿 | ✅ 완료 | refundNotificationSellerEmail |
+| S75-04 | Bootpay 결제 완료 시 이메일 발송 연동 | ✅ 완료 | /api/payment/bootpay/verify 통합 |
+| S75-05 | 환불 요청 시 이메일 발송 연동 | ✅ 완료 | /api/refunds 통합 |
+| S75-06 | 환불 승인/거절 시 이메일 발송 연동 | ✅ 완료 | /api/refunds/[id] 통합 |
+| S75-07 | 빌드 테스트 | ✅ 완료 | `npm run build` 성공 |
+
+**이메일 알림 흐름**:
+- **결제 완료**: 구매자 → 영수증 이메일 / 판매자 → 판매 알림 이메일
+- **환불 요청**: 구매자 → 요청 접수 확인 이메일
+- **환불 승인**: 구매자 → 환불 완료 이메일 / 판매자 → 환불 발생 알림
+- **환불 거절**: 구매자 → 환불 거절 사유 이메일
+
+---
+
+## ✅ 세션 74 완료 - A/B 테스트 프레임워크
 
 ---
 
@@ -283,6 +355,128 @@
 - Hydration Error 해결 (marketplace-content.tsx)
 - 언어 전환 완전 동작 (language-switcher.tsx)
 - TestSprite 자동화 테스트 20개 생성
+
+---
+
+## ✅ 세션 60+ 완료 - 🧠 베이지안 자동 진화 추천 시스템 v2.0
+
+> 📁 파일: `src/app/api/recommendations/route.ts` (1435줄)
+
+### 🔸 [1] 베이지안 클러스터링 엔진 (BayesianClusterEngine)
+> 사용자를 5개 클러스터로 분류하고 P(Cluster | Features) 계산
+
+| 작업 ID | 작업명 | 상태 | 구현 위치 |
+|---------|--------|------|-----------|
+| REC-01 | 클러스터 유형 정의 | ✅ 완료 | `UserClusterType` - PRICE_SENSITIVE, CONVENIENCE_FOCUSED, QUALITY_SEEKER, BRAND_LOYAL, IMPULSE_BUYER |
+| REC-02 | 클러스터 특성 분포 | ✅ 완료 | `CLUSTER_FEATURES` - avgPrice, purchaseFreq, reviewRate, returnRate, diversityScore |
+| REC-03 | 가우시안 PDF 함수 | ✅ 완료 | `gaussianPdf()` - 특성별 확률 밀도 계산 |
+| REC-04 | 사용자 특성 추출 | ✅ 완료 | `extractUserFeatures()` - 구매/리뷰/환불/카테고리 다양성 |
+| REC-05 | 베이지안 분류 | ✅ 완료 | `classifyUser()` - P(Cluster \| Features) 사후 확률 |
+| REC-06 | 클러스터 사전 확률 DB 저장 | ✅ 완료 | `loadPriors()`, `savePriors()` - RecommendationState 테이블 |
+| REC-07 | 사용자 클러스터 업데이트 | ✅ 완료 | `updateUserCluster()` - UserCluster 테이블 upsert |
+| REC-08 | 전체 사전 확률 갱신 | ✅ 완료 | `updateClusterPriors()` - 라플라스 스무딩 |
+
+### 🔸 [2] 조건부 확률 엔진 (ConditionalProbabilityEngine)
+> P(Next | First, Cluster) 계산 및 전이 행렬 관리
+
+| 작업 ID | 작업명 | 상태 | 구현 위치 |
+|---------|--------|------|-----------|
+| REC-09 | 조건부 확률 계산 | ✅ 완료 | `computeConditionalProbability()` - 개인/그룹/결합 확률 |
+| REC-10 | 라플라스 스무딩 | ✅ 완료 | `CONFIG.LAPLACE_ALPHA` - 0값 방지 스무딩 |
+| REC-11 | 개인+그룹 가중 결합 | ✅ 완료 | `CONFIG.PERSONAL_WEIGHT` (0.6) - 혼합 비율 |
+| REC-12 | 전이 행렬 업데이트 | ✅ 완료 | `updateTransition()` - TransitionMatrix 테이블 |
+| REC-13 | 카테고리 전이 확률 | ✅ 완료 | `getCategoryTransitionProbability()` - CategoryTransition 테이블 |
+
+### 🔸 [3] 5단계 폭포 시뮬레이터 (FunnelSimulator)
+> exposure → awareness → interest → desire → action 전환율 시뮬레이션
+
+| 작업 ID | 작업명 | 상태 | 구현 위치 |
+|---------|--------|------|-----------|
+| REC-14 | 퍼널 단계 정의 | ✅ 완료 | `FUNNEL_STAGES` - 5단계 퍼널 |
+| REC-15 | 클러스터별 기본 전환율 | ✅ 완료 | `DEFAULT_FUNNEL_RATES` - 클러스터별 단계 전환율 |
+| REC-16 | 퍼널 시뮬레이션 | ✅ 완료 | `simulateFunnel()` - 누적 전환율 계산 |
+| REC-17 | 시간대 조정 계수 | ✅ 완료 | `getTimeMultiplier()` - 황금시간/업무시간/새벽 |
+| REC-18 | 재고 조정 계수 | ✅ 완료 | `getStockMultiplier()` - 품절임박/재고부족/충분 |
+| REC-19 | 할인 조정 계수 | ✅ 완료 | `getDiscountMultiplier()` - 대폭/큰/소폭 할인 |
+| REC-20 | 노출 기록 | ✅ 완료 | `recordExposure()` - FunnelState 테이블 |
+| REC-21 | 자동 페널티 적용 | ✅ 완료 | `applyPenalty()` - 실패 단계별 페널티 학습 |
+
+### 🔸 [4] 기댓값 기반 결정 엔진 (ExpectedValueEngine)
+> EV = P × Value - Cost 계산 및 추천 순위 결정
+
+| 작업 ID | 작업명 | 상태 | 구현 위치 |
+|---------|--------|------|-----------|
+| REC-22 | 기댓값 계산 | ✅ 완료 | `calculateExpectedValue()` - EV 공식 |
+| REC-23 | 베이지안 스무딩 적용 | ✅ 완료 | `applyBayesianSmoothing()` - CONFIG.BAYESIAN_BETA |
+| REC-24 | 추천 여부 결정 | ✅ 완료 | `shouldRecommend()` - MIN_EXPECTED_VALUE 임계값 |
+| REC-25 | 추천 순위 정렬 | ✅ 완료 | `rankRecommendations()` - EV 기준 정렬 |
+
+### 🔸 [5] 연속 피드백 프로세서 (FeedbackProcessor)
+> 0~1 연속값 피드백 처리 및 베이지안 자동 업데이트
+
+| 작업 ID | 작업명 | 상태 | 구현 위치 |
+|---------|--------|------|-----------|
+| REC-26 | 피드백 유형 정의 | ✅ 완료 | `RecommendationFeedbackType` - EXPOSURE/CLICK/CART/WISHLIST/PURCHASE/SKIP/RETURN |
+| REC-27 | 피드백 가중치 매핑 | ✅ 완료 | `FEEDBACK_WEIGHTS` - 0~1 연속값 |
+| REC-28 | 실패 단계 추정 | ✅ 완료 | `inferFailedStage()` - 베이지안 추론 |
+| REC-29 | 피드백 처리 | ✅ 완료 | `processFeedback()` - 8단계 자동 학습 |
+| REC-30 | 통계 업데이트 | ✅ 완료 | `updateStats()` - RecommendationStats 테이블 |
+
+### 🔸 [6] 통합 추천 엔진 (UnifiedRecommendationEngine)
+> 모든 엔진 통합 및 API 엔드포인트 제공
+
+| 작업 ID | 작업명 | 상태 | 구현 위치 |
+|---------|--------|------|-----------|
+| REC-31 | 엔진 초기화 | ✅ 완료 | `initialize()` - 사전 확률 로드 |
+| REC-32 | 메인 추천 함수 | ✅ 완료 | `recommend()` - 4단계 추천 프로세스 |
+| REC-33 | 콜드 스타트 처리 | ✅ 완료 | `CONFIG.COLD_START_EXPLORE_RATE` (0.3) - 탐색 확률 |
+| REC-34 | 추천 이유 생성 | ✅ 완료 | `generateReasoning()` - 클러스터 기반 설명 |
+| REC-35 | 글로벌 추천 | ✅ 완료 | `getGlobalRecommendations()` - 비로그인용 |
+| REC-36 | 카테고리 추천 | ✅ 완료 | `getCategoryRecommendations()` - 카테고리 필터 |
+| REC-37 | 통계 조회 API | ✅ 완료 | `getStatistics()` - 전환율/매출/ROI |
+| REC-38 | 클러스터 통계 API | ✅ 완료 | `getClusterStatistics()` - 클러스터별 통계 |
+
+### 🔸 [7] Prisma 스키마 (상태 영속화)
+> 서버 재시작 내구성을 위한 DB 모델
+
+| 작업 ID | 작업명 | 상태 | 테이블명 |
+|---------|--------|------|----------|
+| REC-39 | 추천 상태 저장 | ✅ 완료 | `RecommendationState` - key/value JSON |
+| REC-40 | 사용자 클러스터 저장 | ✅ 완료 | `UserCluster` - 5개 특성 + 확률 |
+| REC-41 | 전이 행렬 저장 | ✅ 완료 | `TransitionMatrix` - 상품→상품 전이 |
+| REC-42 | 카테고리 전이 저장 | ✅ 완료 | `CategoryTransition` - 카테고리→카테고리 |
+| REC-43 | 퍼널 상태 저장 | ✅ 완료 | `FunnelState` - 5단계 전환율 + 페널티 |
+| REC-44 | 피드백 로그 저장 | ✅ 완료 | `RecommendationFeedback` - 피드백 기록 |
+| REC-45 | 통계 저장 | ✅ 완료 | `RecommendationStats` - 시간별 통계 |
+
+### 🔸 [8] API 엔드포인트
+| 작업 ID | 메서드 | 엔드포인트 | 상태 | 설명 |
+|---------|--------|------------|------|------|
+| REC-46 | GET | `/api/recommendations` | ✅ 완료 | 개인화 추천 목록 |
+| REC-47 | POST | `/api/recommendations` (action=feedback) | ✅ 완료 | 피드백 전송 |
+| REC-48 | POST | `/api/recommendations` (action=stats) | ✅ 완료 | 통계 조회 |
+| REC-49 | POST | `/api/recommendations` (action=cluster-stats) | ✅ 완료 | 클러스터 통계 |
+
+### 📊 핵심 수식 요약
+```
+# 베이지안 클러스터 분류
+P(Cluster | Features) ∝ P(Features | Cluster) × P(Cluster)
+
+# 조건부 확률 (라플라스 스무딩)
+P(Next | First, Cluster) = (count + α) / (total + α × N)
+
+# 개인+그룹 결합
+P_combined = 0.6 × P_personal + 0.4 × P_group
+
+# 퍼널 전환율
+ConversionRate = ∏(stage_rate × context_multiplier × (1 - penalty))
+
+# 기댓값
+EV = P × Value - Cost
+```
+
+**구현 파일**: `src/app/api/recommendations/route.ts` (1435줄)  
+**Prisma 모델**: 7개 테이블 (RecommendationState, UserCluster, TransitionMatrix, CategoryTransition, FunnelState, RecommendationFeedback, RecommendationStats)
 
 ---
 
@@ -619,27 +813,28 @@
 
 ## 🔜 다음 세션 예정 작업
 
-### 세션 65: 검색 및 필터 고도화
-| 작업 ID | 작업명 | 설명 | 우선순위 |
-|---------|--------|------|----------|
-| S65-01 | 검색 자동완성 개선 | 상품명, 카테고리, 태그 자동완성 | 🔴 높음 |
-| S65-02 | 고급 필터 UI | 가격대, AI 생성 여부, 장르별 필터 | 🟡 중간 |
-| S65-03 | 정렬 옵션 확장 | AI 인기순, 최근 AI 생성순 | 🟢 낮음 |
-| S65-04 | 검색 결과 페이지 개선 | 검색 키워드 하이라이트, 관련 검색어 표시 | 🟡 중간 |
+### 세션 73: PWA 오프라인 지원 강화
+> Service Worker 개선 및 오프라인 기능 추가
 
-### 세션 66: 결제 시스템 고도화
 | 작업 ID | 작업명 | 설명 | 우선순위 |
 |---------|--------|------|----------|
-| S66-01 | 부트페이 실결제 테스트 | 샌드박스 → 프로덕션 전환 테스트 | 🔴 높음 |
-| S66-02 | 정기 구독 결제 | 월/연간 구독 플랜 구현 | 🟡 중간 |
-| S66-03 | 결제 실패 재시도 | 결제 실패 시 자동 재시도 로직 | 🟢 낮음 |
+| S73-01 | Service Worker 캐시 전략 | 정적 자산 캐싱, API 응답 캐싱 | 🔴 높음 |
+| S73-02 | 오프라인 폴백 페이지 | 오프라인 상태 UI 개선 | 🟡 중간 |
+| S73-03 | 백그라운드 동기화 | 오프라인 작업 큐 처리 | 🟡 중간 |
 
-### 세션 67: 알림 시스템 고도화
+### 세션 74: 광고 슬롯 재구성
 | 작업 ID | 작업명 | 설명 | 우선순위 |
 |---------|--------|------|----------|
-| S67-01 | 푸시 알림 구현 | 브라우저 푸시 알림 (Service Worker) | 🔴 높음 |
-| S67-02 | 이메일 알림 템플릿 | 구매/리뷰/팔로우 이메일 템플릿 | 🟡 중간 |
-| S67-03 | 알림 설정 페이지 | 사용자별 알림 수신 설정 | 🟢 낮음 |
+| S74-01 | 3D 애니메이션 배너 | Three.js/Framer Motion 기반 배너 | 🟡 중간 |
+| S74-02 | 텍스트 프로모션 컴포넌트 | 이미지 없는 텍스트 기반 광고 | 🟡 중간 |
+| S74-03 | 광고 위치 최적화 | 사용자 경험 개선 배치 | 🟢 낮음 |
+
+### 세션 75: A/B 테스트 프레임워크
+| 작업 ID | 작업명 | 설명 | 우선순위 |
+|---------|--------|------|----------|
+| S75-01 | A/B 테스트 컨텍스트 | 실험 그룹 분류 로직 | 🟡 중간 |
+| S75-02 | 전환율 추적 | 버전별 전환율 측정 | 🟡 중간 |
+| S75-03 | 실험 관리 대시보드 | 관리자용 실험 현황 | 🟢 낮음 |
 
 ---
 
@@ -672,10 +867,10 @@
 
 | 작업 ID | 작업명 | 설명 | 상태 |
 |---------|--------|------|------|
-| BACK-14 | GA4 연동 | Google Analytics 4 | ⏳ 대기 |
+| BACK-14 | ~~GA4 연동~~ | ~~Google Analytics 4~~ | ✅ 완료 (세션 71) |
 | BACK-15 | A/B 테스트 프레임워크 | 전환율 최적화 | ⏳ 대기 |
 | BACK-16 | 검색 콘솔 등록 | Google/Naver/Bing 검색 콘솔 | ⏳ 대기 |
-| BACK-17 | ESLint img→Image 변환 | Next.js Image 컴포넌트로 교체 | ⏳ 대기 |
+| BACK-17 | ~~ESLint img→Image 변환~~ | ~~Next.js Image 컴포넌트로 교체~~ | ✅ 완료 (세션 70) |
 
 ---
 
@@ -685,8 +880,8 @@
 |------|------|--------|------|
 | ~~React 타입 버전 불일치~~ | ~~react@18 + @types/react@19 혼용~~ | ~~Jest 테스트 6개 실패~~ | ✅ 해결 (세션 54) |
 | ~~ESLint 미사용 변수~~ | ~~64개 경고 (빌드는 정상)~~ | ~~코드 품질 저하~~ | ✅ 해결 (세션 56) |
-| img 태그 사용 | 5개 파일에서 next/image 미사용 | LCP 성능 저하 가능 | ⏳ 대기 |
-| recommendations/route.ts 오류 | TypeScript 17개 오류 (Prisma 타입) | 빌드 경고 | ⏳ 대기 |
+| ~~img 태그 사용~~ | ~~5개 파일에서 next/image 미사용~~ | ~~LCP 성능 저하 가능~~ | ✅ 해결 (세션 70) |
+| ~~recommendations/route.ts 오류~~ | ~~TypeScript 17개 오류 (Prisma 타입)~~ | ~~빌드 경고~~ | ✅ 해결 (베이지안 추천 시스템 v2.0) |
 
 ---
 

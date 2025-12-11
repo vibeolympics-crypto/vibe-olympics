@@ -9,6 +9,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createRefund } from "@/lib/stripe";
+import { 
+  sendRefundCompletedEmail, 
+  sendRefundRejectedEmail,
+  sendRefundNotificationSellerEmail 
+} from "@/lib/email";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -186,11 +191,58 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         user: { select: { id: true, name: true, email: true } },
         purchase: {
           include: {
-            product: { select: { title: true } },
+            product: { 
+              select: { 
+                title: true,
+                seller: { select: { name: true, email: true } },
+              } 
+            },
           },
         },
       },
     });
+
+    // 이메일 발송 (비동기 - 에러가 처리 성공에 영향 주지 않음)
+    try {
+      const buyerEmail = updatedRefund.user.email;
+      const buyerName = updatedRefund.user.name || "고객";
+      const productTitle = updatedRefund.purchase.product.title;
+      const sellerEmail = updatedRefund.purchase.product.seller?.email;
+      const sellerName = updatedRefund.purchase.product.seller?.name || "판매자";
+
+      if (updatedRefund.status === "COMPLETED" && buyerEmail) {
+        // 구매자에게 환불 완료 이메일 (기존 시그니처 사용)
+        await sendRefundCompletedEmail(buyerEmail, {
+          buyerName,
+          productTitle,
+          refundAmount: Number(updatedRefund.amount),
+          refundReason: updatedRefund.reason,
+          processedAt: new Date().toLocaleDateString("ko-KR"),
+        });
+
+        // 판매자에게 환불 알림 이메일
+        if (sellerEmail) {
+          await sendRefundNotificationSellerEmail(sellerEmail, {
+            sellerName,
+            productTitle,
+            buyerName,
+            refundAmount: Number(updatedRefund.amount),
+            refundReason: updatedRefund.reason,
+            refundDate: new Date().toLocaleDateString("ko-KR"),
+          });
+        }
+      } else if (updatedRefund.status === "REJECTED" && buyerEmail) {
+        // 구매자에게 환불 거절 이메일 (기존 시그니처 사용)
+        await sendRefundRejectedEmail(buyerEmail, {
+          buyerName,
+          productTitle,
+          refundAmount: Number(updatedRefund.amount),
+          rejectionReason: adminNotes || "환불 정책에 따라 승인되지 않았습니다.",
+        });
+      }
+    } catch (emailError) {
+      console.error("환불 처리 이메일 발송 실패:", emailError);
+    }
 
     return NextResponse.json(updatedRefund);
   } catch (error) {

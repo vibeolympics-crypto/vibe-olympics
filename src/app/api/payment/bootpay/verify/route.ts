@@ -3,6 +3,14 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Bootpay } from "@bootpay/backend-js";
+import { 
+  sendPaymentReceiptEmail, 
+  sendSaleNotificationEmail 
+} from "@/lib/email";
+import {
+  sendSaleNotificationToSeller,
+  broadcastRealtimeSale,
+} from "@/lib/socket";
 
 // 부트페이 설정
 const BOOTPAY_APPLICATION_ID = process.env.BOOTPAY_REST_API_KEY;
@@ -205,6 +213,90 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // 이메일 발송 (비동기 - 에러가 결제 성공에 영향 주지 않음)
+    try {
+      const [buyer, seller, productWithThumbnail] = await Promise.all([
+        prisma.user.findUnique({
+          where: { id: session.user.id },
+          select: { name: true, email: true },
+        }),
+        prisma.user.findUnique({
+          where: { id: product.sellerId },
+          select: { name: true, email: true },
+        }),
+        prisma.product.findUnique({
+          where: { id: product.id },
+          select: { thumbnail: true },
+        }),
+      ]);
+
+      // 결제 수단 이름 매핑
+      const paymentMethodNames: Record<string, string> = {
+        CARD: '신용/체크카드',
+        BANK: '계좌이체',
+        VBANK: '가상계좌',
+        PHONE: '휴대폰결제',
+        KAKAO: '카카오페이',
+        NAVER: '네이버페이',
+        TOSS: '토스페이',
+      };
+      const methodName = paymentMethodNames[payment.method_symbol?.toUpperCase() || 'CARD'] || payment.method || '카드';
+
+      // 실시간 판매 알림 (소켓) - 판매자에게
+      try {
+        sendSaleNotificationToSeller(product.sellerId, {
+          id: purchase.id,
+          productId: product.id,
+          productTitle: product.title,
+          productThumbnail: productWithThumbnail?.thumbnail || undefined,
+          buyerName: buyer?.name || "구매자",
+          price: productPrice,
+          quantity: 1,
+          createdAt: new Date().toISOString(),
+        });
+
+        // 관리자 실시간 피드에 브로드캐스트
+        broadcastRealtimeSale({
+          id: purchase.id,
+          productId: product.id,
+          productTitle: product.title,
+          sellerId: product.sellerId,
+          sellerName: seller?.name || "판매자",
+          buyerName: buyer?.name || "구매자",
+          price: productPrice,
+          createdAt: new Date().toISOString(),
+        });
+      } catch (socketError) {
+        console.error("실시간 알림 발송 실패:", socketError);
+      }
+
+      // 구매자에게 결제 영수증 이메일
+      if (buyer?.email) {
+        await sendPaymentReceiptEmail(buyer.email, {
+          buyerName: buyer.name || "고객",
+          productTitle: product.title,
+          productId: product.id,
+          price: productPrice,
+          paymentMethod: methodName,
+          transactionId: receiptId,
+          purchaseId: purchase.id,
+          purchaseDate: new Date().toLocaleString("ko-KR"),
+        });
+      }
+
+      // 판매자에게 판매 알림 이메일
+      if (seller?.email) {
+        await sendSaleNotificationEmail(seller.email, {
+          sellerName: seller.name || "판매자",
+          productTitle: product.title,
+          price: productPrice,
+          buyerName: buyer?.name || "구매자",
+        });
+      }
+    } catch (emailError) {
+      console.error("이메일 발송 실패 (결제는 성공):", emailError);
+    }
 
     return NextResponse.json({
       success: true,

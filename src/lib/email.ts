@@ -1178,3 +1178,164 @@ export async function sendSubscriptionPausedEmail(
   return sendEmail({ to, subject: template.subject, html: template.html });
 }
 
+// ==========================================
+// 결제 영수증 및 환불 요청/판매자 알림 템플릿 (세션 75 추가)
+// ==========================================
+
+// 결제 완료 상세 이메일 (영수증 포함)
+export const paymentReceiptEmail = (data: {
+  buyerName: string;
+  productTitle: string;
+  productId: string;
+  price: number;
+  paymentMethod: string;
+  transactionId: string;
+  purchaseId: string;
+  purchaseDate: string;
+}): EmailTemplate => ({
+  subject: `[${APP_NAME}] 결제 완료 영수증 - ${data.productTitle}`,
+  html: baseLayout(`
+    <h2>결제가 완료되었습니다 ✅</h2>
+    <p>안녕하세요, <span class="highlight">${data.buyerName}</span>님!</p>
+    <p>아래 상품의 결제가 성공적으로 완료되었습니다.</p>
+    
+    <div style="background-color: #f3f4f6; border-radius: 12px; padding: 24px; margin: 24px 0;">
+      <h3 style="margin-top: 0; border-bottom: 2px solid #7c3aed; padding-bottom: 12px;">📄 결제 영수증</h3>
+      
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 8px 0; color: #6b7280;">상품명</td>
+          <td style="padding: 8px 0; text-align: right; font-weight: 600;">${data.productTitle}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; color: #6b7280;">결제 금액</td>
+          <td style="padding: 8px 0; text-align: right; font-weight: 600; color: #059669;">₩${data.price.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; color: #6b7280;">결제 수단</td>
+          <td style="padding: 8px 0; text-align: right;">${data.paymentMethod}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; color: #6b7280;">결제일시</td>
+          <td style="padding: 8px 0; text-align: right;">${data.purchaseDate}</td>
+        </tr>
+        <tr style="border-top: 1px solid #d1d5db;">
+          <td style="padding: 12px 0; color: #6b7280; font-size: 12px;">거래 번호</td>
+          <td style="padding: 12px 0; text-align: right; font-size: 12px; font-family: monospace;">${data.transactionId}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; color: #6b7280; font-size: 12px;">주문 번호</td>
+          <td style="padding: 8px 0; text-align: right; font-size: 12px; font-family: monospace;">${data.purchaseId}</td>
+        </tr>
+      </table>
+    </div>
+    
+    <p style="text-align: center; margin-top: 24px;">
+      <a href="${APP_URL}/dashboard/purchases" class="button">상품 다운로드</a>
+    </p>
+    
+    <div class="info-box" style="margin-top: 24px; border-left: 4px solid #7c3aed;">
+      <p style="margin: 0; font-size: 14px;"><strong>💡 안내</strong></p>
+      <ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 14px; color: #6b7280;">
+        <li>구매하신 상품은 대시보드에서 언제든 다운로드 가능합니다.</li>
+        <li>환불은 구매 후 7일 이내에 요청하실 수 있습니다.</li>
+        <li>문의사항은 고객센터로 연락해 주세요.</li>
+      </ul>
+    </div>
+  `),
+});
+
+// 환불 요청 접수 이메일 (구매자용)
+export const refundRequestedEmail = (data: {
+  buyerName: string;
+  productTitle: string;
+  price: number;
+  refundId: string;
+  reason: string;
+  requestDate: string;
+}): EmailTemplate => ({
+  subject: `[${APP_NAME}] 환불 요청이 접수되었습니다`,
+  html: baseLayout(`
+    <h2>환불 요청 접수 완료 📋</h2>
+    <p>안녕하세요, <span class="highlight">${data.buyerName}</span>님!</p>
+    <p>환불 요청이 정상적으로 접수되었습니다.</p>
+    
+    <div class="info-box">
+      <p><strong>상품명:</strong> ${data.productTitle}</p>
+      <p><strong>환불 요청 금액:</strong> <span class="price">₩${data.price.toLocaleString()}</span></p>
+      <p><strong>환불 요청 사유:</strong> ${data.reason}</p>
+      <p><strong>요청일:</strong> ${data.requestDate}</p>
+      <p style="font-size: 12px; color: #6b7280;"><strong>환불 번호:</strong> ${data.refundId}</p>
+    </div>
+    
+    <div style="background-color: #fef3c7; border-radius: 8px; padding: 16px; margin: 16px 0; border-left: 4px solid #f59e0b;">
+      <p style="margin: 0; font-size: 14px;"><strong>⏱️ 처리 안내</strong></p>
+      <p style="margin: 8px 0 0 0; font-size: 14px; color: #6b7280;">
+        환불 요청은 영업일 기준 1-3일 내에 검토됩니다.<br>
+        처리 결과는 이메일로 안내드리겠습니다.
+      </p>
+    </div>
+    
+    <p style="text-align: center; margin-top: 24px;">
+      <a href="${APP_URL}/dashboard/purchases" class="button">구매 내역 확인</a>
+    </p>
+  `),
+});
+
+// 환불 발생 알림 이메일 (판매자용)
+export const refundNotificationSellerEmail = (data: {
+  sellerName: string;
+  productTitle: string;
+  buyerName: string;
+  refundAmount: number;
+  refundReason: string;
+  refundDate: string;
+}): EmailTemplate => ({
+  subject: `[${APP_NAME}] 환불이 발생했습니다 - ${data.productTitle}`,
+  html: baseLayout(`
+    <h2>환불 처리 안내 📋</h2>
+    <p>안녕하세요, <span class="highlight">${data.sellerName}</span>님!</p>
+    <p>아래 상품에 대한 환불이 처리되었습니다.</p>
+    
+    <div class="info-box" style="border-left: 4px solid #f59e0b;">
+      <p><strong>상품명:</strong> ${data.productTitle}</p>
+      <p><strong>구매자:</strong> ${data.buyerName}</p>
+      <p><strong>환불 금액:</strong> <span style="color: #ef4444; font-weight: 600;">-₩${data.refundAmount.toLocaleString()}</span></p>
+      <p><strong>환불 사유:</strong> ${data.refundReason}</p>
+      <p><strong>처리일:</strong> ${data.refundDate}</p>
+    </div>
+    
+    <p style="font-size: 14px; color: #6b7280; margin-top: 16px;">
+      환불 금액은 다음 정산에서 차감됩니다. 자세한 내용은 정산 내역에서 확인하실 수 있습니다.
+    </p>
+    
+    <p style="text-align: center; margin-top: 24px;">
+      <a href="${APP_URL}/dashboard/settlements" class="button">정산 내역 확인</a>
+    </p>
+  `),
+});
+
+// 발송 함수들
+export async function sendPaymentReceiptEmail(
+  to: string,
+  data: Parameters<typeof paymentReceiptEmail>[0]
+) {
+  const template = paymentReceiptEmail(data);
+  return sendEmail({ to, subject: template.subject, html: template.html });
+}
+
+export async function sendRefundRequestedEmail(
+  to: string,
+  data: Parameters<typeof refundRequestedEmail>[0]
+) {
+  const template = refundRequestedEmail(data);
+  return sendEmail({ to, subject: template.subject, html: template.html });
+}
+
+export async function sendRefundNotificationSellerEmail(
+  to: string,
+  data: Parameters<typeof refundNotificationSellerEmail>[0]
+) {
+  const template = refundNotificationSellerEmail(data);
+  return sendEmail({ to, subject: template.subject, html: template.html });
+}

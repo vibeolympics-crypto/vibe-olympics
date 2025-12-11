@@ -11,6 +11,7 @@ import { WebVitals } from "@/components/providers/web-vitals";
 import { AIChatbot } from "@/components/ui/ai-chatbot";
 import { CompareProvider } from "@/hooks/use-compare";
 import { CompareBar } from "@/components/marketplace/compare-components";
+import { OfflineBanner, InstallPrompt } from "@/components/pwa";
 
 const inter = Inter({
   variable: "--font-geist-sans",
@@ -142,6 +143,8 @@ export default async function RootLayout({
                   <Footer />
                   <AIChatbot />
                   <CompareBar />
+                  <OfflineBanner />
+                  <InstallPrompt />
                 </CompareProvider>
               </NotificationProvider>
             </AuthProvider>

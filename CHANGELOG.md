@@ -1,11 +1,320 @@
 # 📜 Vibe Olympics - 변경 이력 (CHANGELOG)
 
-> 마지막 업데이트: 2025년 12월 12일
+> 마지막 업데이트: 2025년 12월 11일
 > 형식: 세션별 완료 작업 + 수정된 파일 목록
 
 ---
 
-## 세션 71 (2025-12-12) - Google Analytics 4 연동 ⭐ NEW
+## 세션 77 (2025-12-11) - A/B 테스트 관리 대시보드 ⭐ NEW
+
+### 작업 요약
+1. **Admin AB Test API**: 대시보드 통계, 일괄 작업, 상세 분석 API
+2. **ABTestDashboard**: 실험 목록/필터/일괄작업/상태관리 UI
+3. **CreateExperimentDialog**: 2단계 실험 생성 폼 (기본정보 + 변형설정)
+4. **ExperimentDetailModal**: 상세 통계 조회/승자 선택 모달
+5. **Admin Page**: /admin/ab-test 관리자 전용 페이지
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| Admin AB Test Stats API | GET /api/admin/ab-test - 전체 통계 요약 | ✅ |
+| Admin AB Test Bulk API | POST /api/admin/ab-test/bulk - 일괄 작업 | ✅ |
+| Admin AB Test Analytics API | GET /api/admin/ab-test/analytics - 상세 분석 | ✅ |
+| ABTestDashboard | 실험 목록/필터/일괄작업 UI | ✅ |
+| CreateExperimentDialog | 2단계 실험 생성 다이얼로그 | ✅ |
+| ExperimentDetailModal | 상세 통계/승자 선택 모달 | ✅ |
+| Admin AB Test Page | /admin/ab-test 페이지 | ✅ |
+| heroicons 설치 | @heroicons/react 패키지 추가 | ✅ |
+| 빌드 테스트 | `npm run build` 성공 | ✅ |
+
+### 신규/수정 파일
+```
+# API 라우트
+src/app/api/admin/ab-test/route.ts          # 대시보드 통계 API
+src/app/api/admin/ab-test/bulk/route.ts     # 일괄 작업 API (start/pause/archive/delete)
+src/app/api/admin/ab-test/analytics/route.ts # 상세 분석 API (시간별/일별 추이)
+
+# 관리자 컴포넌트
+src/components/admin/ab-test-dashboard.tsx       # 메인 대시보드 컴포넌트
+src/components/admin/create-experiment-dialog.tsx # 실험 생성 다이얼로그
+src/components/admin/experiment-detail-modal.tsx  # 실험 상세 모달
+
+# 페이지
+src/app/admin/ab-test/page.tsx               # A/B 테스트 관리 페이지
+
+# 기존 수정 파일
+src/components/dashboard/realtime-sales-widget.tsx   # useSocket 반환값 수정
+src/components/dashboard/product-stats-widget.tsx    # data 옵셔널 체이닝 수정
+
+# 패키지 추가
+package.json  # @heroicons/react
+```
+
+### A/B 테스트 대시보드 기능
+- **실험 목록**: 전체/초안/실행 중/일시정지/완료/보관됨 필터링
+- **일괄 작업**: 선택한 실험 일괄 시작/일시정지/재개/보관/삭제
+- **실험 생성**: 2단계 폼 (기본정보 → 변형설정, 가중치 균등배분)
+- **상세 통계**: 변형별 전환율, 대조군 대비 개선율, 신뢰도
+- **승자 선택**: 실험 완료 시 승자 변형 선택 기능
+- **최고 성과 변형**: 전환율 기준 상위 5개 변형 하이라이트
+
+### Admin AB Test Stats API 응답 구조
+```typescript
+{
+  summary: {
+    totalExperiments, runningExperiments, completedExperiments,
+    draftExperiments, pausedExperiments, archivedExperiments,
+    totalAssignments, totalEvents, avgAssignmentsPerExperiment
+  },
+  recentExperiments: [...],  // 최근 5개 실험
+  topPerformers: [...],      // 성과 좋은 변형 Top 5
+  trends: {
+    dailyEvents: [...],      // 최근 7일 이벤트 추이
+    dailyConversions: [...]  // 최근 7일 전환 추이
+  }
+}
+```
+
+---
+
+## 세션 76 (2025-12-11) - 대시보드 기능 강화 ⭐ NEW
+
+### 작업 요약
+1. **Admin Dashboard Enhanced**: 관리자 전체 통계 API (매출, 환불률, 판매자/상품 순위, 일별 추이)
+2. **Realtime Sales Notification**: Socket.io 실시간 판매 알림 위젯 + Bootpay 연동
+3. **Settlement Report API**: 기간별(주/월/분기/연) 정산 리포트 상세 조회
+4. **Product Stats Widget**: 상품별 조회수/판매/전환율 통계 위젯
+5. **Coupon Management UI**: 쿠폰 생성/수정/삭제 관리 페이지
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| Admin Dashboard API | GET /api/admin/dashboard - 종합 통계 | ✅ |
+| Product Stats API | GET /api/dashboard/product-stats - 상품별 통계 | ✅ |
+| Settlement Report API | GET /api/settlements/report - 기간별 정산 | ✅ |
+| RealtimeSalesWidget | Socket.io 실시간 판매 알림 위젯 | ✅ |
+| ProductStatsWidget | 상품 통계 위젯 (조회수, 판매, 전환율) | ✅ |
+| Coupon Management Page | 쿠폰 생성/관리 UI (판매자 대시보드) | ✅ |
+| UI Components | Label, Table, DropdownMenu, Switch 추가 | ✅ |
+| Socket Events | sale:new, sale:realtime 이벤트 추가 | ✅ |
+| 빌드 테스트 | `npm run build` 성공 | ✅ |
+
+### 신규/수정 파일
+```
+# API 라우트
+src/app/api/admin/dashboard/route.ts          # 관리자 대시보드 종합 통계 API
+src/app/api/dashboard/product-stats/route.ts  # 상품별 통계 API
+src/app/api/settlements/report/route.ts       # 정산 리포트 API
+
+# 대시보드 컴포넌트
+src/components/dashboard/realtime-sales-widget.tsx  # 실시간 판매 알림 위젯
+src/components/dashboard/product-stats-widget.tsx   # 상품 통계 위젯
+
+# 페이지
+src/app/admin/dashboard/page.tsx                    # 관리자 대시보드 페이지
+src/app/admin/dashboard/admin-dashboard-enhanced.tsx # 관리자 대시보드 UI
+src/app/dashboard/seller/coupons/page.tsx           # 쿠폰 관리 페이지
+
+# UI 컴포넌트 (신규)
+src/components/ui/label.tsx         # Label 컴포넌트
+src/components/ui/table.tsx         # Table 컴포넌트
+src/components/ui/dropdown-menu.tsx # DropdownMenu 컴포넌트
+src/components/ui/switch.tsx        # Switch 컴포넌트
+
+# Socket 확장
+src/lib/socket.ts                   # sale:new, sale:realtime 이벤트 추가
+src/app/api/payment/bootpay/verify/route.ts  # Socket 알림 연동
+
+# 패키지 추가
+package.json  # @radix-ui/react-label, react-dropdown-menu, react-switch
+```
+
+### Admin Dashboard API 응답 구조
+```typescript
+{
+  overview: { totalUsers, totalProducts, totalPurchases, totalRevenue, totalRefunds },
+  period: { name, startDate, newUsers, newProducts, purchases, revenue },
+  refunds: { total, pending, rate, amount },
+  topSellers: [...],  // 매출 순위 상위 10명
+  topProducts: [...], // 판매량 순위 상위 10개
+  categoryStats: [...], // 카테고리별 매출
+  dailyTrend: [...],   // 최근 30일 일별 추이
+  paymentStats: [...], // 결제 수단별 통계
+  userGrowth: [...]    // 최근 12개월 사용자 증가
+}
+```
+
+---
+
+## 세션 75 (2025-12-11) - 결제/환불 이메일 알림 시스템 ⭐ NEW
+
+### 작업 요약
+1. **결제 영수증 이메일**: 부트페이 결제 완료 시 구매자에게 상세 영수증 발송
+2. **환불 알림 이메일**: 환불 요청 접수, 완료, 거절 시 자동 이메일 발송
+3. **판매자 알림**: 결제 완료/환불 발생 시 판매자에게 알림
+4. **API 통합**: Bootpay verify, Refunds API에 이메일 발송 로직 연동
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| paymentReceiptEmail | 결제 영수증 템플릿 (상세 테이블 포함) | ✅ |
+| refundRequestedEmail | 환불 요청 접수 알림 템플릿 | ✅ |
+| refundNotificationSellerEmail | 판매자 환불 발생 알림 템플릿 | ✅ |
+| sendPaymentReceiptEmail | 결제 영수증 발송 함수 | ✅ |
+| sendRefundRequestedEmail | 환불 요청 접수 발송 함수 | ✅ |
+| sendRefundNotificationSellerEmail | 판매자 환불 알림 발송 함수 | ✅ |
+| Bootpay verify 통합 | 결제 완료 시 구매자/판매자 이메일 발송 | ✅ |
+| Refunds API 통합 | 환불 요청 시 접수 확인 이메일 발송 | ✅ |
+| Refunds/[id] API 통합 | 승인/거절 시 구매자/판매자 이메일 발송 | ✅ |
+| 빌드 테스트 | `npm run build` 성공 | ✅ |
+
+### 이메일 알림 흐름
+```
+결제 완료 (Bootpay verify)
+├── 구매자 → 결제 영수증 이메일 (상품명, 금액, 결제수단, 거래번호)
+└── 판매자 → 판매 알림 이메일 (기존 saleNotificationEmail 사용)
+
+환불 요청 (POST /api/refunds)
+└── 구매자 → 환불 요청 접수 이메일
+
+환불 승인 (PATCH /api/refunds/[id])
+├── 구매자 → 환불 완료 이메일 (기존 refundCompletedEmail 사용)
+└── 판매자 → 환불 발생 알림 이메일
+
+환불 거절 (PATCH /api/refunds/[id])
+└── 구매자 → 환불 거절 이메일 (기존 refundRejectedEmail 사용)
+```
+
+### 신규/수정 파일
+```
+src/lib/email.ts                              # 3개 신규 템플릿 + 발송 함수 추가
+src/app/api/payment/bootpay/verify/route.ts   # 이메일 발송 로직 추가
+src/app/api/refunds/route.ts                  # sendRefundRequestedEmail 연동
+src/app/api/refunds/[id]/route.ts             # 환불 승인/거절 이메일 연동
+```
+
+---
+
+## 세션 74 (2025-12-11) - A/B 테스트 프레임워크
+
+### 작업 요약
+1. **A/B 테스트 DB 스키마**: Experiment, ExperimentVariant, ExperimentAssignment, ExperimentEvent 4개 테이블
+2. **ABTestService 코어 서비스**: 변형 할당, 이벤트 추적, 통계 계산 (Z-test 신뢰도)
+3. **useABTest React 훅**: 클라이언트 사이드 A/B 테스트 통합
+4. **A/B 테스트 관리 대시보드**: 실험 목록, 생성, 상태 관리, 변형별 통계
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| Prisma 스키마 | ExperimentStatus enum + 4개 테이블 | ✅ |
+| ABTestService | 변형 할당, 이벤트 추적, 통계 계산 | ✅ |
+| useABTest 훅 | 실험 키 기반 변형 가져오기, 자동 view 트래킹 | ✅ |
+| API: /api/ab-test/assign | POST - 사용자에게 변형 할당 | ✅ |
+| API: /api/ab-test/track | POST - 이벤트 추적 (view, click, conversion, revenue) | ✅ |
+| API: /api/ab-test/experiments | GET/POST - 실험 목록/생성 | ✅ |
+| API: /api/ab-test/experiments/[id] | GET/PATCH/DELETE - 실험 상세/상태변경/삭제 | ✅ |
+| A/B 대시보드 페이지 | /dashboard/ab-tests - 관리자 UI | ✅ |
+| DB 마이그레이션 | `prisma db push` 성공 | ✅ |
+| 빌드 테스트 | `npm run build` 성공 | ✅ |
+
+### 통계 분석 기능
+```
+- 변형별 참여자 수, 전환 수, 전환율
+- 대조군 대비 개선율 (%)
+- Z-test 기반 신뢰도 계산 (95% 이상 시 통계적 유의성)
+- 승자 자동 판정 (신뢰도 95%+ & 개선율 양수)
+```
+
+### 신규/수정 파일
+```
+prisma/schema.prisma                           # ExperimentStatus enum + 4개 테이블 추가
+src/lib/ab-test.ts                            # ABTestService 클래스 (신규)
+src/hooks/use-ab-test.ts                      # useABTest, useExperimentConfig 훅 (신규)
+src/app/api/ab-test/assign/route.ts           # 변형 할당 API (신규)
+src/app/api/ab-test/track/route.ts            # 이벤트 추적 API (신규)
+src/app/api/ab-test/experiments/route.ts      # 실험 목록/생성 API (신규)
+src/app/api/ab-test/experiments/[id]/route.ts # 실험 상세 API (신규)
+src/app/dashboard/ab-tests/page.tsx           # A/B 테스트 대시보드 (신규)
+```
+
+---
+
+## 세션 73 (2025-12-11) - PWA 오프라인 지원 강화
+
+### 작업 요약
+1. **Service Worker v2 전면 개편**: 4가지 캐싱 전략 적용
+2. **오프라인 상태 관리**: IndexedDB 기반 오프라인 액션 저장
+3. **PWA 컴포넌트**: 오프라인 배너, 앱 설치 프롬프트 구현
+4. **manifest.ts 개선**: 바로가기, 스크린샷, 카테고리 추가
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| Service Worker v2 | 4가지 캐싱 전략 (Network First, Cache First, Stale While Revalidate) | ✅ |
+| API 캐싱 | 상품 목록/상세, 카테고리, 리뷰 - 5분 캐시 | ✅ |
+| 이미지 캐싱 | Cache First + 백그라운드 업데이트 | ✅ |
+| 오프라인 훅 | useOffline - 네트워크 상태, IndexedDB 관리 | ✅ |
+| 오프라인 배너 | 네트워크 상태 알림, 동기화 버튼 | ✅ |
+| 앱 설치 프롬프트 | Android/iOS 설치 가이드 | ✅ |
+| manifest.ts 개선 | shortcuts, screenshots, categories 추가 | ✅ |
+| 빌드 테스트 | `npm run build` 성공 | ✅ |
+
+### 캐싱 전략
+```
+API 요청:       Network First + 5분 캐시 (상품, 카테고리, 리뷰)
+페이지 요청:    Network First + 오프라인 페이지 폴백
+이미지 요청:    Cache First + 백그라운드 업데이트
+정적 리소스:    Stale While Revalidate
+```
+
+### 신규/수정 파일
+```
+public/sw.js                              # Service Worker v2 전면 개편
+src/hooks/use-offline.ts                  # 오프라인 상태 관리 훅 (신규)
+src/components/pwa/offline-banner.tsx     # 오프라인 배너 컴포넌트 (신규)
+src/components/pwa/install-prompt.tsx     # PWA 설치 프롬프트 (신규)
+src/components/pwa/index.ts               # PWA 컴포넌트 인덱스 (신규)
+src/app/manifest.ts                       # PWA manifest 개선
+src/app/layout.tsx                        # PWA 컴포넌트 추가
+```
+
+---
+
+## 세션 72 (2025-12-12) - 추천 시스템 DB 검증 & 문서 정리
+
+### 작업 요약
+1. **추천 시스템 DB 스키마 검증**: 7개 테이블 이미 적용 확인
+2. **Prisma DB 동기화 확인**: `prisma db push` - 이미 동기화 상태
+3. **TODO.md 우선순위 최신화**: 중복 정리, 세션 65-71 완료 반영, 예정 작업 업데이트
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| Prisma 스키마 확인 | UserCluster, TransitionMatrix 등 7개 테이블 | ✅ |
+| DB 마이그레이션 검증 | `prisma db push` 이미 동기화 | ✅ |
+| 빌드 테스트 | `npm run build` 성공 | ✅ |
+| TODO.md 최신화 | 우선순위 리스트 정리 | ✅ |
+
+### 검증된 추천 시스템 테이블 (7개)
+```
+UserCluster           # 사용자 클러스터 분류 (5개 특성 + 확률)
+TransitionMatrix      # 상품→상품 조건부 확률 전이
+CategoryTransition    # 카테고리→카테고리 전이
+FunnelState           # 5단계 폭포 퍼널 상태
+RecommendationFeedback # 피드백 로그
+RecommendationState   # 글로벌 상태 (JSON)
+RecommendationStats   # 시간별 통계
+```
+
+### 수정된 파일
+```
+TODO.md               # 우선순위 리스트 최신화, 세션 72 완료 추가
+CHANGELOG.md          # 세션 72 변경 이력 추가
+```
+
+---
+
+## 세션 71 (2025-12-12) - Google Analytics 4 연동
 
 ### 작업 요약
 1. **GA4 스크립트 설정**: Next.js Script 컴포넌트로 GA4 통합

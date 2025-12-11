@@ -1,8 +1,8 @@
 {
-  "status": "commited",
+  "status": "init",
   "type": "frontend",
   "scope": "codebase",
-  "localEndpoint": "http://localhost:3000",
+  "localEndpoint": "http://localhost:3000/",
   "executionArgs": {
     "projectName": "vibe-olympics",
     "projectPath": "c:\\Users\\WON\\Desktop\\프로젝트\\Vibe Olympics\\vibe-olympics",
@@ -11,5 +11,6 @@
     "envs": {
       "API_KEY": "sk-user-Iv2hfvd7FtHsY7ZX7L_bzF07_R5csyXhPC7gv-CpcvKwatcmY7yC8T9ZD7ueGxjRuUWteo5agTWZAKFYbP5BzC1-M4D-ksBG6k9jCQlbLiT8g_tl64psq28NGDW3sAoSVrA"
     }
-  }
+  },
+  "serverPort": 55694
 }

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { 
+  sendPaymentReceiptEmail, 
+  sendSaleNotificationEmail 
+} from "@/lib/email";
 
 // PortOne 결제 확인 API
 const PORTONE_API_SECRET = process.env.PORTONE_API_SECRET;
@@ -165,6 +169,46 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // 이메일 발송 (비동기 - 에러가 결제 성공에 영향 주지 않음)
+    try {
+      const [buyer, seller] = await Promise.all([
+        prisma.user.findUnique({
+          where: { id: session.user.id },
+          select: { name: true, email: true },
+        }),
+        prisma.user.findUnique({
+          where: { id: product.sellerId },
+          select: { name: true, email: true },
+        }),
+      ]);
+
+      // 구매자에게 결제 영수증 이메일
+      if (buyer?.email) {
+        await sendPaymentReceiptEmail(buyer.email, {
+          buyerName: buyer.name || "고객",
+          productTitle: product.title,
+          productId: product.id,
+          price: productPrice,
+          paymentMethod: payment.method.type,
+          transactionId: payment.transactionId || paymentId,
+          purchaseId: purchase.id,
+          purchaseDate: new Date().toLocaleString("ko-KR"),
+        });
+      }
+
+      // 판매자에게 판매 알림 이메일
+      if (seller?.email) {
+        await sendSaleNotificationEmail(seller.email, {
+          sellerName: seller.name || "판매자",
+          productTitle: product.title,
+          price: productPrice,
+          buyerName: buyer?.name || "구매자",
+        });
+      }
+    } catch (emailError) {
+      console.error("이메일 발송 실패 (결제는 성공):", emailError);
+    }
 
     return NextResponse.json({
       success: true,
