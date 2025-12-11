@@ -23,8 +23,8 @@ const THRESHOLDS = {
     back: isCI || isProduction ? 2000 : 30000,      // 뒤로 가기
   },
   search: {
-    query: isCI || isProduction ? 3000 : 10000,     // 검색
-    filter: isCI || isProduction ? 2000 : 10000,    // 필터
+    query: isCI || isProduction ? 3000 : 15000,     // 검색 (Render 콜드스타트 고려)
+    filter: isCI || isProduction ? 2000 : 12000,    // 필터
   },
   reload: isCI || isProduction ? 3000 : 30000,      // 페이지 리로드
 };
