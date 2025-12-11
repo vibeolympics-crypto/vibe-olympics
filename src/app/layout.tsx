@@ -6,7 +6,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
-import { AuthProvider, QueryProvider } from "@/components/providers";
+import { AuthProvider, QueryProvider, NotificationProvider } from "@/components/providers";
 import { WebVitals } from "@/components/providers/web-vitals";
 import { AIChatbot } from "@/components/ui/ai-chatbot";
 import { CompareProvider } from "@/hooks/use-compare";
@@ -121,26 +121,28 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           <QueryProvider>
             <AuthProvider>
-              <CompareProvider>
-                <WebVitals />
-                <Toaster 
-                  position="top-center"
-                  toastOptions={{
-                    style: {
-                      background: 'var(--bg-elevated)',
-                      color: 'var(--text-primary)',
-                      border: '1px solid var(--border-default)',
-                    },
-                  }}
-                  richColors
-                  closeButton
-                />
-                <Header />
-                <main id="main-content" className="min-h-screen pt-16" role="main">{children}</main>
-                <Footer />
-                <AIChatbot />
-                <CompareBar />
-              </CompareProvider>
+              <NotificationProvider>
+                <CompareProvider>
+                  <WebVitals />
+                  <Toaster 
+                    position="top-center"
+                    toastOptions={{
+                      style: {
+                        background: 'var(--bg-elevated)',
+                        color: 'var(--text-primary)',
+                        border: '1px solid var(--border-default)',
+                      },
+                    }}
+                    richColors
+                    closeButton
+                  />
+                  <Header />
+                  <main id="main-content" className="min-h-screen pt-16" role="main">{children}</main>
+                  <Footer />
+                  <AIChatbot />
+                  <CompareBar />
+                </CompareProvider>
+              </NotificationProvider>
             </AuthProvider>
           </QueryProvider>
         </NextIntlClientProvider>

@@ -17,6 +17,7 @@ import {
   sendSubscriptionCancelledEmail,
   sendSubscriptionExpiringEmail,
 } from "@/lib/email";
+import { sendNotificationToUser, sendUnreadCountToUser } from "@/lib/socket";
 
 // 기본 알림 설정값
 const DEFAULT_EMAIL_SETTINGS = {
@@ -72,7 +73,7 @@ async function getUserNotificationSettings(userId: string) {
   };
 }
 
-// 인앱 알림 생성
+// 인앱 알림 생성 + 웹소켓 실시간 알림 발송
 async function createInAppNotification(data: {
   userId: string;
   type: NotificationType;
@@ -80,7 +81,8 @@ async function createInAppNotification(data: {
   message: string;
   data?: Record<string, unknown>;
 }) {
-  return prisma.notification.create({
+  // DB에 알림 생성
+  const notification = await prisma.notification.create({
     data: {
       userId: data.userId,
       type: data.type,
@@ -89,6 +91,30 @@ async function createInAppNotification(data: {
       data: data.data ? JSON.parse(JSON.stringify(data.data)) : undefined,
     },
   });
+
+  // 웹소켓으로 실시간 알림 발송
+  try {
+    sendNotificationToUser(data.userId, {
+      id: notification.id,
+      type: notification.type,
+      title: notification.title,
+      message: notification.message,
+      data: data.data,
+      isRead: false,
+      createdAt: notification.createdAt.toISOString(),
+    });
+
+    // 읽지 않은 알림 수 업데이트
+    const unreadCount = await prisma.notification.count({
+      where: { userId: data.userId, isRead: false },
+    });
+    sendUnreadCountToUser(data.userId, unreadCount);
+  } catch (error) {
+    // 웹소켓 전송 실패해도 알림 생성은 성공으로 처리
+    console.error("[Socket] Failed to send realtime notification:", error);
+  }
+
+  return notification;
 }
 
 // ==========================================

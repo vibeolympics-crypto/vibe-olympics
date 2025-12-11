@@ -1,6 +1,6 @@
 # 📋 Vibe Olympics - 예정 작업 (TODO)
 
-> 마지막 업데이트: 2025년 12월 12일 (세션 67 완료)
+> 마지막 업데이트: 2025년 12월 12일 (세션 68 완료)
 > 배포 URL: https://vibe-olympics.onrender.com
 > 워크플로우: TODO.md 검토 → 작업 수행 → CHANGELOG.md 기록 → TEST_SPECS.md 작성
 
@@ -14,7 +14,7 @@
 | 1 | CI-01 | GitHub Actions CI/CD 통과 확인 | ✅ 완료 | Jest coverage threshold 수정 |
 | 2 | DEPLOY-01 | Render 배포 상태 확인 | ✅ 정상 | https://vibe-olympics.onrender.com |
 | 3 | DEPLOY-02 | Vercel 환경변수 설정 | ⏳ 대기 | 11개 환경변수 |
-| 4 | S68-01 | 실시간 알림 웹소켓 | 📋 예정 | Socket.io |
+| 4 | S68-01~06 | 실시간 알림 웹소켓 | ✅ 완료 | Socket.io 구현 |
 
 ### 🟡 중간 (Medium Priority) - 기능 개선
 | 순위 | 작업 ID | 작업명 | 상태 | 비고 |
@@ -39,10 +39,42 @@
 
 | 구분 | 완료 | 대기 | 총계 |
 |------|------|------|------|
-| 세션 작업 | 67개 | - | 67개 |
+| 세션 작업 | 68개 | - | 68개 |
 | 테스트 케이스 | 520개 | - | 520개 |
-| API 엔드포인트 | 58+개 | - | 58+개 |
+| API 엔드포인트 | 59+개 | - | 59+개 |
 | UI 컴포넌트 | 35+개 | - | 35+개 |
+
+---
+
+## ✅ 세션 68 완료 - 실시간 알림 웹소켓 (Socket.io)
+
+### 세션 68 (2025-12-12): 실시간 알림 웹소켓 구현
+| 작업 ID | 작업명 | 상태 | 비고 |
+|---------|--------|------|------|
+| S68-01 | Socket.io 서버 설정 | ✅ 완료 | src/lib/socket.ts |
+| S68-02 | 실시간 알림 이벤트 정의 | ✅ 완료 | notification:new, notification:read 등 |
+| S68-03 | 클라이언트 Socket Hook | ✅ 완료 | useSocket, useNotificationSocket |
+| S68-04 | NotificationProvider 확장 | ✅ 완료 | 실시간 알림 Context |
+| S68-05 | 알림 트리거 웹소켓 연동 | ✅ 완료 | createInAppNotification 소켓 발송 |
+| S68-06 | 커스텀 서버 & 문서화 | ✅ 완료 | server.ts, TODO.md, CHANGELOG.md |
+
+**새로운 파일**:
+- `src/lib/socket.ts` - Socket.io 서버 라이브러리
+- `src/app/api/socket/route.ts` - Socket API 엔드포인트
+- `src/hooks/use-socket.ts` - 클라이언트 Socket Hook
+- `src/components/providers/notification-provider.tsx` - 실시간 알림 Provider
+- `server.ts` - 커스텀 Next.js + Socket.io 서버
+
+**Socket 이벤트**:
+- `notification:new` - 새 알림 수신
+- `notification:read` - 알림 읽음 처리
+- `notification:delete` - 알림 삭제
+- `notifications:read-all` - 전체 읽음
+- `unread-count:update` - 읽지 않은 수 업데이트
+
+**npm 스크립트**:
+- `npm run dev:socket` - Socket.io 포함 개발 서버
+- `npm run start:socket` - Socket.io 포함 프로덕션 서버
 
 ---
 

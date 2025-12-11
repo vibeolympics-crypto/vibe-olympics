@@ -5,7 +5,73 @@
 
 ---
 
-## 세션 67 (2025-12-12) - 알림 시스템 고도화 ⭐ NEW
+## 세션 68 (2025-12-12) - 실시간 알림 웹소켓 (Socket.io) ⭐ NEW
+
+### 작업 요약
+1. **Socket.io 서버 설정**: 커스텀 Next.js 서버에 Socket.io 통합
+2. **실시간 알림 이벤트**: 양방향 알림 이벤트 정의 및 구현
+3. **클라이언트 Socket Hook**: React Hook으로 Socket 연결/이벤트 관리
+4. **NotificationProvider**: 실시간 알림 상태 관리 Context
+5. **알림 트리거 연동**: 인앱 알림 생성 시 웹소켓으로 실시간 발송
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| Socket.io 서버 설정 | src/lib/socket.ts - 서버 초기화, 이벤트 핸들러 | ✅ |
+| 커스텀 서버 생성 | server.ts - Next.js + Socket.io 통합 서버 | ✅ |
+| Socket API 엔드포인트 | /api/socket - 헬스체크, 온라인 유저 수 | ✅ |
+| 클라이언트 Hook | useSocket, useNotificationSocket | ✅ |
+| NotificationProvider | 실시간 알림 Context + React Query 연동 | ✅ |
+| 레이아웃 통합 | RootLayout에 NotificationProvider 추가 | ✅ |
+| 알림 트리거 연동 | createInAppNotification 웹소켓 발송 | ✅ |
+| npm 스크립트 추가 | dev:socket, start:socket | ✅ |
+
+### 수정된 파일
+```
+src/lib/socket.ts                                   # 신규: Socket.io 서버 라이브러리
+src/app/api/socket/route.ts                         # 신규: Socket API 엔드포인트
+src/hooks/use-socket.ts                             # 신규: 클라이언트 Socket Hook
+src/components/providers/notification-provider.tsx  # 신규: 실시간 알림 Provider
+src/components/providers/index.ts                   # NotificationProvider export 추가
+server.ts                                           # 신규: 커스텀 Next.js + Socket.io 서버
+src/lib/notification-triggers.ts                    # 웹소켓 발송 로직 추가
+src/app/layout.tsx                                  # NotificationProvider 추가
+package.json                                        # dev:socket, start:socket 스크립트 추가
+TODO.md                                             # 세션 68 완료
+CHANGELOG.md                                        # 변경 이력
+```
+
+### Socket 이벤트 정의
+| 이벤트 | 방향 | 설명 |
+|--------|------|------|
+| `notification:new` | S→C | 새 알림 수신 |
+| `notification:read` | C→S | 알림 읽음 요청 |
+| `notification:delete` | C→S | 알림 삭제 요청 |
+| `notifications:read-all` | C→S | 전체 읽음 요청 |
+| `unread-count:update` | S→C | 읽지 않은 수 업데이트 |
+
+### 주요 함수
+| 함수 | 설명 |
+|------|------|
+| `initSocketServer(io)` | Socket.io 서버 초기화 |
+| `sendNotificationToUser(userId, payload)` | 특정 사용자에게 알림 발송 |
+| `sendUnreadCountToUser(userId, count)` | 읽지 않은 알림 수 발송 |
+| `isUserOnline(userId)` | 사용자 온라인 상태 확인 |
+| `useSocket()` | Socket 연결 관리 Hook |
+| `useNotificationSocket()` | 알림 전용 Socket Hook |
+
+### 사용법
+```bash
+# 개발 서버 (Socket.io 포함)
+npm run dev:socket
+
+# 프로덕션 서버 (Socket.io 포함)
+npm run start:socket
+```
+
+---
+
+## 세션 67 (2025-12-12) - 알림 시스템 고도화
 
 ### 작업 요약
 1. **알림 설정 API 확장**: 구독 관련 알림 옵션 추가
