@@ -156,6 +156,9 @@ model User {
   subscriptions    Subscription[]                      // 내 구독
   subscriptionPlans SubscriptionPlan[] @relation("SellerSubscriptionPlans") // 내가 만든 구독 플랜 (판매자)
   
+  // 추천 시스템
+  userCluster      UserCluster?      // 사용자 클러스터 정보
+  
   @@index([email])
 }
 
@@ -1566,4 +1569,221 @@ model PaymentRetry {
   @@index([subscriptionId])
   @@index([status])
   @@index([scheduledAt])
+}
+
+// ==========================================
+// 🧠 베이지안 자동 진화 추천 시스템
+// ==========================================
+
+// 사용자 클러스터 유형
+enum UserClusterType {
+  PRICE_SENSITIVE      // 가격 민감형
+  CONVENIENCE_FOCUSED  // 편의 중시형
+  QUALITY_SEEKER       // 품질 추구형
+  BRAND_LOYAL          // 브랜드 충성형
+  IMPULSE_BUYER        // 충동 구매형
+  UNKNOWN              // 미분류
+}
+
+// 피드백 유형
+enum RecommendationFeedbackType {
+  EXPOSURE     // 노출됨
+  CLICK        // 클릭
+  CART         // 장바구니
+  WISHLIST     // 위시리스트
+  PURCHASE     // 구매
+  SKIP         // 스킵
+  RETURN       // 반품
+}
+
+// 사용자 클러스터 상태
+model UserCluster {
+  id              String          @id @default(cuid())
+  userId          String          @unique
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // 클러스터 분류
+  cluster         UserClusterType @default(UNKNOWN)
+  confidence      Float           @default(0) // 분류 신뢰도 (0-1)
+  
+  // 특성 벡터 (정규화된 값들)
+  avgPrice        Float           @default(0)    // 평균 구매 가격
+  purchaseFreq    Float           @default(0)    // 구매 빈도
+  reviewRate      Float           @default(0)    // 리뷰 작성률
+  returnRate      Float           @default(0)    // 반품률
+  diversityScore  Float           @default(0)    // 카테고리 다양성
+  
+  // 첫 구매 정보
+  firstProductId  String?
+  firstCategory   String?
+  
+  // 클러스터별 확률 분포
+  clusterProbs    Json            @default("{}") // {cluster: probability}
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([cluster])
+  @@index([confidence])
+}
+
+// 조건부 확률 전이 행렬
+model TransitionMatrix {
+  id              String          @id @default(cuid())
+  
+  // 키: first_product:cluster
+  firstProductId  String
+  cluster         UserClusterType
+  
+  // 다음 상품으로의 전이 확률
+  nextProductId   String
+  transitionCount Int             @default(0) // 전이 횟수
+  totalFromFirst  Int             @default(0) // 첫 상품에서 출발한 총 횟수
+  probability     Float           @default(0) // 계산된 확률
+  
+  // 라플라스 스무딩 적용 확률
+  smoothedProb    Float           @default(0)
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@unique([firstProductId, cluster, nextProductId])
+  @@index([firstProductId, cluster])
+  @@index([nextProductId])
+  @@index([probability])
+}
+
+// 카테고리 전이 행렬
+model CategoryTransition {
+  id              String          @id @default(cuid())
+  
+  fromCategory    String
+  toCategory      String
+  cluster         UserClusterType
+  
+  transitionCount Int             @default(0)
+  probability     Float           @default(0)
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@unique([fromCategory, toCategory, cluster])
+  @@index([fromCategory, cluster])
+  @@index([probability])
+}
+
+// 폭포 퍼널 상태 (5단계)
+model FunnelState {
+  id              String          @id @default(cuid())
+  
+  productId       String
+  cluster         UserClusterType
+  
+  // 5단계 전환율
+  exposureRate    Float           @default(1.0)  // 노출
+  awarenessRate   Float           @default(0.8)  // 인지
+  interestRate    Float           @default(0.5)  // 관심
+  desireRate      Float           @default(0.3)  // 욕구
+  actionRate      Float           @default(0.2)  // 행동
+  conversionRate  Float           @default(0.1)  // 최종 전환
+  
+  // 누적 통계
+  totalExposures  Int             @default(0)
+  totalActions    Int             @default(0)
+  
+  // 페널티 (실패로 인한 조정)
+  exposurePenalty Float           @default(0)
+  awarenessPenalty Float          @default(0)
+  interestPenalty Float           @default(0)
+  desirePenalty   Float           @default(0)
+  actionPenalty   Float           @default(0)
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@unique([productId, cluster])
+  @@index([conversionRate])
+}
+
+// 추천 피드백 로그
+model RecommendationFeedback {
+  id              String                      @id @default(cuid())
+  
+  userId          String
+  productId       String
+  
+  // 피드백 정보
+  feedbackType    RecommendationFeedbackType
+  feedbackValue   Float                       @default(0) // 0-1 연속값
+  
+  // 추천 컨텍스트
+  recommendedAt   DateTime
+  feedbackAt      DateTime                    @default(now())
+  responseTime    Int?                        // 반응 시간 (초)
+  
+  // 추천 당시 정보
+  predictedProb   Float                       @default(0) // 예측 확률
+  actualOutcome   Boolean?                    // 실제 전환 여부
+  
+  // 실패 시 단계 추적
+  failedStage     String?                     // 실패 단계 (awareness, interest 등)
+  
+  // 맥락 정보
+  context         Json                        @default("{}") // {hour, device, discount, etc}
+  
+  createdAt       DateTime                    @default(now())
+  
+  @@index([userId])
+  @@index([productId])
+  @@index([feedbackType])
+  @@index([recommendedAt])
+}
+
+// 추천 시스템 글로벌 상태
+model RecommendationState {
+  id              String          @id @default(cuid())
+  key             String          @unique // 상태 키
+  
+  // JSON 형태로 저장되는 상태 데이터
+  value           Json
+  
+  // 메타 정보
+  version         Int             @default(1)
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([key])
+}
+
+// 추천 시스템 통계
+model RecommendationStats {
+  id                  String      @id @default(cuid())
+  
+  // 기간
+  date                DateTime    @db.Date
+  hour                Int?        // null이면 일간, 있으면 시간별
+  
+  // 추천 통계
+  totalRecommendations Int        @default(0)
+  totalConversions    Int         @default(0)
+  conversionRate      Float       @default(0)
+  
+  // 재무 통계
+  totalRevenue        Decimal     @default(0) @db.Decimal(12, 2)
+  totalCost           Decimal     @default(0) @db.Decimal(12, 2) // 추천 비용 (할인 등)
+  netProfit           Decimal     @default(0) @db.Decimal(12, 2)
+  roi                 Float       @default(0)
+  
+  // 클러스터별 성과
+  clusterStats        Json        @default("{}") // {cluster: {conversions, revenue}}
+  
+  // 상위 추천 상품
+  topProducts         Json        @default("[]") // [{productId, conversions, revenue}]
+  
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  
+  @@unique([date, hour])
+  @@index([date])
 }
