@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   Star,
   Package,
@@ -48,12 +49,14 @@ export function SellerCard({
         <div className="flex items-start gap-4">
           {/* Avatar */}
           <Link href={`/seller/${seller.id}`}>
-            <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-[var(--primary)] to-[var(--accent-violet)] flex-shrink-0 group-hover:ring-2 ring-[var(--primary)] transition-all">
+            <div className="relative w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-[var(--primary)] to-[var(--accent-violet)] flex-shrink-0 group-hover:ring-2 ring-[var(--primary)] transition-all">
               {seller.image ? (
-                <img
+                <Image
                   src={seller.image}
                   alt={seller.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="64px"
+                  className="object-cover"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white text-xl font-bold">
@@ -143,12 +146,14 @@ export function CompactSellerCard({ seller, className }: CompactSellerCardProps)
         "flex items-center gap-3 p-3 rounded-lg hover:bg-[var(--bg-surface)] transition-colors",
         className
       )}>
-        <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-[var(--primary)] to-[var(--accent-violet)] flex-shrink-0">
+        <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-[var(--primary)] to-[var(--accent-violet)] flex-shrink-0">
           {seller.image ? (
-            <img
+            <Image
               src={seller.image}
               alt={seller.name}
-              className="w-full h-full object-cover"
+              fill
+              sizes="40px"
+              className="object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-white text-sm font-bold">

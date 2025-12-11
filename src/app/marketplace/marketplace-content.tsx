@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import {
@@ -446,9 +447,9 @@ export function MarketplaceContent() {
                                     role="option"
                                     aria-selected={highlightedIndex === currentIndex}
                                   >
-                                    <div className="w-10 h-10 rounded-lg bg-[var(--bg-elevated)] flex items-center justify-center overflow-hidden">
+                                    <div className="relative w-10 h-10 rounded-lg bg-[var(--bg-elevated)] flex items-center justify-center overflow-hidden">
                                       {product.thumbnail ? (
-                                        <img src={product.thumbnail} alt="" className="w-full h-full object-cover" />
+                                        <Image src={product.thumbnail} alt="" fill sizes="40px" className="object-cover" />
                                       ) : (
                                         <Puzzle className="w-5 h-5 text-[var(--text-tertiary)]" />
                                       )}
@@ -905,12 +906,14 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
           <CardContent className="p-4">
             <div className="flex gap-4">
               {/* Thumbnail */}
-              <div className="w-32 h-24 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--accent-violet)] flex items-center justify-center flex-shrink-0 overflow-hidden">
+              <div className="relative w-32 h-24 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--accent-violet)] flex items-center justify-center flex-shrink-0 overflow-hidden">
                 {product.thumbnailUrl ? (
-                  <img 
+                  <Image 
                     src={product.thumbnailUrl} 
                     alt={product.title}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="128px"
+                    className="object-cover"
                   />
                 ) : (
                   <span className="text-white text-2xl font-bold">
@@ -961,10 +964,12 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
           {/* Thumbnail */}
           <div className="aspect-video rounded-t-xl bg-gradient-to-br from-[var(--primary)] to-[var(--accent-violet)] flex items-center justify-center relative overflow-hidden">
             {product.thumbnailUrl ? (
-              <img 
+              <Image 
                 src={product.thumbnailUrl} 
                 alt={product.title}
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover"
               />
             ) : (
               <span className="text-white text-4xl font-bold">
@@ -1013,12 +1018,14 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
                 }}
                 className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
               >
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--accent-cyan)] to-[var(--accent-violet)] flex items-center justify-center overflow-hidden">
+                <div className="relative w-6 h-6 rounded-full bg-gradient-to-br from-[var(--accent-cyan)] to-[var(--accent-violet)] flex items-center justify-center overflow-hidden">
                   {product.seller?.image ? (
-                    <img 
+                    <Image 
                       src={product.seller.image} 
                       alt={sellerName}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="24px"
+                      className="object-cover"
                     />
                   ) : (
                     <span className="text-white text-xs font-medium">

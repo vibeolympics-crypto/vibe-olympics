@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   User,
@@ -185,12 +186,14 @@ export function SettingsContent() {
 
                   {/* Avatar */}
                   <div className="flex items-center gap-6 mb-8">
-                    <div className="relative">
+                    <div className="relative w-24 h-24">
                       {profile.image ? (
-                        <img 
+                        <Image 
                           src={profile.image} 
                           alt="Profile"
-                          className="w-24 h-24 rounded-full object-cover"
+                          fill
+                          sizes="96px"
+                          className="rounded-full object-cover"
                         />
                       ) : (
                         <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--accent-violet)] flex items-center justify-center">

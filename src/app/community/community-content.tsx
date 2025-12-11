@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -296,12 +297,14 @@ function PostCard({ post, pinned, onLike }: PostCardProps) {
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
           {/* Author Avatar */}
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--accent-cyan)] to-[var(--accent-violet)] flex items-center justify-center flex-shrink-0">
+          <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-[var(--accent-cyan)] to-[var(--accent-violet)] flex items-center justify-center flex-shrink-0 overflow-hidden">
             {post.author.image ? (
-              <img
+              <Image
                 src={post.author.image}
                 alt={post.author.name || "User"}
-                className="w-10 h-10 rounded-full object-cover"
+                fill
+                sizes="40px"
+                className="object-cover"
               />
             ) : (
               <span className="text-white font-medium">

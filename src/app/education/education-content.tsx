@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -245,10 +246,12 @@ function ContentCard({ content, featured }: ContentCardProps) {
         <div className="aspect-video rounded-t-xl bg-gradient-to-br from-[var(--bg-elevated)] to-[var(--bg-surface)] flex items-center justify-center relative overflow-hidden">
           {content.thumbnail ? (
              
-            <img 
+            <Image 
               src={content.thumbnail} 
               alt={content.title}
-              className="w-full h-full object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
             />
           ) : (
             <Play className="w-12 h-12 text-[var(--text-disabled)] group-hover:text-[var(--primary)] transition-colors" />
@@ -298,13 +301,15 @@ function ContentCard({ content, featured }: ContentCardProps) {
           {/* Footer */}
           <div className="flex items-center justify-between pt-3 border-t border-[var(--bg-border)]">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--accent-cyan)] to-[var(--accent-violet)] flex items-center justify-center overflow-hidden">
+              <div className="relative w-6 h-6 rounded-full bg-gradient-to-br from-[var(--accent-cyan)] to-[var(--accent-violet)] flex items-center justify-center overflow-hidden">
                 {content.author.avatar ? (
                    
-                  <img 
+                  <Image 
                     src={content.author.avatar} 
                     alt={content.author.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="24px"
+                    className="object-cover"
                   />
                 ) : (
                   <span className="text-white text-xs font-medium">

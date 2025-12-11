@@ -1,6 +1,7 @@
 'use client';
 
 import { forwardRef, ComponentPropsWithoutRef } from 'react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 interface AvatarProps extends ComponentPropsWithoutRef<'div'> {
@@ -25,19 +26,25 @@ export const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
 );
 Avatar.displayName = 'Avatar';
 
-interface AvatarImageProps extends ComponentPropsWithoutRef<'img'> {
+interface AvatarImageProps {
   className?: string;
+  src?: string | null;
+  alt?: string;
 }
 
 export const AvatarImage = forwardRef<HTMLImageElement, AvatarImageProps>(
-  ({ className, src, alt = '', ...props }, ref) => {
+  ({ className, src, alt = '' }, ref) => {
+    if (!src) return null;
+    
     return (
-      <img
-        ref={ref}
+      <Image
+        ref={ref as React.Ref<HTMLImageElement>}
         src={src}
         alt={alt}
+        fill
+        sizes="40px"
         className={cn('aspect-square h-full w-full object-cover', className)}
-        {...props}
+        unoptimized={src.startsWith('data:') || src.startsWith('blob:')}
       />
     );
   }

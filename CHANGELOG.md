@@ -5,7 +5,46 @@
 
 ---
 
-## 세션 69 (2025-12-12) - TypeScript 타입 오류 수정 ⭐ NEW
+## 세션 70 (2025-12-12) - img → next/image 변환 (LCP 개선) ⭐ NEW
+
+### 작업 요약
+1. **이미지 최적화**: `<img>` 태그를 `next/image`의 `Image` 컴포넌트로 변환
+2. **성능 개선**: fill, sizes 속성으로 반응형 이미지 최적화
+3. **자동 최적화**: WebP/AVIF 포맷 자동 변환, Lazy loading 적용
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| avatar.tsx | AvatarImage 컴포넌트 next/image 적용 | ✅ |
+| seller-card.tsx | 판매자 아바타 next/image 적용 | ✅ |
+| comment-section.tsx | 댓글 작성자 아바타 next/image 적용 | ✅ |
+| marketplace-content.tsx | 상품 썸네일, 판매자 아바타 next/image 적용 | ✅ |
+| education-content.tsx | 튜토리얼 썸네일, 저자 아바타 next/image 적용 | ✅ |
+| community-content.tsx | 게시글 작성자 아바타 next/image 적용 | ✅ |
+| settings-content.tsx | 프로필 이미지 next/image 적용 | ✅ |
+
+### 수정된 파일
+```
+src/components/ui/avatar.tsx                        # AvatarImage Image 컴포넌트 변환
+src/components/ui/seller-card.tsx                   # 판매자 아바타 Image 변환
+src/components/ui/comment-section.tsx               # 댓글 아바타 Image 변환
+src/app/marketplace/marketplace-content.tsx         # 상품/판매자 이미지 Image 변환
+src/app/education/education-content.tsx             # 튜토리얼/저자 이미지 Image 변환
+src/app/community/community-content.tsx             # 게시글 작성자 Image 변환
+src/app/dashboard/settings/settings-content.tsx     # 프로필 이미지 Image 변환
+TODO.md                                             # 세션 70 완료
+CHANGELOG.md                                        # 변경 이력
+```
+
+### 성능 개선 효과
+- **LCP (Largest Contentful Paint)** 개선
+- **자동 이미지 최적화**: WebP/AVIF 포맷 자동 변환
+- **반응형 이미지**: sizes 속성으로 적절한 크기 로드
+- **Lazy Loading**: 기본 적용으로 초기 로딩 속도 개선
+
+---
+
+## 세션 69 (2025-12-12) - TypeScript 타입 오류 수정
 
 ### 작업 요약
 1. **server.ts 타입 오류 수정**: initSocketServer 함수에 httpServer 직접 전달

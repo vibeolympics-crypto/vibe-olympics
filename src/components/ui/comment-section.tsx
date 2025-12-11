@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import { MessageCircle, Send, CornerDownRight, MoreHorizontal, Trash2, Edit, User } from "lucide-react";
@@ -99,11 +100,15 @@ function CommentForm({
       {/* 아바타 */}
       <div className="flex-shrink-0">
         {session?.user?.image ? (
-          <img
-            src={session.user.image}
-            alt={session.user.name || "사용자"}
-            className="w-8 h-8 rounded-full"
-          />
+          <div className="relative w-8 h-8 rounded-full overflow-hidden">
+            <Image
+              src={session.user.image}
+              alt={session.user.name || "사용자"}
+              fill
+              sizes="32px"
+              className="object-cover"
+            />
+          </div>
         ) : (
           <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
             <User className="w-4 h-4 text-muted-foreground" />
@@ -211,11 +216,15 @@ function CommentItem({
         {/* 아바타 */}
         <div className="flex-shrink-0">
           {commentAuthor?.image ? (
-            <img
-              src={commentAuthor.image}
-              alt={commentAuthor.name || "사용자"}
-              className="w-8 h-8 rounded-full"
-            />
+            <div className="relative w-8 h-8 rounded-full overflow-hidden">
+              <Image
+                src={commentAuthor.image}
+                alt={commentAuthor.name || "사용자"}
+                fill
+                sizes="32px"
+                className="object-cover"
+              />
+            </div>
           ) : (
             <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
               <User className="w-4 h-4 text-muted-foreground" />

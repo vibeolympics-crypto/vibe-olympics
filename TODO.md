@@ -1,6 +1,6 @@
 # 📋 Vibe Olympics - 예정 작업 (TODO)
 
-> 마지막 업데이트: 2025년 12월 12일 (세션 69 완료)
+> 마지막 업데이트: 2025년 12월 12일 (세션 70 완료)
 > 배포 URL: https://vibe-olympics.onrender.com
 > 워크플로우: TODO.md 검토 → 작업 수행 → CHANGELOG.md 기록 → TEST_SPECS.md 작성
 
@@ -16,19 +16,19 @@
 | 3 | DEPLOY-02 | Vercel 환경변수 설정 | ⏳ 대기 | 11개 환경변수 |
 | 4 | S68-01~06 | 실시간 알림 웹소켓 | ✅ 완료 | Socket.io 구현 |
 | 5 | S69-01~03 | TypeScript 타입 오류 수정 | ✅ 완료 | server.ts 타입 수정 |
+| 6 | S70-01~04 | img → next/image 변환 | ✅ 완료 | LCP 성능 개선 |
 
 ### 🟡 중간 (Medium Priority) - 기능 개선
 | 순위 | 작업 ID | 작업명 | 상태 | 비고 |
 |------|---------|--------|------|------|
-| 6 | S67-01~05 | 알림 시스템 고도화 | ✅ 완료 | 구독 알림, 이메일 템플릿, 설정 UI |
-| 7 | S66-01~05 | 정기 구독 결제 시스템 | ✅ 완료 | 구독 플랜, 빌링키, 자동 갱신, 재시도 |
-| 8 | S65-01~04 | 검색/필터 UX 개선 | ✅ 완료 | 카테고리 자동완성, AI 필터, 정렬 확장 |
-| 9 | BACK-01 | Anthropic API 크레딧 충전 | ⏳ 대기 | AI 챗봇 활성화 |
+| 7 | S67-01~05 | 알림 시스템 고도화 | ✅ 완료 | 구독 알림, 이메일 템플릿, 설정 UI |
+| 8 | S66-01~05 | 정기 구독 결제 시스템 | ✅ 완료 | 구독 플랜, 빌링키, 자동 갱신, 재시도 |
+| 9 | S65-01~04 | 검색/필터 UX 개선 | ✅ 완료 | 카테고리 자동완성, AI 필터, 정렬 확장 |
+| 10 | BACK-01 | Anthropic API 크레딧 충전 | ⏳ 대기 | AI 챗봇 활성화 |
 
 ### 🟢 낮음 (Low Priority) - 최적화/부가 기능
 | 순위 | 작업 ID | 작업명 | 상태 | 비고 |
 |------|---------|--------|------|------|
-| 10 | BACK-17 | img → next/image 변환 | ⏳ 대기 | 5개 파일 LCP 개선 |
 | 11 | BACK-14 | GA4 연동 | ⏳ 대기 | Google Analytics 4 |
 | 12 | BACK-16 | 검색 콘솔 등록 | ⏳ 대기 | Google/Naver/Bing |
 | 13 | BACK-13 | 커스텀 도메인 연결 | ⏳ 대기 | Vercel 도메인 설정 |
@@ -39,10 +39,37 @@
 
 | 구분 | 완료 | 대기 | 총계 |
 |------|------|------|------|
-| 세션 작업 | 69개 | - | 69개 |
+| 세션 작업 | 70개 | - | 70개 |
 | 테스트 케이스 | 520개 | - | 520개 |
 | API 엔드포인트 | 59+개 | - | 59+개 |
 | UI 컴포넌트 | 35+개 | - | 35+개 |
+
+---
+
+## ✅ 세션 70 완료 - img → next/image 변환 (LCP 개선)
+
+### 세션 70 (2025-12-12): img → next/image 변환
+| 작업 ID | 작업명 | 상태 | 비고 |
+|---------|--------|------|------|
+| S70-01 | img 태그 사용 파일 검색 | ✅ 완료 | 35개 파일에서 img 태그 발견 |
+| S70-02 | 주요 컴포넌트 변환 | ✅ 완료 | avatar, seller-card, comment-section 등 |
+| S70-03 | 페이지 컴포넌트 변환 | ✅ 완료 | marketplace, education, community, settings |
+| S70-04 | 빌드 검증 | ✅ 완료 | npm run build 성공 |
+
+**변환된 파일 (8개)**:
+- `src/components/ui/avatar.tsx` - AvatarImage 컴포넌트
+- `src/components/ui/seller-card.tsx` - 판매자 아바타
+- `src/components/ui/comment-section.tsx` - 댓글 작성자 아바타
+- `src/app/marketplace/marketplace-content.tsx` - 상품 썸네일, 판매자 아바타
+- `src/app/education/education-content.tsx` - 튜토리얼 썸네일, 저자 아바타
+- `src/app/community/community-content.tsx` - 게시글 작성자 아바타
+- `src/app/dashboard/settings/settings-content.tsx` - 프로필 이미지
+
+**성능 개선**:
+- `fill` 속성으로 반응형 이미지 최적화
+- `sizes` 속성으로 적절한 이미지 크기 로드
+- Next.js Image 자동 최적화 (WebP/AVIF 포맷)
+- Lazy loading 기본 적용
 
 ---
 
