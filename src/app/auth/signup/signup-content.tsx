@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { trackSignUp } from "@/components/providers";
 
 const passwordRequirements = [
   { id: "length", label: "8자 이상", check: (p: string) => p.length >= 8 },
@@ -63,6 +64,9 @@ export function SignupContent() {
       // });
       // if (!response.ok) throw new Error("Signup failed");
 
+      // GA4: sign_up 이벤트 트래킹
+      trackSignUp("credentials");
+      
       // For now, redirect to login page after mock signup
       router.push("/auth/login?signup=success");
     } catch {
@@ -73,10 +77,14 @@ export function SignupContent() {
   };
 
   const handleGitHubSignup = () => {
+    // GA4: sign_up 이벤트 트래킹 (GitHub OAuth)
+    trackSignUp("github");
     signIn("github", { callbackUrl: "/" });
   };
 
   const handleGoogleSignup = () => {
+    // GA4: sign_up 이벤트 트래킹 (Google OAuth)
+    trackSignUp("google");
     signIn("google", { callbackUrl: "/" });
   };
 

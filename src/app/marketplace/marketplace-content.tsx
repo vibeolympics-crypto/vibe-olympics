@@ -34,6 +34,7 @@ import { AdvancedFilter, ActiveFilters, type FilterState } from "@/components/ui
 import { RecommendationSection } from "@/components/ui/recommendation-section";
 import { RecentlyViewedWidget } from "@/components/marketplace/recently-viewed-widget";
 import { CompareButton } from "@/components/marketplace/compare-components";
+import { trackSearch } from "@/components/providers";
 import type { Product, Category } from "@/types";
 
 // 카테고리별 아이콘 매핑
@@ -144,6 +145,11 @@ export function MarketplaceContent() {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
       setPage(1); // 검색 시 첫 페이지로
+      
+      // GA4: search 이벤트 트래킹 (검색어가 있을 때만)
+      if (searchQuery.trim()) {
+        trackSearch(searchQuery.trim());
+      }
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);

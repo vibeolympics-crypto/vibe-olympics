@@ -36,6 +36,7 @@ import { QASection } from "@/components/ui/comment-section";
 import { BootpayPaymentSelector } from "@/components/ui/bootpay-payment-selector";
 import { initiateBootpayPayment, verifyBootpayPayment, type BootpayPaymentMethod } from "@/lib/bootpay";
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
+import { viewItem, addToWishlist as gaAddToWishlist, purchase as gaPurchase, trackShare } from "@/components/providers";
 
 interface Review {
   id: string;
@@ -103,10 +104,18 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
   // 최근 본 상품 추적
   const { addProduct } = useRecentlyViewed();
   
-  // 상품 페이지 접근 시 최근 본 상품에 추가
+  // 상품 페이지 접근 시 최근 본 상품에 추가 & GA4 view_item 이벤트
   useEffect(() => {
     addProduct(product.id);
-  }, [product.id, addProduct]);
+    
+    // GA4: view_item 이벤트 트래킹
+    viewItem({
+      item_id: product.id,
+      item_name: product.title,
+      price: product.price,
+      item_category: product.category.name,
+    });
+  }, [product.id, addProduct, product.title, product.price, product.category.name]);
 
   const addToWishlist = useAddToWishlist();
   const removeFromWishlist = useRemoveFromWishlist();
@@ -165,6 +174,13 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
         toast.success('위시리스트에서 제거되었습니다');
       } else {
         await addToWishlist.mutateAsync(product.id);
+        // GA4: add_to_wishlist 이벤트 트래킹
+        gaAddToWishlist({
+          item_id: product.id,
+          item_name: product.title,
+          price: product.price,
+          item_category: product.category.name,
+        });
         toast.success('위시리스트에 추가되었습니다 ❤️');
       }
     } catch (error) {
@@ -184,8 +200,12 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
     try {
       if (navigator.share && navigator.canShare(shareData)) {
         await navigator.share(shareData);
+        // GA4: share 이벤트 트래킹
+        trackShare("product", product.id, "native_share");
       } else {
         await navigator.clipboard.writeText(shareUrl);
+        // GA4: share 이벤트 트래킹
+        trackShare("product", product.id, "clipboard");
         toast.success('링크가 복사되었습니다! 📋');
       }
     } catch (error) {
@@ -212,6 +232,19 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
       setIsPurchasing(true);
       try {
         await createPurchase.mutateAsync(product.id);
+        // GA4: purchase 이벤트 트래킹 (무료 상품)
+        gaPurchase({
+          transactionId: `free_${product.id}_${Date.now()}`,
+          value: 0,
+          currency: "KRW",
+          items: [{
+            item_id: product.id,
+            item_name: product.title,
+            price: 0,
+            item_category: product.category.name,
+            quantity: 1,
+          }],
+        });
         toast.success('무료 상품을 받았습니다! 🎁', {
           description: '구매 내역에서 다운로드할 수 있습니다.',
           action: {
@@ -253,6 +286,19 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
         const verification = await verifyBootpayPayment(result.receiptId, product.id);
         
         if (verification.success) {
+          // GA4: purchase 이벤트 트래킹 (유료 상품)
+          gaPurchase({
+            transactionId: result.receiptId!,
+            value: product.price,
+            currency: "KRW",
+            items: [{
+              item_id: product.id,
+              item_name: product.title,
+              price: product.price,
+              item_category: product.category.name,
+              quantity: 1,
+            }],
+          });
           toast.success('결제가 완료되었습니다! 🎉', {
             description: '구매 내역에서 파일을 다운로드할 수 있습니다.',
             action: {

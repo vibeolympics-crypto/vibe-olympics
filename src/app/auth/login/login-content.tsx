@@ -9,6 +9,7 @@ import { Github, Mail, Lock, ArrowRight, Eye, EyeOff, AlertCircle } from "lucide
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { trackLogin } from "@/components/providers";
 
 export function LoginContent() {
   const router = useRouter();
@@ -35,6 +36,8 @@ export function LoginContent() {
       if (result?.error) {
         setError("이메일 또는 비밀번호가 올바르지 않습니다.");
       } else {
+        // GA4: login 이벤트 트래킹
+        trackLogin("credentials");
         router.push("/");
         router.refresh();
       }
@@ -46,10 +49,14 @@ export function LoginContent() {
   };
 
   const handleGitHubLogin = () => {
+    // GA4: login 이벤트 트래킹 (GitHub OAuth는 콜백 후 처리됨)
+    trackLogin("github");
     signIn("github", { callbackUrl: "/" });
   };
 
   const handleGoogleLogin = () => {
+    // GA4: login 이벤트 트래킹 (Google OAuth는 콜백 후 처리됨)
+    trackLogin("google");
     signIn("google", { callbackUrl: "/" });
   };
 

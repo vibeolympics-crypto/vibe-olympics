@@ -6,7 +6,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
-import { AuthProvider, QueryProvider, NotificationProvider } from "@/components/providers";
+import { AuthProvider, QueryProvider, NotificationProvider, GoogleAnalytics } from "@/components/providers";
 import { WebVitals } from "@/components/providers/web-vitals";
 import { AIChatbot } from "@/components/ui/ai-chatbot";
 import { CompareProvider } from "@/hooks/use-compare";
@@ -118,6 +118,7 @@ export default async function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-[var(--bg-base)] text-[var(--text-primary)]`}
       >
+        <GoogleAnalytics />
         <NextIntlClientProvider messages={messages}>
           <QueryProvider>
             <AuthProvider>

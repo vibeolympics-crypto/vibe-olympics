@@ -1,6 +1,6 @@
 # 📋 Vibe Olympics - 예정 작업 (TODO)
 
-> 마지막 업데이트: 2025년 12월 12일 (세션 70 완료)
+> 마지막 업데이트: 2025년 12월 12일 (세션 71 완료)
 > 배포 URL: https://vibe-olympics.onrender.com
 > 워크플로우: TODO.md 검토 → 작업 수행 → CHANGELOG.md 기록 → TEST_SPECS.md 작성
 
@@ -17,21 +17,22 @@
 | 4 | S68-01~06 | 실시간 알림 웹소켓 | ✅ 완료 | Socket.io 구현 |
 | 5 | S69-01~03 | TypeScript 타입 오류 수정 | ✅ 완료 | server.ts 타입 수정 |
 | 6 | S70-01~04 | img → next/image 변환 | ✅ 완료 | LCP 성능 개선 |
+| 7 | S71-01~04 | Google Analytics 4 연동 | ✅ 완료 | GA4 이벤트 트래킹 |
 
 ### 🟡 중간 (Medium Priority) - 기능 개선
 | 순위 | 작업 ID | 작업명 | 상태 | 비고 |
 |------|---------|--------|------|------|
-| 7 | S67-01~05 | 알림 시스템 고도화 | ✅ 완료 | 구독 알림, 이메일 템플릿, 설정 UI |
-| 8 | S66-01~05 | 정기 구독 결제 시스템 | ✅ 완료 | 구독 플랜, 빌링키, 자동 갱신, 재시도 |
-| 9 | S65-01~04 | 검색/필터 UX 개선 | ✅ 완료 | 카테고리 자동완성, AI 필터, 정렬 확장 |
-| 10 | BACK-01 | Anthropic API 크레딧 충전 | ⏳ 대기 | AI 챗봇 활성화 |
+| 8 | S67-01~05 | 알림 시스템 고도화 | ✅ 완료 | 구독 알림, 이메일 템플릿, 설정 UI |
+| 9 | S66-01~05 | 정기 구독 결제 시스템 | ✅ 완료 | 구독 플랜, 빌링키, 자동 갱신, 재시도 |
+| 10 | S65-01~04 | 검색/필터 UX 개선 | ✅ 완료 | 카테고리 자동완성, AI 필터, 정렬 확장 |
+| 11 | BACK-01 | Anthropic API 크레딧 충전 | ⏳ 대기 | AI 챗봇 활성화 |
 
 ### 🟢 낮음 (Low Priority) - 최적화/부가 기능
 | 순위 | 작업 ID | 작업명 | 상태 | 비고 |
 |------|---------|--------|------|------|
-| 11 | BACK-14 | GA4 연동 | ⏳ 대기 | Google Analytics 4 |
-| 12 | BACK-16 | 검색 콘솔 등록 | ⏳ 대기 | Google/Naver/Bing |
-| 13 | BACK-13 | 커스텀 도메인 연결 | ⏳ 대기 | Vercel 도메인 설정 |
+| 12 | BACK-14 | GA4 연동 | ✅ 완료 | Google Analytics 4 (세션 71) |
+| 13 | BACK-16 | 검색 콘솔 등록 | ⏳ 대기 | Google/Naver/Bing |
+| 14 | BACK-13 | 커스텀 도메인 연결 | ⏳ 대기 | Vercel 도메인 설정 |
 
 ---
 
@@ -39,10 +40,44 @@
 
 | 구분 | 완료 | 대기 | 총계 |
 |------|------|------|------|
-| 세션 작업 | 70개 | - | 70개 |
+| 세션 작업 | 71개 | - | 71개 |
 | 테스트 케이스 | 520개 | - | 520개 |
 | API 엔드포인트 | 59+개 | - | 59+개 |
-| UI 컴포넌트 | 35+개 | - | 35+개 |
+| UI 컴포넌트 | 36+개 | - | 36+개 |
+
+---
+
+## ✅ 세션 71 완료 - Google Analytics 4 연동
+
+### 세션 71 (2025-12-12): GA4 분석 연동
+| 작업 ID | 작업명 | 상태 | 비고 |
+|---------|--------|------|------|
+| S71-01 | GA4 스크립트 설정 | ✅ 완료 | google-analytics.tsx 생성 |
+| S71-02 | 이벤트 트래킹 통합 | ✅ 완료 | 상품 조회, 구매, 위시리스트, 로그인 등 |
+| S71-03 | 환경변수 설정 | ✅ 완료 | NEXT_PUBLIC_GA_MEASUREMENT_ID |
+| S71-04 | 문서화 & 커밋 | ✅ 완료 | TODO.md, CHANGELOG.md |
+
+**생성된 파일**:
+- `src/components/providers/google-analytics.tsx` - GA4 통합 컴포넌트
+
+**트래킹 이벤트**:
+- `page_view` - 페이지 조회 자동 트래킹
+- `view_item` - 상품 상세 페이지 조회
+- `add_to_wishlist` - 위시리스트 추가
+- `purchase` - 구매 완료 (무료/유료)
+- `share` - 상품 공유
+- `login` - 로그인 (credentials/github/google)
+- `sign_up` - 회원가입 (credentials/github/google)
+- `search` - 마켓플레이스 검색
+
+**수정된 파일**:
+- `src/app/layout.tsx` - GoogleAnalytics 컴포넌트 추가
+- `src/components/providers/index.ts` - GA4 함수 export
+- `src/app/marketplace/[id]/product-detail-content.tsx` - 이벤트 트래킹
+- `src/app/marketplace/marketplace-content.tsx` - 검색 트래킹
+- `src/app/auth/login/login-content.tsx` - 로그인 트래킹
+- `src/app/auth/signup/signup-content.tsx` - 회원가입 트래킹
+- `.env.example` - GA_MEASUREMENT_ID 추가
 
 ---
 

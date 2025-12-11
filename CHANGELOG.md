@@ -5,7 +5,57 @@
 
 ---
 
-## 세션 70 (2025-12-12) - img → next/image 변환 (LCP 개선) ⭐ NEW
+## 세션 71 (2025-12-12) - Google Analytics 4 연동 ⭐ NEW
+
+### 작업 요약
+1. **GA4 스크립트 설정**: Next.js Script 컴포넌트로 GA4 통합
+2. **이벤트 트래킹**: 이커머스, 사용자 행동 이벤트 트래킹 함수 구현
+3. **페이지 자동 트래킹**: pathname/searchParams 변경 시 page_view 자동 전송
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| GoogleAnalytics 컴포넌트 | GA4 스크립트 로딩 및 초기화 | ✅ |
+| PageViewTracker | 페이지 조회 자동 트래킹 | ✅ |
+| 이커머스 이벤트 | view_item, add_to_wishlist, purchase | ✅ |
+| 사용자 이벤트 | login, sign_up, search, share | ✅ |
+| 환경변수 설정 | NEXT_PUBLIC_GA_MEASUREMENT_ID | ✅ |
+
+### 수정된 파일
+```
+src/components/providers/google-analytics.tsx       # GA4 통합 컴포넌트 (신규)
+src/components/providers/index.ts                   # GA4 함수 export 추가
+src/app/layout.tsx                                  # GoogleAnalytics 컴포넌트 추가
+src/app/marketplace/[id]/product-detail-content.tsx # 상품 이벤트 트래킹
+src/app/marketplace/marketplace-content.tsx         # 검색 이벤트 트래킹
+src/app/auth/login/login-content.tsx                # 로그인 이벤트 트래킹
+src/app/auth/signup/signup-content.tsx              # 회원가입 이벤트 트래킹
+.env.example                                        # GA_MEASUREMENT_ID 추가
+TODO.md                                             # 세션 71 완료
+CHANGELOG.md                                        # 변경 이력
+```
+
+### GA4 이벤트 목록
+| 이벤트 | 트리거 | 데이터 |
+|--------|--------|--------|
+| page_view | 페이지 이동 | page_path, page_title |
+| view_item | 상품 상세 진입 | item_id, item_name, price, category |
+| add_to_wishlist | 위시리스트 추가 | item_id, item_name, price, category |
+| purchase | 구매 완료 | transaction_id, value, currency, items |
+| share | 상품 공유 | content_type, item_id, method |
+| login | 로그인 | method (credentials/github/google) |
+| sign_up | 회원가입 | method (credentials/github/google) |
+| search | 마켓플레이스 검색 | search_term |
+
+### 환경변수
+```env
+# Google Analytics 4
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+```
+
+---
+
+## 세션 70 (2025-12-12) - img → next/image 변환 (LCP 개선)
 
 ### 작업 요약
 1. **이미지 최적화**: `<img>` 태그를 `next/image`의 `Image` 컴포넌트로 변환
