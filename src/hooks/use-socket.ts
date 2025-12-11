@@ -18,7 +18,7 @@ interface UseSocketOptions {
 }
 
 interface UseSocketReturn {
-  socket: TypedSocket | null;
+  getSocket: () => TypedSocket | null;
   isConnected: boolean;
   isAuthenticated: boolean;
   error: string | null;
@@ -137,8 +137,11 @@ export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
     }
   }, [isConnected, session?.user?.id]);
 
+  // Socket getter (렌더링 중 ref 접근 방지)
+  const getSocket = useCallback(() => socketRef.current, []);
+
   return {
-    socket: socketRef.current,
+    getSocket,
     isConnected,
     isAuthenticated,
     error,
@@ -166,12 +169,13 @@ export function useNotificationSocket(options: UseNotificationSocketOptions = {}
     onUnreadCountChange,
   } = options;
 
-  const { socket, isConnected, isAuthenticated, error, connect, disconnect } = useSocket();
+  const { getSocket, isConnected, isAuthenticated, error, connect, disconnect } = useSocket();
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<NotificationPayload[]>([]);
 
   // 이벤트 리스너 등록
   useEffect(() => {
+    const socket = getSocket();
     if (!socket || !isConnected) return;
 
     // 새 알림
@@ -231,7 +235,7 @@ export function useNotificationSocket(options: UseNotificationSocketOptions = {}
       socket.off("notification:count", handleUnreadCount);
     };
   }, [
-    socket,
+    getSocket,
     isConnected,
     onNewNotification,
     onNotificationRead,
@@ -242,21 +246,21 @@ export function useNotificationSocket(options: UseNotificationSocketOptions = {}
 
   // 알림 읽음 처리
   const markAsRead = useCallback((notificationId: string) => {
-    socket?.emit("notification:markRead", { notificationId });
-  }, [socket]);
+    getSocket()?.emit("notification:markRead", { notificationId });
+  }, [getSocket]);
 
   // 모든 알림 읽음 처리
   const markAllAsRead = useCallback(() => {
-    socket?.emit("notification:markAllRead");
-  }, [socket]);
+    getSocket()?.emit("notification:markAllRead");
+  }, [getSocket]);
 
   // 알림 삭제
   const deleteNotification = useCallback((notificationId: string) => {
-    socket?.emit("notification:delete", { notificationId });
-  }, [socket]);
+    getSocket()?.emit("notification:delete", { notificationId });
+  }, [getSocket]);
 
   return {
-    socket,
+    getSocket,
     isConnected,
     isAuthenticated,
     error,
