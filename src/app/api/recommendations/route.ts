@@ -301,7 +301,7 @@ class BayesianClusterEngine {
     try {
       // 구매 내역 조회
       const purchases = await prisma.purchase.findMany({
-        where: { userId },
+        where: { buyerId: userId },
         include: { product: true },
         orderBy: { createdAt: "desc" },
         take: 100,
@@ -486,7 +486,7 @@ class ConditionalProbabilityEngine {
     const totalFromFirst = transition?.totalFromFirst || 0;
     
     // 전체 상품 수 (라플라스 스무딩용)
-    const totalProducts = await prisma.product.count({ where: { status: "ACTIVE" } });
+    const totalProducts = await prisma.product.count({ where: { status: "PUBLISHED" } });
     
     // 라플라스 스무딩 적용 개인 확률
     const personal = safeDivide(
@@ -529,7 +529,7 @@ class ConditionalProbabilityEngine {
     cluster: UserClusterType
   ): Promise<void> {
     // 전체 상품 수
-    const totalProducts = await prisma.product.count({ where: { status: "ACTIVE" } });
+    const totalProducts = await prisma.product.count({ where: { status: "PUBLISHED" } });
     
     // 현재 전이 카운트 조회
     const existing = await prisma.transitionMatrix.findUnique({
@@ -1012,7 +1012,7 @@ class UnifiedRecommendationEngine {
     // Step 2: 후보 상품 조회
     const candidates = await prisma.product.findMany({
       where: {
-        status: "ACTIVE",
+        status: "PUBLISHED",
         id: { notIn: excludeProductIds },
         ...(categoryId && { categoryId }),
       },
@@ -1083,7 +1083,7 @@ class UnifiedRecommendationEngine {
         
         scoredCandidates.push({
           productId: product.id,
-          productName: product.name,
+          productName: product.title,
           productImage: product.images?.[0] || null,
           productPrice: productValue,
           probability: smoothedProb,
@@ -1432,29 +1432,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// ==========================================
-// 📤 내보내기 (다른 모듈에서 사용)
-// ==========================================
-
-export {
-  UnifiedRecommendationEngine,
-  getEngine,
-  BayesianClusterEngine,
-  ConditionalProbabilityEngine,
-  FunnelSimulator,
-  ExpectedValueEngine,
-  FeedbackProcessor,
-  CONFIG,
-  CLUSTER_NAMES,
-  FUNNEL_STAGES,
-  FEEDBACK_WEIGHTS,
-  DEFAULT_FUNNEL_RATES,
-  getPriceRange,
-};
-
-export type {
-  RecommendationResult,
-  RecommendationResponse,
-  FunnelStage,
-};
