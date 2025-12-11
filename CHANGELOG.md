@@ -5,7 +5,30 @@
 
 ---
 
-## 세션 68 (2025-12-12) - 실시간 알림 웹소켓 (Socket.io) ⭐ NEW
+## 세션 69 (2025-12-12) - TypeScript 타입 오류 수정 ⭐ NEW
+
+### 작업 요약
+1. **server.ts 타입 오류 수정**: initSocketServer 함수에 httpServer 직접 전달
+2. **Prisma Client 재생성**: IDE 타입 동기화
+3. **빌드 검증**: tsc --noEmit, npm run build 성공 확인
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| server.ts 타입 수정 | SocketIOServer → httpServer 파라미터로 변경 | ✅ |
+| Prisma generate | Subscription 모델 타입 재생성 | ✅ |
+| 빌드 검증 | TypeScript 컴파일 오류 0개 | ✅ |
+
+### 수정된 파일
+```
+server.ts                                           # initSocketServer(httpServer) 직접 전달
+TODO.md                                             # 세션 69 완료
+CHANGELOG.md                                        # 변경 이력
+```
+
+---
+
+## 세션 68 (2025-12-12) - 실시간 알림 웹소켓 (Socket.io)
 
 ### 작업 요약
 1. **Socket.io 서버 설정**: 커스텀 Next.js 서버에 Socket.io 통합
