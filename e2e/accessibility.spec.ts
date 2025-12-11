@@ -33,7 +33,7 @@ test.describe('Accessibility - Home Page', () => {
   test('TC-A11Y-006: should have skip to main content link', async ({ page }) => {
     // 스킵 네비게이션 링크 확인 (선택적 - 권장 사항)
     const skipLink = page.locator('a[href="#main"], a[href="#main-content"], a[href="#content"], a:has-text("본문으로")');
-    const hasSkipLink = await skipLink.count() > 0;
+    const _hasSkipLink = await skipLink.count() > 0;
     // 스킵 링크는 권장 사항이므로 유무와 관계없이 통과
     expect(true).toBeTruthy();
   });
