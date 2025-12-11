@@ -4,7 +4,7 @@
       "command": "npx",
       "args": ["@testsprite/testsprite-mcp@latest"],
       "env": {
-        "API_KEY": "sk-user-Iv2hfvd7FtHsY7ZX7L_bzF07_R5csyXhPC7gv-CpcvKwatcmY7yC8T9ZD7ueGxjRuUWteo5agTWZAKFYbP5BzC1-M4D-ksBG6k9jCQlbLiT8g_tl64psq28NGDW3sAoSVrA"
+        "API_KEY": "sk-user--RMPsecY1U4np7TDv2kcQ_AhcmUkYpoBg6EcZ1OKIgedpAEe3xT9L5-85gUo4ctgv1Gzzq6nAvCfAUo7Djy0bltOJSQJdQ-AnWR1BU2dI59PchBxrH5kyAnLt9wdA03xbJc"
       }
     },
     "context7": {

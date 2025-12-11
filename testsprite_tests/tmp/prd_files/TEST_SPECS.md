@@ -2,7 +2,7 @@
 
 > 마지막 업데이트: 2025년 12월 10일
 > TestSprite MCP 자동 테스트용 역할별 테스트 케이스 정의
-> 총 테스트 케이스: 185개 (명세) + 160개 (Playwright E2E) + 61개 (Jest)
+> 총 테스트 케이스: 299개 (명세) + 160개 (Playwright E2E) + 61개 (Jest)
 > 
 > **🌐 배포 URL**: https://vibe-olympics.onrender.com
 
@@ -19,12 +19,19 @@
 |----------|------|----------|------|
 | 🔴 P0 | 방문자 | 22개 | 첫 접속, 회원가입, 로그인 |
 | 🔴 P0 | 구매자 | 35개 | 검색, 구매, 결제 핵심 플로우 |
-| 🟠 P1 | 판매자 | 26개 | 상품 등록, 관리, 정산 |
+| 🟠 P1 | 판매자 | 38개 | 상품 등록, 관리, 정산 |
 | 🟠 P1 | 커뮤니티 | 15개 | 게시글, 댓글, 팔로우 |
 | 🟡 P2 | 관리자 | 29개 | 관리 기능 |
 | 🟡 P2 | 일반유저 | 18개 | 설정, 알림 |
 | 🟢 P3 | API | 25개 | API 직접 테스트 |
 | 🟢 P3 | 반응형/접근성 | 15개 | UI/UX 테스트 |
+| 🟢 P3 | 세션 58: 번들/쿠폰 | 30개 | Bundle, Coupon API 테스트 |
+| 🟢 P3 | 세션 59: Cloudinary | 12개 | 파일 업로드 테스트 |
+| 🟢 P3 | 세션 60: 조건부 확률 | 15개 | 추천 시스템 테스트 |
+| 🟢 P3 | 세션 61: 글로벌 추천 | 12개 | 글로벌 추천 + 버그수정 |
+| 🟢 P3 | 세션 62: 이커머스 UX | 20개 | 메가메뉴, 비교, 최근본 상품 |
+| 🟢 P3 | 세션 63: AI 콘텐츠 | 11개 | 상품타입, SEO, AI정보 |
+| 🟢 P3 | 세션 64: 컬렉션/아티스트 | 25개 | 컬렉션, 아티스트, 미리보기 |
 
 ---
 
@@ -728,6 +735,229 @@ validation:
   - DB에 상품 레코드 생성
   - ProductTutorial 중간 테이블 생성
   - 초기 상태는 DRAFT
+```
+
+#### TC-SELLER-005A: 상품 타입 선택 (세션 63 추가)
+```yaml
+url: /dashboard/products/new
+precondition: 판매자 계정 로그인
+steps:
+  1. Step 1: 상품 타입 선택 페이지 진입
+  2. 4종 상품 타입 카드 중 선택:
+     - 디지털 상품 (소스코드, 템플릿, 플러그인)
+     - 도서/전자책 (전자책, 만화, 오디오북)
+     - 영상 시리즈 (영화, 애니메이션, 다큐)
+     - 음악 앨범 (음원, BGM)
+  3. "다음" 버튼 클릭
+expected:
+  - 선택된 타입 하이라이트 표시
+  - 타입별 안내 메시지 업데이트
+  - Step 2 기본 정보 페이지로 이동
+  - 카테고리 목록이 선택한 타입에 맞게 변경
+validation:
+  - 타입 변경 시 카테고리 자동 초기화
+```
+
+#### TC-SELLER-005B: 도서 메타데이터 입력 (세션 63 추가)
+```yaml
+url: /dashboard/products/new
+precondition: 상품 타입 "도서/전자책" 선택
+steps:
+  1. Step 3: 도서 정보 페이지 진입
+  2. 필수 항목 입력:
+     - 도서 타입 선택 (전자책/만화/오디오북)
+     - 저자명 입력
+     - 언어 선택
+     - 제공 포맷 선택 (PDF/EPUB/MP3)
+  3. 선택 항목 입력:
+     - 출판사, ISBN, 페이지수
+     - 이용 등급, 시리즈 정보
+  4. "다음" 버튼 클릭
+expected:
+  - 도서 타입 카드 UI 정상 표시
+  - 포맷 뱃지 다중 선택 가능
+  - Step 4 상세 설명으로 이동
+validation:
+  - 필수 필드 미입력 시 에러 표시
+  - bookMeta 객체 생성
+```
+
+#### TC-SELLER-005C: 영상 메타데이터 입력 (세션 63 추가)
+```yaml
+url: /dashboard/products/new
+precondition: 상품 타입 "영상 시리즈" 선택
+steps:
+  1. Step 3: 영상 정보 페이지 진입
+  2. 필수 항목 입력:
+     - 영상 타입 선택 (영화/애니메이션/다큐/단편/시리즈)
+  3. 선택 항목 입력:
+     - 감독/제작자, 출연진 (쉼표 구분)
+     - 에피소드 수, 시즌 수, 총 재생시간
+     - 해상도 (SD/HD/FHD/4K)
+     - 오디오 포맷 (스테레오/5.1/Atmos)
+     - 장르 다중 선택
+     - 자막 언어 선택
+     - 트레일러 URL
+     - 이용 등급
+  4. "다음" 버튼 클릭
+expected:
+  - 영상 타입 카드 UI 정상 표시
+  - 장르/자막 뱃지 다중 선택
+  - Step 4 상세 설명으로 이동
+validation:
+  - videoSeriesMeta 객체 생성
+```
+
+#### TC-SELLER-005D: 음악 메타데이터 입력 (세션 63 추가)
+```yaml
+url: /dashboard/products/new
+precondition: 상품 타입 "음악 앨범" 선택
+steps:
+  1. Step 3: 음악 정보 페이지 진입
+  2. 필수 항목 입력:
+     - 아티스트/작곡가명
+     - 장르 선택 (팝/록/힙합/클래식/앰비언트 등)
+     - 트랙 수
+     - 제공 음질 (MP3/FLAC/WAV)
+  3. 선택 항목 입력:
+     - 앨범 타입 (정규/EP/싱글)
+     - 서브 장르, 총 재생시간
+     - 분위기/무드 다중 선택
+     - 가사 포함 여부, 인스트루멘탈 여부
+     - 테마/용도
+  4. "다음" 버튼 클릭
+expected:
+  - 무드 뱃지 다중 선택 가능
+  - 음질 포맷 뱃지 다중 선택
+  - Step 4 상세 설명으로 이동
+validation:
+  - musicAlbumMeta 객체 생성
+```
+
+#### TC-SELLER-005E: AI 생성 정보 입력 (세션 63 추가)
+```yaml
+url: /dashboard/products/new
+precondition: Step 2 기본 정보 페이지
+steps:
+  1. "AI로 생성된 콘텐츠" 토글 활성화
+  2. AI 도구 선택:
+     - ChatGPT, Claude, Midjourney, DALL-E
+     - Stable Diffusion, Suno AI, Udio
+     - Runway, Pika, Kaiber, 기타
+  3. 프롬프트 입력 (선택)
+  4. "다음" 버튼 클릭
+expected:
+  - 토글 활성화 시 추가 필드 표시
+  - AI 도구 드롭다운 정상 동작
+  - 프롬프트 텍스트 영역 표시
+validation:
+  - isAiGenerated: true
+  - aiTool, aiPrompt 필드 저장
+```
+
+#### TC-SELLER-005F: SEO 자동 최적화 (세션 63 추가)
+```yaml
+url: /dashboard/products/new
+precondition: 제목, 간단한 설명 입력
+steps:
+  1. 제목 입력 후 SEO 미리보기 확인
+  2. SEO 미리보기 표시 내용:
+     - 자동 생성 URL (한글→로마자 변환)
+     - 메타 설명 (155자)
+     - 키워드 목록
+expected:
+  - 실시간 SEO 미리보기 업데이트
+  - 한글 제목 → 로마자 slug 변환
+  - 태그 기반 키워드 자동 생성
+validation:
+  - generateSlug() 정상 동작
+  - generateMetaDescription() 155자 제한
+  - generateKeywords() 최대 15개
+```
+
+#### TC-SELLER-005G: 상품 등록 API 확장 (세션 63 추가)
+```yaml
+url: /api/products
+method: POST
+precondition: 판매자 권한
+request_body:
+  productType: "BOOK" | "VIDEO_SERIES" | "MUSIC_ALBUM" | "DIGITAL_PRODUCT"
+  title: "AI 생성 소설집"
+  shortDescription: "..."
+  description: "..."
+  category: "book-fiction"
+  isAiGenerated: true
+  aiTool: "chatgpt"
+  aiPrompt: "..."
+  bookMeta:
+    bookType: "EBOOK"
+    author: "AI 작가"
+    language: "ko"
+    format: ["PDF", "EPUB"]
+expected:
+  - HTTP 201
+  - Product 생성
+  - BookMeta 생성 (1:1 관계)
+  - SEO slug 자동 생성
+validation:
+  - productType 저장
+  - 메타데이터 테이블 생성
+```
+
+#### TC-SELLER-005H: 카테고리 API productType 필터 (세션 63 추가)
+```yaml
+url: /api/categories?productType=BOOK
+method: GET
+expected:
+  - HTTP 200
+  - 도서 카테고리만 반환
+  - categories 배열
+validation:
+  - BOOK 타입 카테고리만 필터링
+  - _count.products 포함
+```
+
+#### TC-SELLER-005I: 카테고리 API groupByType 옵션 (세션 63 추가)
+```yaml
+url: /api/categories?groupByType=true
+method: GET
+expected:
+  - HTTP 200
+  - grouped 객체 반환
+  - DIGITAL_PRODUCT, BOOK, VIDEO_SERIES, MUSIC_ALBUM 키
+validation:
+  - 각 타입별 카테고리 배열
+```
+
+#### TC-SELLER-005J: JSON-LD 구조화 데이터 생성 (세션 63 추가)
+```yaml
+scenario: SEO 구조화 데이터
+steps:
+  1. 도서 등록 시 generateBookJsonLd() 호출
+  2. 영상 등록 시 generateVideoJsonLd() 호출
+  3. 음악 등록 시 generateMusicJsonLd() 호출
+expected:
+  - Book: @type=Book, author, isbn, numberOfPages
+  - Video: @type=Movie/TVSeries, director, duration
+  - Music: @type=MusicAlbum, byArtist, numTracks
+validation:
+  - Schema.org 스펙 준수
+  - 필수 속성 포함
+```
+
+#### TC-SELLER-005K: 타입별 동적 스텝 (세션 63 추가)
+```yaml
+url: /dashboard/products/new
+scenario: 상품 타입에 따른 스텝 수 변경
+steps:
+  1. 디지털 상품 선택 → 6단계 (메타 스텝 제외)
+  2. 도서/영상/음악 선택 → 7단계 (메타 스텝 포함)
+expected:
+  - 디지털 상품: 상품타입 → 기본정보 → 상세설명 → 파일 → 가격 → 튜토리얼
+  - 콘텐츠 상품: 상품타입 → 기본정보 → 메타정보 → 상세설명 → 파일 → 가격 → 튜토리얼
+validation:
+  - totalSteps 동적 계산
+  - 진행 바 정상 표시
 ```
 
 #### TC-SELLER-006: 상품 목록 조회
@@ -3540,6 +3770,80 @@ validation:
   - 비로그인 시 인기 콘텐츠 폴백
 ```
 
+#### TC-API-033: 조건부확률 기반 유사 상품 추천 (NEW)
+```yaml
+url: /api/recommendations?type=similar&productId={id}
+method: GET
+precondition: 상품 ID 필요
+steps:
+  1. GET /api/recommendations?type=similar&productId=xxx 요청
+expected:
+  - HTTP 200 응답
+  - 함께 구매한 상품 목록 (폭포 다이어그램 검증 통과한 상품만)
+  - conditionalProbability 포함 (P(추천상품|현재상품))
+  - waterfallValidation 포함 (일치율, 그룹성공률, 포지션백분위)
+  - recommendReason: "이 상품 구매자의 XX%가 함께 구매"
+validation:
+  - P(B|A) = (A와 B 함께 구매 수) / (A 구매 수)
+  - 시간 기반 가중치 (최근 구매일수록 높은 점수)
+  - 일치율 50% 미만 상품은 자동 필터링
+```
+
+#### TC-API-034: 고객 여정 기반 추천 (NEW)
+```yaml
+url: /api/recommendations?type=journey&categoryId={id}
+method: GET
+precondition: 카테고리 ID 또는 로그인 상태
+steps:
+  1. GET /api/recommendations?type=journey&categoryId=xxx 요청
+expected:
+  - HTTP 200 응답
+  - 다음 카테고리 전이 확률 기반 추천
+  - transitionProbability 포함 (P(다음카테고리|현재카테고리))
+  - 카테고리별 추천 상품 목록 (폭포 검증 적용)
+  - validationStats: 필터링 전/후 상품 수
+validation:
+  - 카테고리 전이 행렬 기반 계산
+  - 사용자의 마지막 구매 카테고리 활용
+  - 폭포 다이어그램 검증으로 품질 보장
+```
+
+#### TC-API-035: 마케팅 타겟팅 데이터 조회 (NEW)
+```yaml
+url: /api/recommendations?type=marketing
+method: GET
+precondition: 관리자 권한 권장
+steps:
+  1. GET /api/recommendations?type=marketing 요청
+expected:
+  - HTTP 200 응답
+  - bundleRecommendations: 번들 구성 추천 (폭포 검증 포함)
+  - categoryTransitions: 크로스셀링 기회
+  - highValueCustomers: VIP 고객 세그먼트
+  - atRiskCustomers: 이탈 위험 고객
+validation:
+  - 쿠폰/이벤트/홍보 타겟팅에 활용
+  - 번들 쌍은 combinedMatchRate 50% 이상만 포함
+
+#### TC-API-036: 폭포 다이어그램 검증 시스템 (NEW)
+```yaml
+url: /api/recommendations (모든 type)
+method: GET
+precondition: 구매 이력이 있는 상품
+steps:
+  1. 추천 API 호출
+  2. waterfallValidation 필드 확인
+expected:
+  - matchRate: 최종 일치율 (0-100%)
+  - groupSuccessRate: 그룹 내 성공률
+  - positionPercentile: 그룹 내 포지션 백분위
+  - confidence: "high" | "medium" | "low"
+  - isRecommended: 50% 이상만 true
+validation:
+  - 일치율 = (조건부확률 × 0.4) + (그룹성공률 × 0.3) + (포지션점수 × 0.3)
+  - 50% 미만은 자동으로 추천 목록에서 제외
+```
+
 #### TC-API-032: 헬스 체크 API
 ```yaml
 url: /api/health
@@ -3552,6 +3856,1026 @@ expected:
   - { status: "ok", timestamp: "...", uptime: ... }
 validation:
   - 서버 상태 확인용
+```
+
+---
+
+## 📊 조건부확률 기반 고객 여정 분석 가이드
+
+### 개요
+고객이 제품을 구매했을 때, 조건부확률을 통해 **다음 행동을 예측**하고 **맞춤 추천**을 제공합니다.
+**폭포 다이어그램 검증**을 통해 추천 품질을 보장하고, 50% 미만 일치율의 상품은 자동 필터링됩니다.
+
+### 핵심 수식
+
+#### 1. 구매 전이 확률
+$$P(\text{상품B}|\text{상품A 구매}) = \frac{\text{A와 B를 함께 구매한 고객 수}}{\text{A를 구매한 총 고객 수}}$$
+
+#### 2. 카테고리 전이 확률
+$$P(\text{카테고리Y}|\text{카테고리X}) = \frac{\text{X→Y 전이 횟수}}{\text{X에서 출발한 총 전이 횟수}}$$
+
+#### 3. 폭포 다이어그램 일치율 (안전장치)
+$$\text{일치율} = (\text{조건부확률} \times 0.4) + (\text{그룹성공률} \times 0.3) + (\text{포지션점수} \times 0.3)$$
+
+### 🏔️ 폭포 다이어그램 검증 시스템
+
+#### 검증 흐름도
+```
+[1단계] 조건부확률 계산
+P(상품B|상품A) = 42%
+        │
+        ▼
+[2단계] 그룹 분석 (카테고리 + 가격대)
+├─ 그룹 정의: electronics/mid (전자제품/중가)
+├─ 그룹 내 총 거래: 150건
+├─ 성공 거래: 120건 (완료 + 긍정 리뷰)
+├─ 실패 거래: 30건 (환불 + 부정 리뷰)
+└─ 그룹 성공률: 80%
+        │
+        ▼
+[3단계] 그룹 내 포지션 계산
+├─ 판매량 점수: 0.7
+├─ 평점 점수: 0.8
+├─ 리뷰 점수: 0.6
+├─ 종합 점수: 0.72 (가중 평균)
+├─ 그룹 내 순위: 12위 / 50개
+└─ 백분위: 76%
+        │
+        ▼
+[4단계] 최종 일치율 계산
+일치율 = (0.42 × 0.4) + (0.80 × 0.3) + (0.76 × 0.3)
+       = 0.168 + 0.24 + 0.228
+       = 63.6%
+        │
+        ▼
+[5단계] 추천 결정
+├─ 임계값: 50%
+├─ 63.6% ≥ 50%
+└─ ✅ 추천 허용
+```
+
+#### 참/거짓 분류 기준
+| 분류 | 조건 | 가중치 |
+|------|------|--------|
+| 참 (성공) | 완료된 거래 | +1 |
+| 참 (성공) | 긍정 리뷰 (4점 이상) | +0.5 |
+| 거짓 (실패) | 환불 승인 | +1 |
+| 거짓 (실패) | 부정 리뷰 (4점 미만) | +0.5 |
+
+#### 포지션 점수 계산
+| 요소 | 가중치 | 설명 |
+|------|--------|------|
+| 판매량 | 40% | 그룹 내 최대 판매량 대비 |
+| 평균 평점 | 40% | 5점 만점 기준 |
+| 리뷰 수 | 20% | 그룹 내 최대 리뷰 수 대비 |
+
+#### 신뢰도 등급
+| 등급 | 조건 | 의미 |
+|------|------|------|
+| high | 거래 ≥30건, 그룹상품 ≥10개 | 충분한 데이터 |
+| medium | 거래 ≥10건, 그룹상품 ≥5개 | 보통 데이터 |
+| low | 그 외 | 부족한 데이터 (참고용) |
+
+### 활용 시나리오
+
+| 시나리오 | API 엔드포인트 | 활용 |
+|----------|---------------|------|
+| 상품 상세 페이지 | `?type=similar&productId=xxx` | "함께 구매한 상품" 섹션 |
+| 결제 완료 페이지 | `?type=journey` | "다음에 관심 가질 상품" |
+| 쿠폰 발급 | `?type=marketing` | VIP 고객 타겟팅 |
+| 번들 구성 | `?type=marketing` | 높은 동시구매율 상품 묶음 |
+| 재구매 이메일 | `?type=marketing` | 이탈 위험 고객 알림 |
+| 이벤트 기획 | `?type=marketing` | 카테고리 전이 핫스팟 |
+
+### API 응답 예시
+
+#### 유사 상품 추천 (type=similar) - 폭포 검증 포함
+```json
+{
+  "type": "similar_purchase",
+  "sourceProductId": "prod_123",
+  "totalBuyers": 150,
+  "recommendations": [
+    {
+      "id": "prod_456",
+      "title": "관련 상품",
+      "conditionalProbability": 0.42,
+      "purchaseCount": 63,
+      "recommendReason": "이 상품 구매자의 42%가 함께 구매",
+      "waterfallValidation": {
+        "matchRate": 64,
+        "groupSuccessRate": 80,
+        "positionPercentile": 76,
+        "confidence": "high",
+        "isRecommended": true
+      }
+    }
+  ],
+  "metadata": {
+    "algorithm": "conditional_probability_with_waterfall",
+    "waterfallValidation": {
+      "threshold": "50%",
+      "totalCandidates": 25,
+      "passedValidation": 18,
+      "filteredOut": 7,
+      "filteredOutReason": "일치율 50% 미만으로 추천에서 제외"
+    }
+  }
+}
+```
+
+#### 고객 여정 추천 (type=journey) - 폭포 검증 포함
+```json
+{
+  "type": "journey",
+  "sourceCategoryId": "cat_templates",
+  "recommendations": [
+    {
+      "category": { "id": "cat_plugins", "name": "플러그인" },
+      "transitionProbability": 0.35,
+      "products": [
+        {
+          "id": "prod_789",
+          "title": "인기 플러그인",
+          "waterfallValidation": {
+            "matchRate": 58,
+            "groupSuccessRate": 75,
+            "positionPercentile": 82,
+            "confidence": "medium"
+          }
+        }
+      ],
+      "validationStats": {
+        "total": 20,
+        "passed": 15,
+        "filtered": 5
+      }
+    }
+  ]
+}
+```
+
+#### 마케팅 데이터 (type=marketing) - 폭포 검증 포함
+```json
+{
+  "type": "marketing",
+  "bundleRecommendations": [
+    {
+      "productA": { "title": "템플릿 A" },
+      "productB": { "title": "플러그인 B" },
+      "probability": { "average": 0.28 },
+      "bundleSuggestion": "28% 동시 구매 확률",
+      "waterfallValidation": {
+        "productAMatchRate": 65,
+        "productBMatchRate": 58,
+        "combinedMatchRate": 62,
+        "isRecommended": true
+      }
+    }
+  ],
+  "highValueCustomers": [...],
+  "atRiskCustomers": [...]
+}
+```
+
+---
+
+## 🌐 글로벌 추천 시스템 (사이트 전체 통계 기반)
+
+### 개요
+개인화 추천은 개별 사용자의 행동을 분석하여 맞춤 추천을 제공하지만, **계산 비용이 높고** 데이터가 방대해집니다.
+
+**글로벌 추천**은 웹사이트 전체 통계를 기반으로 조건부확률 + 폭포 다이어그램을 **사전 계산**하여:
+- 이벤트/쿠폰 대상 선정
+- 교육 콘텐츠 우선순위
+- 배너/홍보 콘텐츠 배치
+
+에 **우선 적용**합니다.
+
+### 두 가지 추천 전략 비교
+
+| 구분 | 개인화 추천 (Individual) | 글로벌 추천 (Global) |
+|------|-------------------------|---------------------|
+| 데이터 소스 | 1명의 사용자 행동 | 웹사이트 전체 통계 |
+| 계산 시점 | 실시간 | 사전 계산 (1시간 캐시) |
+| 비용 | 높음 | 낮음 |
+| 활용 | 상품 상세, 장바구니 | 이벤트, 쿠폰, 배너 |
+| API 타입 | similar, journey | global-event, global-education |
+
+### 글로벌 추천 API
+
+#### TC-API-037: 글로벌 이벤트/쿠폰 추천 (NEW)
+```yaml
+url: /api/recommendations?type=global-event
+method: GET
+precondition: 없음 (관리자 권장)
+steps:
+  1. GET /api/recommendations?type=global-event 요청
+expected:
+  - HTTP 200 응답
+  - categoryRecommendations: 카테고리별 이벤트 추천
+  - peakHours: 최적 이벤트 시간대
+  - eventPrediction: 예상 도달률/전환율
+validation:
+  - 글로벌 폭포 검증 적용 (50% 미만 제외)
+  - 1시간 캐시
+```
+
+#### TC-API-038: 글로벌 교육 콘텐츠 추천 (NEW)
+```yaml
+url: /api/recommendations?type=global-education
+method: GET
+precondition: 없음
+steps:
+  1. GET /api/recommendations?type=global-education 요청
+expected:
+  - HTTP 200 응답
+  - recommendations: 교육 콘텐츠 목록 (폭포 검증 적용)
+  - stats: 전체 교육 콘텐츠 통계
+validation:
+  - 글로벌 폭포 검증 적용
+  - TUTORIAL/TIPS 타입 우선
+```
+
+#### TC-API-039: 글로벌 콘텐츠 추천 (NEW)
+```yaml
+url: /api/recommendations?type=global-content
+method: GET
+precondition: 없음
+steps:
+  1. GET /api/recommendations?type=global-content 요청
+expected:
+  - HTTP 200 응답
+  - posts: 인기 게시글 (폭포 검증)
+  - products: 인기 상품 (폭포 검증)
+validation:
+  - 통합 콘텐츠 추천
+```
+
+#### TC-API-040: 글로벌 통계 조회 (NEW)
+```yaml
+url: /api/recommendations?type=global-stats
+method: GET
+precondition: 관리자 권장
+steps:
+  1. GET /api/recommendations?type=global-stats 요청
+expected:
+  - HTTP 200 응답
+  - contentStats: 콘텐츠 유형별 통계
+  - topCategories: 상위 카테고리
+  - globalConversionRate: 전체 전환율
+  - peakActivityHours: 활동 피크 시간
+validation:
+  - 관리자 대시보드용 데이터
+```
+
+### 글로벌 통계 수집 항목
+
+| 항목 | 설명 | 활용 |
+|------|------|------|
+| totalViews | 총 조회수 | 도달률 계산 |
+| totalEngagements | 총 참여수 (구매/좋아요/댓글) | 전환율 계산 |
+| conversionRate | 전환율 (조회→참여) | 이벤트 효과 예측 |
+| successRate | 폭포 성공률 | 품질 기준 |
+| topPerformers | 상위 콘텐츠 ID | 추천 대상 |
+| timePatterns | 시간대별 활동 | 이벤트 시간 최적화 |
+
+### 글로벌 폭포 검증
+
+#### 콘텐츠 유형별 성공 기준
+| 유형 | 성공 조건 |
+|------|----------|
+| 상품 | 평점 4점 이상 + 판매 1건 이상 |
+| 튜토리얼 | 조회수 대비 좋아요 5% 이상 |
+| 게시글 | 조회수 대비 댓글 3% 이상 |
+
+#### 일치율 계산 (글로벌)
+$$\text{일치율} = (\text{글로벌확률} \times 0.4) + (\text{그룹성공률} \times 0.3) + (\text{포지션점수} \times 0.3)$$
+
+### API 응답 예시
+
+#### 글로벌 이벤트 추천 (type=global-event)
+```json
+{
+  "type": "global-event",
+  "categoryRecommendations": [
+    {
+      "category": { "id": "cat_123", "name": "템플릿" },
+      "conversionRate": 0.12,
+      "waterfallSuccessRate": 0.75,
+      "topProducts": [
+        {
+          "id": "prod_456",
+          "title": "인기 템플릿",
+          "globalValidation": {
+            "matchRate": 68,
+            "positionPercentile": 85,
+            "isRecommended": true
+          }
+        }
+      ],
+      "eventSuggestion": "🔥 높은 전환율 - 할인 이벤트 추천"
+    }
+  ],
+  "peakHours": [
+    { "hour": "21:00", "activityLevel": 100, "suggestion": "🎯 최적 이벤트 시간" },
+    { "hour": "20:00", "activityLevel": 85, "suggestion": "⏰ 권장 이벤트 시간" }
+  ],
+  "eventPrediction": {
+    "expectedReach": 1500,
+    "expectedConversion": 45,
+    "globalConversionRate": 0.03
+  },
+  "metadata": {
+    "algorithm": "global_waterfall_validation",
+    "calculatedAt": "2025-12-10T10:00:00Z",
+    "cacheExpiry": "2025-12-10T11:00:00Z"
+  }
+}
+```
+
+#### 글로벌 교육 추천 (type=global-education)
+```json
+{
+  "type": "global-education",
+  "recommendations": [
+    {
+      "id": "tut_123",
+      "title": "Vibe Coding 완벽 가이드",
+      "type": "TUTORIAL",
+      "viewCount": 5000,
+      "likeCount": 350,
+      "engagementRate": 7,
+      "globalValidation": {
+        "matchRate": 72,
+        "positionPercentile": 90,
+        "groupSuccessRate": 65
+      },
+      "recommendReason": "🏆 최고 성과 교육 콘텐츠"
+    }
+  ],
+  "stats": {
+    "totalViews": 50000,
+    "totalEngagements": 3500,
+    "avgConversionRate": 7,
+    "successRate": 45
+  }
+}
+```
+
+#### 글로벌 통계 (type=global-stats)
+```json
+{
+  "type": "global-stats",
+  "statistics": {
+    "contentStats": {
+      "products": { "totalViews": 100000, "conversionRate": 0.03, "successRate": 40 },
+      "tutorials": { "totalViews": 50000, "conversionRate": 0.07, "successRate": 45 },
+      "posts": { "totalViews": 30000, "conversionRate": 0.05, "successRate": 35 },
+      "education": { "totalViews": 25000, "conversionRate": 0.08, "successRate": 50 }
+    },
+    "topCategories": [
+      { "id": "cat_1", "name": "템플릿", "successRate": 75, "conversionRate": 0.12 }
+    ],
+    "globalConversionRate": 3.5,
+    "peakActivityHours": [
+      { "hour": "21:00", "activity": 100 },
+      { "hour": "20:00", "activity": 85 }
+    ]
+  },
+  "metadata": {
+    "calculatedAt": "2025-12-10T10:00:00Z",
+    "cacheExpiry": "2025-12-10T11:00:00Z",
+    "cacheTTL": "60분"
+  }
+}
+```
+
+### 활용 시나리오
+
+| 시나리오 | API | 결과 활용 |
+|----------|-----|----------|
+| 홈페이지 배너 | `type=global-content` | 인기 콘텐츠 배너 노출 |
+| 이벤트 기획 | `type=global-event` | 대상 카테고리 및 시간 선정 |
+| 쿠폰 발급 | `type=global-event` | 전환율 높은 상품 쿠폰 |
+| 교육 페이지 | `type=global-education` | 추천 교육 콘텐츠 순서 |
+| 관리자 대시보드 | `type=global-stats` | 전체 통계 모니터링 |
+
+---
+
+## 📦 세션 58: 번들 판매 및 쿠폰/할인 시스템 테스트
+
+> **추가일**: 2025-12-09
+> **테스트 수**: 30개
+
+### 번들 API 테스트
+
+#### TC-S58-BUNDLE-001: 번들 목록 조회
+```yaml
+url: /api/bundles
+method: GET
+precondition: 없음
+steps:
+  1. GET /api/bundles 호출
+expected:
+  - HTTP 200 응답
+  - 공개 번들 목록 반환
+  - 포함 상품 정보 포함
+validation:
+  - isActive: true 번들만 반환
+```
+
+#### TC-S58-BUNDLE-002: 번들 생성
+```yaml
+url: /api/bundles
+method: POST
+precondition: 판매자 로그인
+body:
+  name: "프리미엄 패키지"
+  description: "모든 템플릿 포함"
+  productIds: ["prod_1", "prod_2"]
+  discountRate: 20
+steps:
+  1. POST /api/bundles 호출
+expected:
+  - HTTP 201 응답
+  - 번들 생성 완료
+  - bundlePrice 자동 계산
+validation:
+  - discountRate 적용된 가격 계산
+```
+
+#### TC-S58-BUNDLE-003: 번들 수정
+```yaml
+url: /api/bundles/{id}
+method: PUT
+precondition: 번들 소유자 로그인
+body:
+  name: "슈퍼 프리미엄 패키지"
+  discountRate: 25
+steps:
+  1. PUT /api/bundles/{id} 호출
+expected:
+  - HTTP 200 응답
+  - 번들 정보 업데이트
+validation:
+  - 소유자만 수정 가능
+```
+
+#### TC-S58-BUNDLE-004: 번들 삭제
+```yaml
+url: /api/bundles/{id}
+method: DELETE
+precondition: 번들 소유자 로그인
+steps:
+  1. DELETE /api/bundles/{id} 호출
+expected:
+  - HTTP 200 응답
+  - 번들 삭제 (soft delete)
+validation:
+  - 판매 기록이 있으면 비활성화만
+```
+
+#### TC-S58-BUNDLE-005: 번들 구매
+```yaml
+url: /api/bundles/{id}/purchase
+method: POST
+precondition: 구매자 로그인
+steps:
+  1. POST /api/bundles/{id}/purchase 호출
+expected:
+  - HTTP 200 응답
+  - 결제 세션 생성
+  - 할인된 가격 적용
+validation:
+  - 포함 상품 모두 구매 처리
+```
+
+### 쿠폰 API 테스트
+
+#### TC-S58-COUPON-001: 쿠폰 생성
+```yaml
+url: /api/coupons
+method: POST
+precondition: 판매자 또는 관리자 로그인
+body:
+  code: "WINTER2025"
+  discountType: "percentage"
+  discountValue: 15
+  expiresAt: "2025-12-31"
+  maxUses: 100
+steps:
+  1. POST /api/coupons 호출
+expected:
+  - HTTP 201 응답
+  - 쿠폰 생성 완료
+validation:
+  - 고유 코드 검증
+```
+
+#### TC-S58-COUPON-002: 쿠폰 적용
+```yaml
+url: /api/coupons/apply
+method: POST
+precondition: 구매자 로그인
+body:
+  code: "WINTER2025"
+  productId: "prod_1"
+steps:
+  1. POST /api/coupons/apply 호출
+expected:
+  - HTTP 200 응답
+  - 할인 금액 계산
+  - 적용 가능 여부 반환
+validation:
+  - 만료/사용횟수 제한 검증
+```
+
+#### TC-S58-COUPON-003: 쿠폰 유효성 검증 실패 케이스
+```yaml
+url: /api/coupons/apply
+method: POST
+precondition: 만료된 쿠폰
+body:
+  code: "EXPIRED2024"
+  productId: "prod_1"
+steps:
+  1. POST /api/coupons/apply 호출
+expected:
+  - HTTP 400 응답
+  - error: "쿠폰이 만료되었습니다"
+validation:
+  - 다양한 실패 케이스 처리
+```
+
+#### TC-S58-COUPON-004: 쿠폰 목록 조회
+```yaml
+url: /api/coupons
+method: GET
+precondition: 판매자 로그인
+steps:
+  1. GET /api/coupons 호출
+expected:
+  - HTTP 200 응답
+  - 내가 생성한 쿠폰 목록
+  - 사용 통계 포함
+validation:
+  - 페이지네이션 지원
+```
+
+---
+
+## ☁️ 세션 59: Cloudinary 파일 스토리지 테스트
+
+> **추가일**: 2025-12-09
+> **테스트 수**: 12개
+
+### Cloudinary 업로드 테스트
+
+#### TC-S59-CLOUD-001: 이미지 업로드
+```yaml
+url: /api/upload/cloudinary
+method: POST
+precondition: 로그인 상태
+body:
+  file: (이미지 파일)
+  context: "product"
+steps:
+  1. POST /api/upload/cloudinary 호출
+expected:
+  - HTTP 200 응답
+  - Cloudinary URL 반환
+  - WebP 변환 완료
+validation:
+  - 최적화된 이미지 URL
+```
+
+#### TC-S59-CLOUD-002: 프로필 이미지 업로드
+```yaml
+url: /api/upload/cloudinary
+method: POST
+precondition: 로그인 상태
+body:
+  file: (이미지 파일)
+  context: "profile"
+steps:
+  1. POST /api/upload/cloudinary 호출
+expected:
+  - HTTP 200 응답
+  - 200x200 리사이즈
+  - 원형 크롭 적용
+validation:
+  - 프로필 최적화 설정 적용
+```
+
+#### TC-S59-CLOUD-003: 썸네일 이미지 업로드
+```yaml
+url: /api/upload/cloudinary
+method: POST
+precondition: 로그인 상태
+body:
+  file: (이미지 파일)
+  context: "thumbnail"
+steps:
+  1. POST /api/upload/cloudinary 호출
+expected:
+  - HTTP 200 응답
+  - 400x300 리사이즈
+  - 고품질 압축
+validation:
+  - 썸네일 최적화 설정 적용
+```
+
+#### TC-S59-CLOUD-004: 파일 크기 제한
+```yaml
+url: /api/upload/cloudinary
+method: POST
+precondition: 로그인 상태
+body:
+  file: (10MB 초과 파일)
+steps:
+  1. POST /api/upload/cloudinary 호출
+expected:
+  - HTTP 400 응답
+  - error: "파일 크기가 너무 큽니다"
+validation:
+  - 5MB 제한 적용
+```
+
+#### TC-S59-CLOUD-005: 지원하지 않는 파일 형식
+```yaml
+url: /api/upload/cloudinary
+method: POST
+precondition: 로그인 상태
+body:
+  file: (exe 파일)
+steps:
+  1. POST /api/upload/cloudinary 호출
+expected:
+  - HTTP 400 응답
+  - error: "지원하지 않는 파일 형식입니다"
+validation:
+  - 허용 확장자 검증
+```
+
+#### TC-S59-CLOUD-006: 이미지 삭제
+```yaml
+url: /api/upload/cloudinary
+method: DELETE
+precondition: 로그인 + 이미지 소유자
+body:
+  publicId: "products/abc123"
+steps:
+  1. DELETE /api/upload/cloudinary 호출
+expected:
+  - HTTP 200 응답
+  - Cloudinary에서 삭제 완료
+validation:
+  - 소유권 검증
+```
+
+---
+
+## 🎲 세션 60: 조건부 확률 추천 시스템 테스트
+
+> **추가일**: 2025-12-09
+> **테스트 수**: 15개
+
+### 조건부 확률 API 테스트
+
+#### TC-S60-REC-001: 조건부 확률 P(B|A) 계산
+```yaml
+url: /api/recommendations?type=conditional
+method: GET
+precondition: 로그인 + 구매/조회 이력
+params:
+  type: conditional
+  productId: prod_1
+steps:
+  1. GET /api/recommendations 호출
+expected:
+  - HTTP 200 응답
+  - P(B|A) 기반 추천 목록
+  - confidence 값 포함
+validation:
+  - 조건부 확률 계산 정확성
+```
+
+#### TC-S60-REC-002: 학습 여정 추천
+```yaml
+url: /api/recommendations?type=learning-journey
+method: GET
+precondition: 튜토리얼 수강 이력
+params:
+  type: learning-journey
+  currentTutorialId: tut_1
+steps:
+  1. GET /api/recommendations 호출
+expected:
+  - HTTP 200 응답
+  - 다음 단계 튜토리얼 추천
+  - transitionProbability 포함
+validation:
+  - 학습 전환 확률 계산
+```
+
+#### TC-S60-REC-003: 폭포 다이어그램 데이터
+```yaml
+url: /api/recommendations?type=waterfall
+method: GET
+precondition: 로그인
+params:
+  type: waterfall
+steps:
+  1. GET /api/recommendations 호출
+expected:
+  - HTTP 200 응답
+  - 그룹별 전환 데이터
+  - stagePositions 포함
+validation:
+  - 50% 임계값 기반 필터링
+```
+
+#### TC-S60-REC-004: 12가지 추천 타입
+```yaml
+url: /api/recommendations?type={type}
+method: GET
+precondition: 로그인
+params:
+  type: similar | trending | journey | bundle | new | popular | category | tag | price | rating | seller | view-also-viewed
+steps:
+  1. 각 타입별 API 호출
+expected:
+  - HTTP 200 응답
+  - 타입별 추천 목록
+validation:
+  - 각 타입 정상 동작
+```
+
+---
+
+## 🌍 세션 61: 글로벌 추천 시스템 & 버그 수정 테스트
+
+> **추가일**: 2025-12-10
+> **테스트 수**: 12개
+
+### 글로벌 추천 API 테스트
+
+#### TC-S61-GLOBAL-001: 글로벌 이벤트 추천
+```yaml
+url: /api/recommendations?type=global-event
+method: GET
+precondition: 없음
+steps:
+  1. GET /api/recommendations?type=global-event 호출
+expected:
+  - HTTP 200 응답
+  - 피크 시간대 정보
+  - 이벤트 추천 카테고리
+validation:
+  - 캐시 TTL 적용
+```
+
+#### TC-S61-GLOBAL-002: 글로벌 교육 추천
+```yaml
+url: /api/recommendations?type=global-education
+method: GET
+precondition: 없음
+steps:
+  1. GET /api/recommendations?type=global-education 호출
+expected:
+  - HTTP 200 응답
+  - 인기 교육 콘텐츠
+  - 학습 경로 추천
+validation:
+  - 완료율 기반 정렬
+```
+
+#### TC-S61-GLOBAL-003: 글로벌 콘텐츠 추천
+```yaml
+url: /api/recommendations?type=global-content
+method: GET
+precondition: 없음
+steps:
+  1. GET /api/recommendations?type=global-content 호출
+expected:
+  - HTTP 200 응답
+  - 인기 콘텐츠 목록
+  - 콘텐츠 유형별 분류
+validation:
+  - 조회수/전환율 기반 정렬
+```
+
+#### TC-S61-GLOBAL-004: 글로벌 통계 조회
+```yaml
+url: /api/recommendations?type=global-stats
+method: GET
+precondition: 없음
+steps:
+  1. GET /api/recommendations?type=global-stats 호출
+expected:
+  - HTTP 200 응답
+  - 플랫폼 전체 통계
+  - 카테고리별 성과
+validation:
+  - 60분 캐시 적용
+```
+
+### Hydration 버그 수정 테스트
+
+#### TC-S61-FIX-001: ProductCard 중첩 Link 수정
+```yaml
+url: /marketplace
+method: GET
+precondition: 없음
+steps:
+  1. 마켓플레이스 페이지 접속
+  2. 상품 카드 클릭
+  3. 장바구니 버튼 클릭
+expected:
+  - Hydration Error 없음
+  - 각 버튼 독립적 동작
+validation:
+  - 콘솔 에러 없음
+```
+
+#### TC-S61-FIX-002: 언어 전환 완전 새로고침
+```yaml
+url: /
+method: GET
+precondition: 없음
+steps:
+  1. 홈페이지 접속
+  2. 언어 전환 (한국어 ↔ 영어)
+expected:
+  - 페이지 완전 새로고침
+  - 모든 텍스트 번역 적용
+validation:
+  - window.location.reload() 동작
+```
+
+---
+
+## 🛒 세션 62: 이커머스 UX 기능 테스트 (NEW)
+
+### 드롭다운 메가메뉴 테스트
+
+#### TC-UX-001: 디지털 상품 드롭다운 메가메뉴
+```yaml
+url: /
+method: GET
+precondition: 없음
+steps:
+  1. 홈페이지 접속
+  2. "디지털 상품" 탭 호버
+expected:
+  - 3그룹 드롭다운 메뉴 표시
+  - 비즈니스/업무 (6개 항목)
+  - 개발 도구 (6개 항목)
+  - 라이프스타일 (6개 항목)
+validation:
+  - 호버 시 메뉴 애니메이션 동작
+  - 각 카테고리 클릭 시 마켓플레이스로 이동
+```
+
+#### TC-UX-002: 홈페이지 카테고리 검색
+```yaml
+url: /
+method: GET
+precondition: 없음
+steps:
+  1. 홈페이지 접속
+  2. 검색 바에 "웹 앱" 입력
+expected:
+  - 검색 결과 카테고리 필터링
+  - 일치하는 카테고리만 표시
+validation:
+  - 실시간 필터링 동작
+```
+
+#### TC-UX-003: 빠른 필터 버튼
+```yaml
+url: /
+method: GET
+precondition: 없음
+steps:
+  1. 홈페이지 접속
+  2. "인기 급상승" 빠른 필터 클릭
+expected:
+  - /marketplace?filter=trending 이동
+  - 인기 상품 필터링
+validation:
+  - 각 필터 버튼 정상 동작
+```
+
+### 최근 본 상품 테스트
+
+#### TC-UX-004: 최근 본 상품 기록
+```yaml
+url: /marketplace/{productId}
+method: GET
+precondition: 없음
+steps:
+  1. 상품 상세 페이지 방문
+  2. 다른 상품 상세 페이지 방문
+  3. 마켓플레이스로 이동
+expected:
+  - 사이드바에 "최근 본 상품" 위젯 표시
+  - 방문한 상품 2개 표시
+validation:
+  - 로컬 스토리지에 상품 ID 저장
+  - 최신 방문 순으로 정렬
+```
+
+#### TC-UX-005: 최근 본 상품 삭제
+```yaml
+url: /marketplace
+method: GET
+precondition: 최근 본 상품 1개 이상
+steps:
+  1. 최근 본 상품 위젯에서 X 버튼 클릭
+expected:
+  - 해당 상품 목록에서 제거
+  - 로컬 스토리지 업데이트
+validation:
+  - UI 즉시 업데이트
+```
+
+#### TC-UX-006: 최근 본 상품 전체 삭제
+```yaml
+url: /marketplace
+method: GET
+precondition: 최근 본 상품 2개 이상
+steps:
+  1. "전체 삭제" 버튼 클릭
+expected:
+  - 모든 최근 본 상품 제거
+  - 위젯 숨김
+validation:
+  - 로컬 스토리지 비움
+```
+
+### 상품 비교 기능 테스트
+
+#### TC-UX-007: 상품 비교에 추가
+```yaml
+url: /marketplace
+method: GET
+precondition: 없음
+steps:
+  1. 상품 카드 호버
+  2. 비교 버튼(저울 아이콘) 클릭
+expected:
+  - 하단 플로팅 비교 바 표시
+  - 상품 썸네일 표시
+  - "1개 상품 비교" 텍스트
+validation:
+  - 로컬 스토리지에 상품 ID 저장
+```
+
+#### TC-UX-008: 최대 4개 상품 비교 제한
+```yaml
+url: /marketplace
+method: GET
+precondition: 비교 목록에 4개 상품
+steps:
+  1. 5번째 상품 비교 버튼 클릭
+expected:
+  - 비교 버튼 비활성화
+  - 추가 불가
+validation:
+  - canAddMore === false
+```
+
+### 비교 페이지 테스트
+
+#### TC-UX-009: 비교 페이지 접근
+```yaml
+url: /marketplace/compare
+method: GET
+precondition: 비교 목록에 2개 이상 상품
+steps:
+  1. 플로팅 바 "비교하기" 버튼 클릭
+expected:
+  - 비교 페이지 이동
+  - 테이블 형식으로 상품 비교
+  - 가격, 평점, 판매량, 기능 비교
+validation:
+  - 모든 비교 항목 정상 표시
+```
+
+#### TC-UX-010: 비교 페이지에서 상품 제거
+```yaml
+url: /marketplace/compare
+method: GET
+precondition: 비교 목록에 2개 이상 상품
+steps:
+  1. 상품 헤더의 X 버튼 클릭
+expected:
+  - 해당 상품 테이블에서 제거
+  - 비교 목록 업데이트
+validation:
+  - 1개 남으면 빈 상태 메시지
 ```
 
 ---
@@ -4309,9 +5633,450 @@ validation:
 
 ---
 
+## 📦 Session 64: 컬렉션/번들/아티스트/미리보기 테스트
+
+> **추가일**: 2025-12-10
+> **테스트 수**: 25개
+
+### 🗂️ 컬렉션 API 테스트
+
+#### TC-COLLECTION-001: 컬렉션 목록 조회
+```yaml
+url: /api/collections
+method: GET
+precondition: 없음
+steps:
+  1. GET /api/collections 호출
+expected:
+  - HTTP 200 응답
+  - 공개 컬렉션 목록 반환
+  - 각 컬렉션에 items 배열 포함
+validation:
+  - pagination 지원 (page, limit)
+  - type 필터 지원 (SERIES, BUNDLE, PLAYLIST, CURATED)
+```
+
+#### TC-COLLECTION-002: 컬렉션 상세 조회
+```yaml
+url: /api/collections/{id}
+method: GET
+precondition: 컬렉션 존재
+steps:
+  1. GET /api/collections/{id} 호출
+expected:
+  - HTTP 200 응답
+  - 컬렉션 상세 정보
+  - items 배열에 product 정보 포함
+  - bundlePrice, bundleDiscount 포함
+validation:
+  - 비공개 컬렉션은 소유자만 접근 가능
+```
+
+#### TC-COLLECTION-003: 컬렉션 생성
+```yaml
+url: /api/collections
+method: POST
+precondition: 판매자로 로그인
+body:
+  name: "테스트 컬렉션"
+  description: "설명"
+  type: "BUNDLE"
+  isPublic: true
+  bundlePrice: 29.99
+  bundleDiscount: 20
+  productIds: ["prod1", "prod2"]
+steps:
+  1. POST /api/collections 호출
+expected:
+  - HTTP 201 응답
+  - 컬렉션 생성 성공
+  - CollectionItem 자동 생성
+validation:
+  - 번들 가격이 개별 합계보다 할인 적용
+```
+
+#### TC-COLLECTION-004: 컬렉션 수정
+```yaml
+url: /api/collections/{id}
+method: PATCH
+precondition: 컬렉션 소유자로 로그인
+body:
+  name: "수정된 이름"
+  bundleDiscount: 30
+steps:
+  1. PATCH /api/collections/{id} 호출
+expected:
+  - HTTP 200 응답
+  - 컬렉션 업데이트 성공
+validation:
+  - 소유자만 수정 가능
+```
+
+#### TC-COLLECTION-005: 컬렉션 삭제
+```yaml
+url: /api/collections/{id}
+method: DELETE
+precondition: 컬렉션 소유자로 로그인
+steps:
+  1. DELETE /api/collections/{id} 호출
+expected:
+  - HTTP 200 응답
+  - 컬렉션 및 CollectionItem 삭제
+validation:
+  - 소유자만 삭제 가능
+  - 연결된 상품은 삭제되지 않음
+```
+
+### 💰 번들 구매 API 테스트
+
+#### TC-BUNDLE-001: 번들 구매 생성
+```yaml
+url: /api/collections/purchase
+method: POST
+precondition: 로그인 상태
+body:
+  collectionId: "{bundleId}"
+  paymentMethod: "card"
+steps:
+  1. POST /api/collections/purchase 호출
+expected:
+  - HTTP 200 응답
+  - paymentIntent 또는 결제 URL 반환
+  - originalPrice, discountAmount 포함
+validation:
+  - 번들 할인이 올바르게 적용
+  - 이미 소유한 상품은 제외
+```
+
+#### TC-BUNDLE-002: 번들 구매 검증
+```yaml
+url: /api/collections/purchase/verify
+method: POST
+precondition: 결제 완료 상태
+body:
+  paymentId: "{paymentId}"
+  collectionId: "{collectionId}"
+steps:
+  1. POST /api/collections/purchase/verify 호출
+expected:
+  - HTTP 200 응답
+  - 모든 번들 상품에 대한 Purchase 생성
+  - bundleDiscountApplied: true
+validation:
+  - 각 상품별 Purchase 레코드 생성
+  - bundleId 필드 설정됨
+```
+
+#### TC-BUNDLE-003: 부분 소유 번들 가격 계산
+```yaml
+url: /api/collections/{id}/price
+method: GET
+precondition: 일부 상품 이미 구매한 사용자
+steps:
+  1. GET /api/collections/{id}/price 호출
+expected:
+  - HTTP 200 응답
+  - 미소유 상품만 가격 계산
+  - 조정된 할인율 적용
+validation:
+  - 이미 소유한 상품 목록 표시
+  - 추가 결제 금액 정확히 계산
+```
+
+### 🎨 아티스트 API 테스트
+
+#### TC-ARTIST-001: 아티스트 목록 조회
+```yaml
+url: /api/artists
+method: GET
+precondition: 없음
+steps:
+  1. GET /api/artists 호출
+expected:
+  - HTTP 200 응답
+  - 판매자 또는 아티스트 프로필 사용자 목록
+  - productCount, totalSales 포함
+validation:
+  - artistType 필터 지원
+  - productType 필터 지원
+  - 검색 지원 (이름, 바이오)
+```
+
+#### TC-ARTIST-002: 아티스트 프로필 조회 (slug)
+```yaml
+url: /api/artists/{slug}
+method: GET
+precondition: 아티스트 slug 존재
+steps:
+  1. GET /api/artists/john-doe 호출
+expected:
+  - HTTP 200 응답
+  - 아티스트 상세 프로필
+  - products 배열
+  - collections 배열
+  - stats (totalProducts, totalSales, averageRating)
+validation:
+  - socialLinks JSON 파싱
+  - artistLanguages 배열 반환
+```
+
+#### TC-ARTIST-003: 아티스트 프로필 수정
+```yaml
+url: /api/artists/profile
+method: PATCH
+precondition: 로그인 상태
+body:
+  artistBio: "새로운 바이오"
+  artistType: "MUSICIAN"
+  artistLocation: "Seoul, Korea"
+  socialLinks: {"twitter": "@artist"}
+steps:
+  1. PATCH /api/artists/profile 호출
+expected:
+  - HTTP 200 응답
+  - 프로필 업데이트 성공
+validation:
+  - slug 자동 생성 (없는 경우)
+  - socialLinks JSON 저장
+```
+
+#### TC-ARTIST-004: 아티스트 검증 요청
+```yaml
+url: /api/artists/verify
+method: POST
+precondition: 아티스트 프로필 완성
+body:
+  portfolioUrl: "https://portfolio.com"
+  verificationDocs: ["doc1.pdf"]
+steps:
+  1. POST /api/artists/verify 호출
+expected:
+  - HTTP 200 응답
+  - 검증 요청 접수
+validation:
+  - isVerifiedArtist 상태 변경 없음 (관리자 승인 필요)
+```
+
+### 🎬 미리보기 API 테스트
+
+#### TC-PREVIEW-001: 책 미리보기 조회
+```yaml
+url: /api/preview/{productSlug}?type=book
+method: GET
+precondition: BOOK 타입 상품 존재
+steps:
+  1. GET /api/preview/my-ebook 호출
+expected:
+  - HTTP 200 응답
+  - previewChapters 배열 (무료 챕터)
+  - totalChapters 수
+  - previewPercentage
+validation:
+  - 유료 챕터 내용 노출 안됨
+  - 목차 정보 포함
+```
+
+#### TC-PREVIEW-002: 비디오 시리즈 미리보기 조회
+```yaml
+url: /api/preview/{productSlug}?type=video
+method: GET
+precondition: VIDEO_SERIES 타입 상품 존재
+steps:
+  1. GET /api/preview/my-course 호출
+expected:
+  - HTTP 200 응답
+  - trailerUrl (예고편)
+  - previewEpisodes 배열 (무료 에피소드)
+  - totalEpisodes 수
+validation:
+  - 유료 에피소드 URL 노출 안됨
+  - 썸네일 포함
+```
+
+#### TC-PREVIEW-003: 음악 앨범 미리보기 조회
+```yaml
+url: /api/preview/{productSlug}?type=music
+method: GET
+precondition: MUSIC_ALBUM 타입 상품 존재
+steps:
+  1. GET /api/preview/my-album 호출
+expected:
+  - HTTP 200 응답
+  - tracks 배열 (30초 미리듣기 URL)
+  - totalTracks 수
+  - previewDuration (각 트랙 30초)
+validation:
+  - 전체 트랙 URL 노출 안됨
+  - 트랙 순서 정보 포함
+```
+
+#### TC-PREVIEW-004: 디지털 상품 미리보기 조회
+```yaml
+url: /api/preview/{productSlug}?type=digital
+method: GET
+precondition: DIGITAL_PRODUCT 타입 상품 존재
+steps:
+  1. GET /api/preview/my-template 호출
+expected:
+  - HTTP 200 응답
+  - previewImages 배열
+  - previewDescription
+  - fileTypes, fileCount
+validation:
+  - 다운로드 URL 노출 안됨
+  - 워터마크된 이미지만 제공
+```
+
+#### TC-PREVIEW-005: 구매자 전체 콘텐츠 접근
+```yaml
+url: /api/preview/{productSlug}?full=true
+method: GET
+precondition: 해당 상품 구매 완료
+steps:
+  1. GET /api/preview/my-ebook?full=true 호출
+expected:
+  - HTTP 200 응답
+  - 모든 챕터/에피소드/트랙 접근
+  - 다운로드 URL 포함
+validation:
+  - Purchase 레코드 확인
+  - 미구매자는 403 응답
+```
+
+### 🖼️ 컬렉션 UI 컴포넌트 테스트
+
+#### TC-COLLECTION-UI-001: 컬렉션 카드 렌더링
+```yaml
+component: CollectionCard
+precondition: 컬렉션 데이터 존재
+steps:
+  1. CollectionCard 컴포넌트 렌더링
+expected:
+  - 컬렉션 이름, 설명 표시
+  - 상품 수 표시
+  - 타입 배지 표시 (SERIES, BUNDLE 등)
+  - 번들 가격 및 할인율 표시
+validation:
+  - 클릭 시 상세 모달 열림
+```
+
+#### TC-COLLECTION-UI-002: 번들 가격 표시
+```yaml
+component: BundlePriceDisplay
+precondition: 번들 컬렉션 데이터
+steps:
+  1. BundlePriceDisplay 컴포넌트 렌더링
+expected:
+  - 원가 (취소선)
+  - 할인가 (강조)
+  - 할인율 배지
+  - 절약 금액 표시
+validation:
+  - 가격 포맷 올바름 (통화 기호)
+```
+
+### 🎨 아티스트 UI 테스트
+
+#### TC-ARTIST-UI-001: 아티스트 프로필 페이지
+```yaml
+url: /artists/{slug}
+method: GET
+precondition: 아티스트 slug 존재
+steps:
+  1. /artists/john-doe 페이지 접근
+expected:
+  - 프로필 헤더 (이미지, 이름, 바이오)
+  - 통계 카드 (상품 수, 판매량, 평점)
+  - 탭 네비게이션 (상품, 컬렉션, 정보)
+  - 소셜 링크 버튼
+validation:
+  - 검증 배지 표시 (isVerifiedArtist)
+  - 반응형 레이아웃
+```
+
+#### TC-ARTIST-UI-002: 아티스트 목록 페이지
+```yaml
+url: /artists
+method: GET
+precondition: 없음
+steps:
+  1. /artists 페이지 접근
+expected:
+  - 아티스트 그리드 표시
+  - 필터 (아티스트 타입, 상품 타입)
+  - 검색 입력 필드
+  - 페이지네이션
+validation:
+  - 필터 적용 시 목록 업데이트
+  - 검색 결과 정확
+```
+
+### 🎬 미리보기 UI 테스트
+
+#### TC-PREVIEW-UI-001: 책 미리보기 모달
+```yaml
+component: BookPreview
+precondition: BOOK 상품 데이터
+steps:
+  1. 미리보기 버튼 클릭
+  2. BookPreview 모달 열림
+expected:
+  - 목차 사이드바
+  - 챕터 콘텐츠 뷰어
+  - 무료/유료 챕터 구분 표시
+  - "전체 구매" 버튼
+validation:
+  - 유료 챕터 클릭 시 구매 유도
+```
+
+#### TC-PREVIEW-UI-002: 비디오 미리보기 플레이어
+```yaml
+component: VideoPreview
+precondition: VIDEO_SERIES 상품 데이터
+steps:
+  1. 미리보기 버튼 클릭
+  2. VideoPreview 모달 열림
+expected:
+  - 비디오 플레이어
+  - 에피소드 목록
+  - 무료 에피소드 재생 가능
+  - "전체 구매" 버튼
+validation:
+  - 유료 에피소드 잠금 아이콘
+```
+
+#### TC-PREVIEW-UI-003: 음악 미리보기 플레이어
+```yaml
+component: MusicPreview
+precondition: MUSIC_ALBUM 상품 데이터
+steps:
+  1. 미리보기 버튼 클릭
+  2. MusicPreview 모달 열림
+expected:
+  - 트랙 목록
+  - 30초 미리듣기 재생
+  - 진행바 표시
+  - "앨범 구매" 버튼
+validation:
+  - 30초 후 자동 정지
+```
+
+---
+
 **마지막 업데이트**: 2025-12-10  
 **작성자**: Vibe Olympics 개발팀  
-**버전**: 2.3 (Session 60 - 누락 테스트 케이스 추가, 중복 제거)
+**버전**: 2.5 (Session 58-64 전체 테스트 케이스 추가)
+
+### 세션별 테스트 추가 내역
+| 세션 | 테스트 수 | 주요 내용 |
+|------|----------|----------|
+| S58 | 30개 | 번들 판매, 쿠폰/할인 시스템 |
+| S59 | 12개 | Cloudinary 파일 업로드 |
+| S60 | 15개 | 조건부 확률 추천 시스템 |
+| S61 | 12개 | 글로벌 추천, Hydration 버그 수정 |
+| S62 | 20개 | 이커머스 UX, 상품 비교, 최근 본 상품 |
+| S63 | 11개 | AI 콘텐츠 등록, SEO 자동화 |
+| S64 | 25개 | 컬렉션, 번들 구매, 아티스트, 미리보기 |
 
 ---
 
