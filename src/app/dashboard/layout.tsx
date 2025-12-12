@@ -90,6 +90,11 @@ const bottomLinks = [
     icon: CreditCard,
   },
   {
+    name: "고객 지원",
+    href: "/dashboard/support",
+    icon: HelpCircle,
+  },
+  {
     name: "A/B 테스트",
     href: "/dashboard/ab-tests",
     icon: FlaskConical,

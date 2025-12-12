@@ -1,7 +1,97 @@
 # 📜 Vibe Olympics - 변경 이력 (CHANGELOG)
 
-> 마지막 업데이트: 2025년 12월 12일
+> 마지막 업데이트: 2025년 12월 13일
 > 형식: 세션별 완료 작업 + 수정된 파일 목록
+
+---
+
+## 세션 81 (2025-12-13) - Phase 11 운영 고도화 ⭐
+
+### 작업 요약
+1. **티켓 시스템 UI**: 고객 지원 대시보드 완성 (`/dashboard/support`)
+2. **벌크 작업 도구**: 상품 일괄 가격/카테고리/상태 변경 API
+3. **CSV 가져오기/내보내기**: 데이터 일괄 등록 및 추출 기능
+4. **피드백 조사 시스템**: 고객 만족도 조사 (NPS 포함)
+5. **레퍼럴 시스템**: 친구 초대 및 보상 관리
+
+### 완료 항목
+| 작업 ID | 작업명 | 설명 | 상태 |
+|---------|--------|------|------|
+| P11-13 | 티켓 시스템 UI | 550+ 라인 대시보드 + 모달 컴포넌트 | ✅ |
+| P11-02 | 벌크 작업 도구 | 6가지 벌크 작업 (가격/카테고리/상태/할인/삭제/특성) | ✅ |
+| P11-03 | CSV 내보내기/가져오기 | 상품/사용자/주문/티켓 데이터 처리 | ✅ |
+| P11-09 | 만족도 조사 | FeedbackSurvey 모델 + 통계 API | ✅ |
+| P11-10 | 레퍼럴 시스템 | Referral 모델 + 추천 코드 생성/적용 API | ✅ |
+
+### 신규 파일
+```
+src/app/dashboard/support/page.tsx                  # 고객 지원 페이지
+src/app/dashboard/support/support-content.tsx       # 티켓 관리 UI (550+ lines)
+src/app/api/admin/bulk-products/route.ts            # 벌크 상품 작업 API
+src/app/api/admin/csv/route.ts                      # CSV 내보내기/가져오기 API
+src/app/api/feedback/route.ts                       # 피드백 조사 API
+src/app/api/referral/route.ts                       # 레퍼럴 시스템 API
+```
+
+### 신규 Prisma 모델 (배포 후 `prisma db push` 필요)
+```prisma
+model FeedbackSurvey {
+  id, userId, purchaseId, ticketId, productId
+  type (PURCHASE, TICKET, PRODUCT, GENERAL, NPS)
+  rating, easeOfUse, valueForMoney, customerService, wouldRecommend
+  comment, metadata, createdAt, updatedAt
+}
+
+model Referral {
+  id, referrerId, refereeId, refereeEmail
+  referrerCode (unique), status (6 states)
+  referrer/refereeRewardType, referrer/refereeRewardAmount
+  conditionMet, conditionMetAt, createdAt, updatedAt
+}
+
+enum SurveyType { PURCHASE, TICKET, PRODUCT, GENERAL, NPS }
+enum ReferralStatus { PENDING, REGISTERED, QUALIFIED, REWARDED, EXPIRED, CANCELLED }
+```
+
+### 수정 파일
+- `prisma/schema.prisma` - FeedbackSurvey, Referral 모델 추가
+- `src/app/dashboard/layout.tsx` - "고객 지원" 메뉴 항목 추가
+- `src/app/api/admin/csv/route.ts` - Purchase 필드명 수정 (price → amount)
+- `src/app/dashboard/support/support-content.tsx` - Badge variant 타입 수정
+
+### API 라우트 현황
+- **총 API 엔드포인트: 106개** (신규 4개 추가)
+
+### 기능 상세
+
+#### 티켓 시스템 UI (`/dashboard/support`)
+- 상태별 필터링 (접수됨/처리중/응답대기/해결됨/종료)
+- 카테고리별 필터링 (9개 카테고리)
+- 새 티켓 생성 모달
+- 티켓 상세 + 메시지 스레드 모달
+- 페이지네이션
+
+#### 벌크 작업 API (`POST /api/admin/bulk-products`)
+- `UPDATE_PRICE`: 가격 일괄 변경
+- `UPDATE_CATEGORY`: 카테고리 일괄 변경
+- `UPDATE_STATUS`: 상태 일괄 변경 (PUBLISHED/DRAFT/UNDER_REVIEW)
+- `UPDATE_DISCOUNT`: 할인율 일괄 적용
+- `DELETE`: 일괄 삭제 (관리자 전용)
+- `FEATURE/UNFEATURE`: 추천 상품 지정/해제
+
+#### CSV API (`/api/admin/csv`)
+- `GET`: 상품/사용자/주문/티켓 데이터 CSV/JSON 내보내기
+- `POST`: CSV 파일에서 데이터 가져오기
+
+#### 피드백 API (`/api/feedback`)
+- `POST`: 만족도 조사 제출 (5점 척도, NPS)
+- `GET`: 관리자용 통계 조회 (평균 점수, 등급 분포, NPS 비율)
+
+#### 레퍼럴 API (`/api/referral`)
+- `GET?action=my-code`: 내 추천 코드 조회/생성
+- `GET`: 내 추천 목록 조회
+- `POST`: 추천 코드 적용 (회원가입 시)
+- `PATCH`: 조건 충족 확인 및 보상 처리
 
 ---
 
