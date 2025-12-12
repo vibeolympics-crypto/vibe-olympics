@@ -549,4 +549,245 @@ function formatBytes(bytes) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
+// ============================================
+// 푸시 알림 핸들러 (P12-11)
+// ============================================
+self.addEventListener('push', (event) => {
+  console.log('[SW] Push notification received');
+  
+  let data = {
+    title: 'Vibe Olympics',
+    body: '새로운 알림이 있습니다.',
+    icon: '/icon-192.png',
+    badge: '/badge-72.png',
+    tag: 'default',
+    data: { url: '/' },
+  };
+  
+  try {
+    if (event.data) {
+      const payload = event.data.json();
+      data = { ...data, ...payload };
+    }
+  } catch (error) {
+    console.error('[SW] Push data parse error:', error);
+    if (event.data) {
+      data.body = event.data.text();
+    }
+  }
+  
+  const options = {
+    body: data.body,
+    icon: data.icon,
+    badge: data.badge,
+    tag: data.tag,
+    data: data.data,
+    vibrate: [100, 50, 100],
+    requireInteraction: data.requireInteraction || false,
+    actions: data.actions || [
+      { action: 'open', title: '열기' },
+      { action: 'dismiss', title: '닫기' },
+    ],
+  };
+  
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+// 알림 클릭 핸들러
+self.addEventListener('notificationclick', (event) => {
+  console.log('[SW] Notification click:', event.action);
+  
+  event.notification.close();
+  
+  if (event.action === 'dismiss') {
+    return;
+  }
+  
+  const url = event.notification.data?.url || '/';
+  
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true })
+      .then((windowClients) => {
+        // 이미 열린 창이 있으면 포커스
+        for (const client of windowClients) {
+          if (client.url.includes(self.location.origin) && 'focus' in client) {
+            client.focus();
+            client.navigate(url);
+            return;
+          }
+        }
+        // 없으면 새 창 열기
+        if (clients.openWindow) {
+          return clients.openWindow(url);
+        }
+      })
+  );
+});
+
+// 알림 닫기 핸들러
+self.addEventListener('notificationclose', (event) => {
+  console.log('[SW] Notification closed:', event.notification.tag);
+  
+  // 분석 이벤트 전송 가능
+  // analytics.track('notification_closed', { tag: event.notification.tag });
+});
+
+// ============================================
+// 백그라운드 동기화 이벤트 (P12-11)
+// ============================================
+self.addEventListener('sync', (event) => {
+  console.log('[SW] Sync event:', event.tag);
+  
+  switch (event.tag) {
+    case 'sync-cart':
+      event.waitUntil(syncCart());
+      break;
+    
+    case 'sync-wishlist':
+      event.waitUntil(syncWishlist());
+      break;
+    
+    case 'sync-offline-actions':
+      event.waitUntil(syncOfflineActions());
+      break;
+    
+    case 'sync-analytics':
+      event.waitUntil(syncAnalytics());
+      break;
+    
+    default:
+      console.log('[SW] Unknown sync tag:', event.tag);
+  }
+});
+
+// 주기적 백그라운드 동기화
+self.addEventListener('periodicsync', (event) => {
+  console.log('[SW] Periodic sync:', event.tag);
+  
+  switch (event.tag) {
+    case 'update-content':
+      event.waitUntil(updateContent());
+      break;
+    
+    case 'check-notifications':
+      event.waitUntil(checkNotifications());
+      break;
+    
+    default:
+      console.log('[SW] Unknown periodic sync tag:', event.tag);
+  }
+});
+
+// 오프라인 액션 동기화
+async function syncOfflineActions() {
+  try {
+    const actions = await getOfflineActions();
+    
+    for (const action of actions) {
+      try {
+        const response = await fetch(action.url, {
+          method: action.method,
+          headers: action.headers,
+          body: action.body,
+        });
+        
+        if (response.ok) {
+          await removeOfflineAction(action.id);
+          console.log('[SW] Offline action synced:', action.id);
+        }
+      } catch (error) {
+        console.error('[SW] Failed to sync action:', action.id, error);
+      }
+    }
+  } catch (error) {
+    console.error('[SW] Offline actions sync failed:', error);
+  }
+}
+
+// 분석 데이터 동기화
+async function syncAnalytics() {
+  try {
+    const events = await getAnalyticsEvents();
+    
+    if (events.length > 0) {
+      const response = await fetch('/api/analytics/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ events }),
+      });
+      
+      if (response.ok) {
+        await clearAnalyticsEvents();
+        console.log('[SW] Analytics synced:', events.length, 'events');
+      }
+    }
+  } catch (error) {
+    console.error('[SW] Analytics sync failed:', error);
+  }
+}
+
+// 콘텐츠 업데이트
+async function updateContent() {
+  try {
+    // 인기 상품 프리캐싱
+    const response = await fetch('/api/products?sort=popular&limit=10');
+    if (response.ok) {
+      const cache = await caches.open(DYNAMIC_CACHE);
+      await cache.put('/api/products?sort=popular&limit=10', response.clone());
+      console.log('[SW] Popular products cached');
+    }
+  } catch (error) {
+    console.error('[SW] Content update failed:', error);
+  }
+}
+
+// 알림 확인
+async function checkNotifications() {
+  try {
+    const response = await fetch('/api/notifications/unread-count');
+    if (response.ok) {
+      const data = await response.json();
+      
+      if (data.count > 0) {
+        // 앱 배지 업데이트 (지원되는 경우)
+        if ('setAppBadge' in navigator) {
+          navigator.setAppBadge(data.count);
+        }
+        
+        // 클라이언트에게 알림
+        const clients = await self.clients.matchAll({ type: 'window' });
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'UNREAD_NOTIFICATIONS',
+            count: data.count,
+          });
+        });
+      }
+    }
+  } catch (error) {
+    console.error('[SW] Notifications check failed:', error);
+  }
+}
+
+// IndexedDB 헬퍼 함수들
+async function getOfflineActions() {
+  // TODO: IndexedDB에서 오프라인 액션 가져오기
+  return [];
+}
+
+async function removeOfflineAction(id) {
+  // TODO: IndexedDB에서 액션 삭제
+}
+
+async function getAnalyticsEvents() {
+  // TODO: IndexedDB에서 분석 이벤트 가져오기
+  return [];
+}
+
+async function clearAnalyticsEvents() {
+  // TODO: IndexedDB 정리
+}
+
 console.log('[SW] Service Worker v2 loaded');

@@ -21,9 +21,11 @@ import {
   Music,
   Package,
   Layers,
+  Brain,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { AdvancedAnalytics } from "@/components/dashboard/advanced-analytics";
 import { cn, formatPrice } from "@/lib/utils";
 import {
   RevenueLineChart,
@@ -131,7 +133,9 @@ interface AnalyticsData {
   productTypeAnalytics?: ProductTypeAnalytics;
 }
 
-type ChartTabType = "revenue" | "conversion" | "category" | "weekly" | "productType" | "productTypeTrend" | "productTypeWeekly" | "productTypeRadar";
+type ChartTabType = "revenue" | "conversion" | "category" | "weekly" | "productType" | "productTypeTrend" | "productTypeWeekly" | "productTypeRadar" | "advanced";
+
+type ViewMode = "basic" | "advanced";
 
 export function AnalyticsContent() {
   const [selectedPeriod, setSelectedPeriod] = useState("30d");
@@ -140,6 +144,7 @@ export function AnalyticsContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeChart, setActiveChart] = useState<ChartTabType>("revenue");
   const [showProductTypeCards, setShowProductTypeCards] = useState(true);
+  const [viewMode, setViewMode] = useState<ViewMode>("basic");
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -290,6 +295,27 @@ export function AnalyticsContent() {
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
+          {/* View Mode Toggle */}
+          <div className="flex gap-1 p-1 bg-[var(--bg-elevated)] rounded-lg">
+            <Button
+              variant={viewMode === "basic" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("basic")}
+              className="gap-1.5"
+            >
+              <BarChart2 className="w-4 h-4" />
+              기본
+            </Button>
+            <Button
+              variant={viewMode === "advanced" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("advanced")}
+              className="gap-1.5"
+            >
+              <Brain className="w-4 h-4" />
+              AI 분석
+            </Button>
+          </div>
           <Button
             variant="outline"
             size="sm"
@@ -344,6 +370,9 @@ export function AnalyticsContent() {
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-8 h-8 animate-spin text-[var(--primary)]" />
         </div>
+      ) : viewMode === "advanced" ? (
+        /* Advanced Analytics Mode */
+        <AdvancedAnalytics />
       ) : (
         <>
           {/* Stats Grid with Sparklines */}
