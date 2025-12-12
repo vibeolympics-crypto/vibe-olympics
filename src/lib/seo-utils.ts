@@ -553,3 +553,388 @@ export function generateSeoData(data: {
     twitter,
   };
 }
+
+// ============================================
+// 커뮤니티 게시글용 SEO 함수
+// ============================================
+
+// 게시글 카테고리 타입
+type PostCategory = 'FREE' | 'QA' | 'FEEDBACK' | 'NOTICE';
+
+// 게시글용 메타 설명 생성
+export function generatePostMetaDescription(
+  title: string,
+  content: string,
+  category: PostCategory
+): string {
+  const categoryNames: Record<PostCategory, string> = {
+    FREE: '자유게시판',
+    QA: '질문/답변',
+    FEEDBACK: '피드백',
+    NOTICE: '공지사항',
+  };
+  
+  // 콘텐츠에서 HTML 태그 제거 및 텍스트 추출
+  const plainText = content
+    .replace(/<[^>]*>/g, '')
+    .replace(/\n+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  
+  const excerpt = plainText.slice(0, 100);
+  let description = `[${categoryNames[category]}] ${title}`;
+  
+  if (excerpt) {
+    description += ` - ${excerpt}`;
+  }
+  
+  // 메타 설명은 155자 이내가 권장
+  if (description.length > 155) {
+    description = description.slice(0, 152) + '...';
+  }
+  
+  return description;
+}
+
+// 게시글용 키워드 생성
+export function generatePostKeywords(
+  title: string,
+  content: string,
+  category: PostCategory
+): string[] {
+  const keywords = new Set<string>();
+  
+  // 기본 키워드
+  keywords.add('Vibe Olympics');
+  keywords.add('커뮤니티');
+  
+  // 카테고리 키워드
+  const categoryKeywords: Record<PostCategory, string[]> = {
+    FREE: ['자유게시판', '일상', '토론'],
+    QA: ['질문', '답변', 'Q&A', '도움'],
+    FEEDBACK: ['피드백', '의견', '제안', '개선'],
+    NOTICE: ['공지사항', '안내', '소식'],
+  };
+  
+  categoryKeywords[category].forEach(kw => keywords.add(kw));
+  
+  // 제목에서 핵심 단어 추출 (2글자 이상)
+  const titleWords = title.split(/\s+/).filter(w => w.length >= 2);
+  titleWords.slice(0, 5).forEach(word => keywords.add(word));
+  
+  // 콘텐츠에서 핵심 단어 추출
+  const plainText = content.replace(/<[^>]*>/g, '');
+  const contentWords = plainText.split(/\s+/).filter(w => 
+    w.length >= 2 && 
+    !/^[a-zA-Z0-9]+$/.test(w) &&
+    !['그리고', '하지만', '그래서', '때문에', '이것은', '저것은'].includes(w)
+  );
+  contentWords.slice(0, 5).forEach(word => keywords.add(word));
+  
+  return Array.from(keywords).slice(0, 10);
+}
+
+// 게시글용 JSON-LD 생성
+export function generatePostJsonLd(data: {
+  id: string;
+  title: string;
+  content: string;
+  category: PostCategory;
+  author: { name?: string | null; id: string };
+  createdAt: Date | string;
+  viewCount?: number;
+  likeCount?: number;
+}): Record<string, unknown> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://vibe-olympics.onrender.com';
+  
+  // 콘텐츠에서 텍스트 추출
+  const plainText = data.content
+    .replace(/<[^>]*>/g, '')
+    .replace(/\n+/g, ' ')
+    .trim();
+  
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'DiscussionForumPosting',
+    '@id': `${baseUrl}/community/${data.id}`,
+    headline: data.title,
+    articleBody: plainText.slice(0, 500),
+    author: {
+      '@type': 'Person',
+      name: data.author.name || '익명',
+      url: `${baseUrl}/user/${data.author.id}`,
+    },
+    datePublished: typeof data.createdAt === 'string' ? data.createdAt : data.createdAt.toISOString(),
+    interactionStatistic: [
+      {
+        '@type': 'InteractionCounter',
+        interactionType: 'https://schema.org/ViewAction',
+        userInteractionCount: data.viewCount || 0,
+      },
+      {
+        '@type': 'InteractionCounter',
+        interactionType: 'https://schema.org/LikeAction',
+        userInteractionCount: data.likeCount || 0,
+      },
+    ],
+    publisher: {
+      '@type': 'Organization',
+      name: 'Vibe Olympics',
+      url: baseUrl,
+    },
+  };
+}
+
+// ============================================
+// 튜토리얼용 SEO 함수
+// ============================================
+
+type TutorialType = 'TUTORIAL' | 'MAKING' | 'TIPS' | 'EXTERNAL';
+
+// 튜토리얼용 메타 설명 생성
+export function generateTutorialMetaDescription(
+  title: string,
+  description: string,
+  type: TutorialType,
+  tags: string[]
+): string {
+  const typeNames: Record<TutorialType, string> = {
+    TUTORIAL: '튜토리얼',
+    MAKING: '메이킹',
+    TIPS: '팁',
+    EXTERNAL: '외부 강의',
+  };
+  
+  const tagText = tags.slice(0, 3).join(', ');
+  let metaDesc = `[${typeNames[type]}] ${title}`;
+  
+  if (description) {
+    metaDesc += ` - ${description}`;
+  }
+  
+  if (tagText) {
+    metaDesc += ` #${tagText.replace(/,\s*/g, ' #')}`;
+  }
+  
+  // 메타 설명은 155자 이내가 권장
+  if (metaDesc.length > 155) {
+    metaDesc = metaDesc.slice(0, 152) + '...';
+  }
+  
+  return metaDesc;
+}
+
+// 튜토리얼용 키워드 생성
+export function generateTutorialKeywords(
+  title: string,
+  description: string,
+  type: TutorialType,
+  tags: string[]
+): string[] {
+  const keywords = new Set<string>();
+  
+  // 기본 키워드
+  keywords.add('Vibe Olympics');
+  keywords.add('교육');
+  keywords.add('학습');
+  
+  // 타입 키워드
+  const typeKeywords: Record<TutorialType, string[]> = {
+    TUTORIAL: ['튜토리얼', '강좌', '배우기', '입문'],
+    MAKING: ['메이킹', '제작 과정', '비하인드'],
+    TIPS: ['팁', '노하우', '꿀팁', '가이드'],
+    EXTERNAL: ['외부 강의', '추천 강의', '온라인 강의'],
+  };
+  
+  typeKeywords[type].forEach(kw => keywords.add(kw));
+  
+  // 태그 추가
+  tags.forEach(tag => keywords.add(tag));
+  
+  // 제목에서 핵심 단어 추출
+  const titleWords = title.split(/\s+/).filter(w => w.length >= 2);
+  titleWords.slice(0, 5).forEach(word => keywords.add(word));
+  
+  return Array.from(keywords).slice(0, 15);
+}
+
+// 튜토리얼용 JSON-LD 생성
+export function generateTutorialJsonLd(data: {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  type: TutorialType;
+  thumbnail?: string | null;
+  videoUrl?: string | null;
+  duration?: number | null;
+  author: { name?: string | null; id: string };
+  createdAt: Date | string;
+  viewCount?: number;
+}): Record<string, unknown> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://vibe-olympics.onrender.com';
+  
+  // 비디오가 있으면 VideoObject, 없으면 Article
+  const hasVideo = !!data.videoUrl;
+  
+  const jsonLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': hasVideo ? 'VideoObject' : 'Article',
+    '@id': `${baseUrl}/education/${data.slug || data.id}`,
+    name: data.title,
+    headline: data.title,
+    description: data.description,
+    thumbnailUrl: data.thumbnail,
+    author: {
+      '@type': 'Person',
+      name: data.author.name || '익명',
+    },
+    datePublished: typeof data.createdAt === 'string' ? data.createdAt : data.createdAt.toISOString(),
+    publisher: {
+      '@type': 'Organization',
+      name: 'Vibe Olympics',
+      url: baseUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/logo.png`,
+      },
+    },
+  };
+  
+  if (hasVideo) {
+    jsonLd.contentUrl = data.videoUrl;
+    jsonLd.uploadDate = typeof data.createdAt === 'string' ? data.createdAt : data.createdAt.toISOString();
+    if (data.duration) {
+      jsonLd.duration = `PT${data.duration}M`;
+    }
+  }
+  
+  if (data.viewCount) {
+    jsonLd.interactionStatistic = {
+      '@type': 'InteractionCounter',
+      interactionType: 'https://schema.org/WatchAction',
+      userInteractionCount: data.viewCount,
+    };
+  }
+  
+  return jsonLd;
+}
+
+// ============================================
+// 판매자/아티스트 프로필용 SEO 함수
+// ============================================
+
+// 판매자 프로필 JSON-LD 생성
+export function generateSellerJsonLd(data: {
+  id: string;
+  name: string;
+  bio?: string | null;
+  image?: string | null;
+  website?: string | null;
+  github?: string | null;
+  twitter?: string | null;
+  totalSales?: number;
+  productCount?: number;
+  averageRating?: number;
+  joinedAt?: string;
+}): Record<string, unknown> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://vibe-olympics.onrender.com';
+  
+  // 소셜 링크 수집
+  const sameAs: string[] = [];
+  if (data.website) sameAs.push(data.website);
+  if (data.github) sameAs.push(`https://github.com/${data.github}`);
+  if (data.twitter) sameAs.push(`https://twitter.com/${data.twitter}`);
+  
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': `${baseUrl}/seller/${data.id}`,
+    name: data.name,
+    description: data.bio || `${data.name}님의 Vibe Olympics 판매자 프로필`,
+    image: data.image,
+    url: `${baseUrl}/seller/${data.id}`,
+    sameAs: sameAs.length > 0 ? sameAs : undefined,
+    memberOf: {
+      '@type': 'Organization',
+      name: 'Vibe Olympics',
+      url: baseUrl,
+    },
+    makesOffer: data.productCount ? {
+      '@type': 'Offer',
+      itemOffered: {
+        '@type': 'Product',
+        name: `${data.name}의 디지털 상품`,
+      },
+    } : undefined,
+    aggregateRating: data.averageRating ? {
+      '@type': 'AggregateRating',
+      ratingValue: data.averageRating,
+      bestRating: 5,
+      worstRating: 1,
+    } : undefined,
+  };
+}
+
+// 아티스트 프로필 JSON-LD 생성
+export function generateArtistJsonLd(data: {
+  id: string;
+  name: string;
+  slug?: string | null;
+  image?: string | null;
+  bio?: string | null;
+  artistType?: string | null;
+  specialties?: string[];
+  website?: string | null;
+  github?: string | null;
+  twitter?: string | null;
+  instagram?: string | null;
+  youtube?: string | null;
+  productCount?: number;
+  followerCount?: number;
+  averageRating?: number;
+}): Record<string, unknown> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://vibe-olympics.onrender.com';
+  
+  // URL 경로 결정 (slug 또는 id 사용)
+  const profilePath = data.slug ? `/artists/${data.slug}` : `/artists/${data.id}`;
+  
+  // 소셜 링크 수집
+  const sameAs: string[] = [];
+  if (data.website) sameAs.push(data.website);
+  if (data.github) sameAs.push(`https://github.com/${data.github}`);
+  if (data.twitter) sameAs.push(`https://twitter.com/${data.twitter}`);
+  if (data.instagram) sameAs.push(`https://instagram.com/${data.instagram}`);
+  if (data.youtube) sameAs.push(data.youtube);
+  
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': `${baseUrl}${profilePath}`,
+    name: data.name,
+    description: data.bio || `${data.name} - Vibe Olympics 아티스트`,
+    image: data.image,
+    url: `${baseUrl}${profilePath}`,
+    jobTitle: data.artistType || '크리에이터',
+    knowsAbout: data.specialties || [],
+    sameAs: sameAs.length > 0 ? sameAs : undefined,
+    interactionStatistic: data.followerCount ? {
+      '@type': 'InteractionCounter',
+      interactionType: 'https://schema.org/FollowAction',
+      userInteractionCount: data.followerCount,
+    } : undefined,
+    makesOffer: data.productCount ? {
+      '@type': 'Offer',
+      itemOffered: {
+        '@type': 'Product',
+        name: `${data.name}의 디지털 상품`,
+      },
+    } : undefined,
+    aggregateRating: data.averageRating ? {
+      '@type': 'AggregateRating',
+      ratingValue: data.averageRating,
+      bestRating: 5,
+      worstRating: 1,
+    } : undefined,
+  };
+}

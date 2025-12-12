@@ -3,6 +3,11 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
+import { 
+  generateSlug, 
+  generatePostMetaDescription, 
+  generatePostKeywords 
+} from "@/lib/seo-utils";
 
 export const dynamic = 'force-dynamic';
 
@@ -147,12 +152,31 @@ export async function POST(request: NextRequest) {
     //   );
     // }
 
+    // SEO 자동 생성
+    const baseSlug = generateSlug(title);
+    let slug = baseSlug;
+    
+    // slug 중복 체크 및 유니크화
+    let slugExists = await prisma.post.findUnique({ where: { slug } });
+    let counter = 1;
+    while (slugExists) {
+      slug = `${baseSlug}-${counter}`;
+      slugExists = await prisma.post.findUnique({ where: { slug } });
+      counter++;
+    }
+    
+    const metaDescription = generatePostMetaDescription(title, content, category);
+    const keywords = generatePostKeywords(title, content, category);
+
     const post = await prisma.post.create({
       data: {
         authorId: session.user.id,
         title,
         content,
         category,
+        slug,
+        metaDescription,
+        keywords,
       },
       include: {
         author: {

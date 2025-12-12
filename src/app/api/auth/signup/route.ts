@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendWelcomeEmail } from "@/lib/email";
+import { withAuthRateLimit } from "@/lib/rate-limit-middleware";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
@@ -19,7 +20,8 @@ const signupSchema = z.object({
     ),
 });
 
-export async function POST(request: NextRequest) {
+// Rate Limit 적용 (인증 API: 분당 10회)
+export const POST = withAuthRateLimit(async (request: NextRequest) => {
   try {
     const body = await request.json();
 
@@ -87,4 +89,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

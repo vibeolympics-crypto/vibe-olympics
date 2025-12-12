@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { generateSlug } from "@/lib/seo-utils";
+import { generateSlug, generateArtistJsonLd } from "@/lib/seo-utils";
 
 export const dynamic = 'force-dynamic';
 
@@ -148,6 +148,25 @@ export async function GET(request: NextRequest) {
         take: 4,
       });
 
+      // JSON-LD SEO 데이터 생성
+      const jsonLd = generateArtistJsonLd({
+        id: user.id,
+        name: user.displayName || user.name || "익명 아티스트",
+        slug: user.slug,
+        image: user.image,
+        bio: user.bio,
+        artistType: user.artistType,
+        specialties: user.specialties,
+        website: user.website,
+        github: user.github,
+        twitter: user.twitter,
+        instagram: user.instagram,
+        youtube: user.youtube,
+        productCount: user._count.products,
+        followerCount: user._count.followers,
+        averageRating: productStats._avg.averageRating || undefined,
+      });
+
       return NextResponse.json({
         profile: {
           ...user,
@@ -173,6 +192,11 @@ export async function GET(request: NextRequest) {
           ...c,
           itemCount: c._count.items,
         })),
+        seo: {
+          jsonLd,
+          metaTitle: `${user.displayName || user.name || "아티스트"} | Vibe Olympics`,
+          metaDescription: user.bio?.slice(0, 160) || `${user.displayName || user.name}님의 아티스트 프로필. ${user._count.products}개의 작품을 판매하고 있습니다.`,
+        },
       });
     }
 

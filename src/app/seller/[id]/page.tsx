@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { generateSellerJsonLd } from "@/lib/seo-utils";
 import { SellerProfileContent } from "./seller-profile-content";
 
 interface Props {
@@ -68,25 +69,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// JSON-LD 구조화 데이터
-function generateJsonLd(seller: NonNullable<Awaited<ReturnType<typeof getSeller>>>) {
-  const baseUrl = process.env.NEXTAUTH_URL || "https://vibeolympics.com";
-  
-  return {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    name: seller.name || "익명 판매자",
-    url: `${baseUrl}/seller/${seller.id}`,
-    image: seller.image,
-    description: seller.bio,
-    sameAs: [
-      seller.website,
-      seller.github ? `https://github.com/${seller.github}` : null,
-      seller.twitter ? `https://twitter.com/${seller.twitter}` : null,
-    ].filter(Boolean),
-  };
-}
-
 export default async function SellerProfilePage({ params }: Props) {
   const { id } = await params;
   const seller = await getSeller(id);
@@ -95,7 +77,18 @@ export default async function SellerProfilePage({ params }: Props) {
     notFound();
   }
 
-  const jsonLd = generateJsonLd(seller);
+  // seo-utils의 공통 JSON-LD 생성 함수 사용
+  const jsonLd = generateSellerJsonLd({
+    id: seller.id,
+    name: seller.name || "익명 판매자",
+    image: seller.image,
+    bio: seller.bio,
+    website: seller.website,
+    github: seller.github,
+    twitter: seller.twitter,
+    productCount: seller._count.products,
+    joinedAt: seller.createdAt.toISOString(),
+  });
 
   return (
     <>

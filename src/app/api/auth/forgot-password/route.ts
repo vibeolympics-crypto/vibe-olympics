@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { withAuthRateLimit } from "@/lib/rate-limit-middleware";
 import crypto from "crypto";
 
 export const dynamic = 'force-dynamic';
 
-// POST /api/auth/forgot-password - 비밀번호 재설정 이메일 발송
-export async function POST(request: NextRequest) {
+// Rate Limit 적용 (인증 API: 분당 10회 - 무차별 대입 공격 방지)
+export const POST = withAuthRateLimit(async (request: NextRequest) => {
   try {
     const body = await request.json();
     const { email } = body;
@@ -86,4 +87,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

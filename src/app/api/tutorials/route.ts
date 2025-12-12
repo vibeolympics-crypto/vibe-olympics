@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
+import { generateTutorialMetaDescription, generateTutorialKeywords } from "@/lib/seo-utils";
 
 export const dynamic = 'force-dynamic';
 
@@ -169,12 +170,32 @@ export async function POST(request: Request) {
       );
     }
 
-    // 슬러그 생성
-    const slug = title
+    // 슬러그 생성 및 고유성 보장
+    let baseSlug = title
       .toLowerCase()
       .replace(/[^a-z0-9가-힣ㄱ-ㅎㅏ-ㅣ\s]/g, "")
       .replace(/\s+/g, "-")
-      .slice(0, 100) + "-" + Date.now();
+      .slice(0, 100);
+    
+    let slug = baseSlug;
+    let counter = 0;
+    
+    // 슬러그 고유성 확인
+    while (await prisma.tutorial.findUnique({ where: { slug } })) {
+      counter++;
+      slug = `${baseSlug}-${counter}`;
+    }
+
+    // SEO 메타데이터 자동 생성
+    const tutorialType = (type?.toUpperCase() || "TUTORIAL") as "TUTORIAL" | "MAKING" | "TIPS" | "EXTERNAL";
+    const tutorialTags = tags || [];
+    const metaDescription = generateTutorialMetaDescription(
+      title,
+      description,
+      tutorialType,
+      tutorialTags
+    );
+    const keywords = generateTutorialKeywords(title, description, tutorialType, tutorialTags);
 
     const tutorial = await prisma.tutorial.create({
       data: {
@@ -183,12 +204,14 @@ export async function POST(request: Request) {
         slug,
         description,
         content,
-        type: (type?.toUpperCase() || "TUTORIAL") as "TUTORIAL" | "MAKING" | "TIPS" | "EXTERNAL",
+        metaDescription,
+        keywords,
+        type: tutorialType,
         thumbnail,
         videoUrl,
         externalUrl,
         duration: duration ? parseInt(duration) : null,
-        tags: tags || [],
+        tags: tutorialTags,
         isPublished: true, // 바로 게시
         publishedAt: new Date(),
       },

@@ -137,6 +137,7 @@ export default function ArtistProfilePage() {
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
+  const [seoData, setSeoData] = useState<{ jsonLd: object } | null>(null);
 
   useEffect(() => {
     if (slug) {
@@ -155,6 +156,7 @@ export default function ArtistProfilePage() {
         setRecentProducts(data.recentProducts);
         setPopularProducts(data.popularProducts);
         setCollections(data.collections);
+        setSeoData(data.seo); // SEO 데이터 저장
         // TODO: 팔로우 상태 확인
       } else {
         router.push("/404");
@@ -214,6 +216,14 @@ export default function ArtistProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* JSON-LD SEO 구조화 데이터 */}
+      {seoData?.jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(seoData.jsonLd) }}
+        />
+      )}
+      
       {/* 커버 이미지 */}
       <div className="relative h-48 md:h-64 lg:h-80 bg-gradient-to-r from-primary/20 to-primary/5">
         {profile.coverImage && (
