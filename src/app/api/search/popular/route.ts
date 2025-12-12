@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 // 캐시 설정: 10분 (인기 태그/카테고리)
 export const revalidate = 600;
 

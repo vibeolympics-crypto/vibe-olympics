@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
+
 // 프로필 업데이트 스키마
 const updateProfileSchema = z.object({
   name: z.string().min(1).max(100).optional(),

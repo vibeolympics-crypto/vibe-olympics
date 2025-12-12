@@ -10,6 +10,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendRefundRequestedEmail } from "@/lib/email";
 
+export const dynamic = 'force-dynamic';
+
 // 환불 요청 목록 조회
 export async function GET(request: NextRequest) {
   try {

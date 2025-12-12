@@ -3,7 +3,10 @@ import { headers } from "next/headers";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { sendPurchaseConfirmationEmail, sendSaleNotificationEmail } from "@/lib/email";
+import { logger } from "@/lib/logger";
 import Stripe from "stripe";
+
+export const dynamic = 'force-dynamic';
 
 // Webhook 시크릿
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -48,7 +51,7 @@ export async function POST(request: NextRequest) {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        logger.log(`Unhandled event type: ${event.type}`);
     }
 
     return NextResponse.json({ received: true });
@@ -203,7 +206,7 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
     console.error("Email sending failed:", emailError);
   }
 
-  console.log(`Purchase completed for product ${productId} by user ${userId}`);
+  logger.log(`Purchase completed for product ${productId} by user ${userId}`);
 }
 
 // 결제 실패 처리
@@ -226,5 +229,5 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
     },
   });
 
-  console.log(`Payment failed for product ${productId} by user ${userId}`);
+  logger.log(`Payment failed for product ${productId} by user ${userId}`);
 }

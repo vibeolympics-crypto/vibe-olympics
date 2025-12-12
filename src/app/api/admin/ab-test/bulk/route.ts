@@ -9,6 +9,8 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { ExperimentStatus } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 type BulkAction = 'start' | 'pause' | 'resume' | 'archive' | 'delete';
 
 interface BulkRequest {

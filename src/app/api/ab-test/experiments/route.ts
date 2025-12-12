@@ -10,6 +10,8 @@ import { authOptions } from '@/lib/auth';
 import { ABTestService } from '@/lib/ab-test';
 import { ExperimentStatus } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 // 실험 목록 조회
 export async function GET(request: NextRequest) {
   try {

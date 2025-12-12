@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { TargetType, ReactionType } from "@prisma/client";
 
+export const dynamic = 'force-dynamic';
+
 // GET: 튜토리얼 상세 조회
 export async function GET(
   request: Request,

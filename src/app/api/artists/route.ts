@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { generateSlug } from "@/lib/seo-utils";
 
+export const dynamic = 'force-dynamic';
+
 // 프로필 업데이트 스키마
 const updateProfileSchema = z.object({
   displayName: z.string().min(1).max(50).optional(),

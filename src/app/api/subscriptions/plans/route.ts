@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { SubscriptionPlanInterval } from "@prisma/client";
 
+export const dynamic = 'force-dynamic';
+
 // GET: 구독 플랜 목록 조회
 export async function GET(request: NextRequest) {
   try {

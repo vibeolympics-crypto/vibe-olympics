@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 
+export const dynamic = 'force-dynamic';
+
 // 예약 발행 실행 (Cron Job 또는 수동 실행용)
 // 내부 API 키 또는 Admin 권한 필요
 export async function POST(request: NextRequest) {

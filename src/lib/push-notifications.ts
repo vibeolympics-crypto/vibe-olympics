@@ -1,6 +1,8 @@
 // 푸시 알림 유틸리티
 // Web Push API 관련 기능
 
+import { logger } from "./logger";
+
 // VAPID 공개키 (환경 변수에서 가져옴)
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
 
@@ -55,7 +57,7 @@ export const registerServiceWorker = async (): Promise<ServiceWorkerRegistration
     const registration = await navigator.serviceWorker.register('/sw.js', {
       scope: '/',
     });
-    console.log('Service Worker registered:', registration.scope);
+    logger.log('Service Worker registered:', registration.scope);
     return registration;
   } catch (error) {
     console.error('Service Worker registration failed:', error);
@@ -98,7 +100,7 @@ export const subscribeToPush = async (): Promise<PushSubscription | null> => {
     // 기존 구독 확인
     const existingSubscription = await registration.pushManager.getSubscription();
     if (existingSubscription) {
-      console.log('Existing push subscription found');
+      logger.log('Existing push subscription found');
       return existingSubscription;
     }
 
@@ -108,7 +110,7 @@ export const subscribeToPush = async (): Promise<PushSubscription | null> => {
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
     });
 
-    console.log('Push subscription created:', subscription);
+    logger.log('Push subscription created:', subscription);
 
     // 서버에 구독 정보 저장
     await saveSubscriptionToServer(subscription);
@@ -134,7 +136,7 @@ export const unsubscribeFromPush = async (): Promise<boolean> => {
 
     // 구독 해제
     await subscription.unsubscribe();
-    console.log('Push subscription removed');
+    logger.log('Push subscription removed');
     return true;
   } catch (error) {
     console.error('Failed to unsubscribe from push:', error);

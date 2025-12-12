@@ -1,11 +1,99 @@
 # 📜 Vibe Olympics - 변경 이력 (CHANGELOG)
 
-> 마지막 업데이트: 2025년 12월 11일
+> 마지막 업데이트: 2025년 12월 12일
 > 형식: 세션별 완료 작업 + 수정된 파일 목록
 
 ---
 
-## 세션 77 (2025-12-11) - A/B 테스트 관리 대시보드 ⭐ NEW
+## 세션 78 (2025-12-12) - 코드 품질 개선 ⭐ NEW
+
+### 작업 요약
+1. **force-dynamic 설정**: 모든 97개 API 라우트에 `export const dynamic = 'force-dynamic'` 추가
+2. **console.log 정리**: logger 유틸리티 생성 및 프로덕션 코드에서 console.log 제거
+3. **API 유틸리티**: 인증/페이지네이션/응답 헬퍼 함수 모듈화
+4. **URL 환경변수 통합**: 중앙 집중식 URL 설정 관리 (config.ts)
+5. **GitHub Actions 개선**: Vercel 배포 시크릿 체크 및 안내 추가
+6. **TODO 문서화**: 코드 내 TODO 주석들을 TODO.md에 정리
+
+### 완료 항목
+| 작업 | 설명 | 상태 |
+|------|------|------|
+| force-dynamic 추가 | 95개 API 파일에 일괄 추가 (스크립트 사용) | ✅ |
+| logger 유틸리티 | src/lib/logger.ts - 개발 환경 전용 로깅 | ✅ |
+| console.log 제거 | 7개 파일에서 logger로 교체 | ✅ |
+| api-utils.ts | requireAuth, pagination, response 헬퍼 | ✅ |
+| config.ts | APP_URL, SITE_CONFIG, FEATURES 등 중앙화 | ✅ |
+| robots.ts 수정 | APP_URL 사용하도록 변경 | ✅ |
+| sitemap.ts 수정 | APP_URL 사용하도록 변경 | ✅ |
+| RSS/Atom 수정 | APP_URL, SITE_CONFIG 사용하도록 변경 | ✅ |
+| ci.yml 개선 | Vercel 시크릿 체크 및 skip 로직 추가 | ✅ |
+| TODO 문서화 | 9개 코드 내 TODO를 TODO.md에 정리 | ✅ |
+| 빌드 테스트 | `npm run build` 성공 | ✅ |
+
+### 신규 파일
+```
+src/lib/logger.ts                    # 개발 환경 전용 로깅 유틸리티
+src/lib/api-utils.ts                 # API 공통 유틸리티 (인증, 페이지네이션, 응답)
+src/lib/config.ts                    # 중앙 집중식 URL/설정 관리
+scripts/add-force-dynamic.js         # force-dynamic 일괄 추가 스크립트
+```
+
+### 수정된 파일
+```
+# force-dynamic 추가 (95개 API 파일)
+src/app/api/**/*.ts                  # 모든 API 라우트 파일
+
+# console.log → logger 교체
+src/lib/socket.ts
+src/hooks/use-socket.ts
+src/lib/push-notifications.ts
+src/app/api/webhook/stripe/route.ts
+src/app/api/payment/bootpay/webhook/route.ts
+src/components/providers/notification-provider.tsx
+src/components/providers/web-vitals.tsx
+
+# URL 통합
+src/app/robots.ts
+src/app/sitemap.ts
+src/app/api/feed/rss/route.ts
+src/app/api/feed/atom/route.ts
+
+# GitHub Actions
+.github/workflows/ci.yml             # Vercel 시크릿 체크 추가
+
+# 문서
+TODO.md                              # 코드 내 TODO 정리 추가
+CHANGELOG.md                         # 세션 78 기록
+```
+
+### 주요 유틸리티 함수
+```typescript
+// src/lib/logger.ts
+logger.log(message, ...args)         // console.log (dev only)
+logger.warn(message, ...args)        // console.warn (dev only)
+logger.error(message, ...args)       // console.error (dev only)
+
+// src/lib/api-utils.ts
+requireAuth(options?)                // 인증 필수 체크
+requireAdmin()                       // 관리자 권한 체크
+requireSeller()                      // 판매자 권한 체크
+getPaginationParams(request)         // 페이지네이션 파라미터 추출
+createPaginatedResponse(data, total, params) // 페이지네이션 응답
+errorResponse(message, status, code?) // 에러 응답
+successResponse(data, status?)       // 성공 응답
+
+// src/lib/config.ts
+APP_URL                              // 앱 기본 URL
+API_URL                              // API 기본 URL
+SITE_CONFIG                          // 사이트 메타 정보
+FEATURES                             // 기능 플래그
+API_LIMITS                           # API 제한 설정
+getAbsoluteUrl(path)                 // 절대 URL 생성
+```
+
+---
+
+## 세션 77 (2025-12-11) - A/B 테스트 관리 대시보드
 
 ### 작업 요약
 1. **Admin AB Test API**: 대시보드 통계, 일괄 작업, 상세 분석 API

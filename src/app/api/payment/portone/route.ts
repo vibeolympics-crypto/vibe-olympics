@@ -7,6 +7,8 @@ import {
   sendSaleNotificationEmail 
 } from "@/lib/email";
 
+export const dynamic = 'force-dynamic';
+
 // PortOne 결제 확인 API
 const PORTONE_API_SECRET = process.env.PORTONE_API_SECRET;
 

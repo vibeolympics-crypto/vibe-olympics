@@ -5,6 +5,8 @@ import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 import { TargetType, ReactionType } from "@prisma/client";
 
+export const dynamic = 'force-dynamic';
+
 // 게시글 수정 스키마
 const updatePostSchema = z.object({
   title: z.string().min(2).max(200).optional(),

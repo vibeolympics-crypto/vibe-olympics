@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 // PATCH /api/unified-comments/[id] - 댓글 수정
 export async function PATCH(
   request: NextRequest,

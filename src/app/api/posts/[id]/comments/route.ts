@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
+
 // 댓글 생성 스키마
 const createCommentSchema = z.object({
   content: z.string().min(1, "내용을 입력해주세요").max(1000),

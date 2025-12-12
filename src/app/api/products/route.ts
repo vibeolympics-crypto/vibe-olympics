@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
+
 // 도서 메타데이터 스키마
 const bookMetaSchema = z.object({
   bookType: z.enum(["EBOOK", "COMIC", "PICTURE_BOOK", "PRINT_BOOK", "AUDIO_BOOK"]).optional(),

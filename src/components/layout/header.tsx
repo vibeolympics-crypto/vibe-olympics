@@ -36,6 +36,7 @@ import type { Notification } from "@/lib/api";
 
 const navigation = [
   { name: "마켓플레이스", href: "/marketplace" },
+  { name: "크리에이터", href: "/artists" },
   { name: "교육 센터", href: "/education" },
   { name: "커뮤니티", href: "/community" },
   { name: "FAQ", href: "/faq" },
@@ -166,9 +167,11 @@ export function Header() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" size="icon" aria-label={t("search")}>
-              <Search className="h-5 w-5" />
-            </Button>
+            <Link href="/marketplace?focus=search">
+              <Button variant="ghost" size="icon" aria-label={t("search")}>
+                <Search className="h-5 w-5" />
+              </Button>
+            </Link>
 
             {/* Language Switcher */}
             <LanguageSwitcher currentLocale={locale} />

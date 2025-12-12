@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
+
 // 자동 발행 콘텐츠 스키마
 const autoPublishSchema = z.object({
   type: z.enum(["post", "tutorial"]),

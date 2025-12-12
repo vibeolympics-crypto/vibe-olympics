@@ -10,8 +10,13 @@
     "context7": {
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp", "--api-key", "ctx7sk-ef634880-4de6-4e46-8983-70b49add844c"]
+    },
+    "google-ai": {
+      "command": "npx",
+      "args": ["-y", "@iflow-mcp/mcp-server-gemini@latest"],
+      "env": {
+        "GEMINI_API_KEY": "AIzaSyDN-2m9usAcwKG2A34P59dYsN7XJVuUMa0"
+      }
     }
   }
 }
-
-    

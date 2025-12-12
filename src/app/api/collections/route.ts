@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { generateSlug } from "@/lib/seo-utils";
 
+export const dynamic = 'force-dynamic';
+
 // 컬렉션 생성 스키마
 const createCollectionSchema = z.object({
   title: z.string().min(1, "제목을 입력해주세요").max(100),

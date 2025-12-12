@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { APP_URL, SITE_CONFIG } from "@/lib/config";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://vibeolympics.com";
-const SITE_TITLE = "Vibe Olympics";
-const SITE_DESCRIPTION = "VIBE 코딩 기반 지적 상품 마켓플레이스. 아이디어를 현실로, 지식을 가치로 만들어보세요.";
+export const dynamic = 'force-dynamic';
+
+const SITE_TITLE = SITE_CONFIG.name;
+const SITE_DESCRIPTION = SITE_CONFIG.description;
 
 // Atom 1.0 형식 생성
 function generateAtomFeed(items: AtomEntry[], updated: Date): string {
@@ -27,14 +29,14 @@ function generateAtomFeed(items: AtomEntry[], updated: Date): string {
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>${SITE_TITLE}</title>
   <subtitle>${SITE_DESCRIPTION}</subtitle>
-  <link href="${BASE_URL}" rel="alternate" type="text/html"/>
-  <link href="${BASE_URL}/api/feed/atom" rel="self" type="application/atom+xml"/>
-  <id>${BASE_URL}/</id>
+  <link href="${APP_URL}" rel="alternate" type="text/html"/>
+  <link href="${APP_URL}/api/feed/atom" rel="self" type="application/atom+xml"/>
+  <id>${APP_URL}/</id>
   <updated>${updated.toISOString()}</updated>
   <rights>© 2025 Vibe Olympics. All rights reserved.</rights>
-  <generator uri="https://vibeolympics.com" version="1.0">Vibe Olympics</generator>
-  <icon>${BASE_URL}/favicon.ico</icon>
-  <logo>${BASE_URL}/logo.png</logo>
+  <generator uri="${APP_URL}" version="1.0">Vibe Olympics</generator>
+  <icon>${APP_URL}/favicon.ico</icon>
+  <logo>${APP_URL}/logo.png</logo>
   ${entriesXml}
 </feed>`;
 }
@@ -79,7 +81,7 @@ export async function GET(request: Request) {
           }
           entries.push({
             title: product.title,
-            link: `${BASE_URL}/marketplace/${product.id}`,
+            link: `${APP_URL}/marketplace/${product.id}`,
             summary: product.shortDescription || product.description.slice(0, 300),
             published: product.createdAt.toISOString(),
             updated: product.updatedAt.toISOString(),
@@ -118,7 +120,7 @@ export async function GET(request: Request) {
 
           entries.push({
             title: `[${typeLabel}] ${tutorial.title}`,
-            link: `${BASE_URL}/education/${tutorial.id}`,
+            link: `${APP_URL}/education/${tutorial.id}`,
             summary: tutorial.description,
             published: tutorial.createdAt.toISOString(),
             updated: tutorial.updatedAt.toISOString(),
@@ -157,7 +159,7 @@ export async function GET(request: Request) {
           }
           entries.push({
             title: post.title,
-            link: `${BASE_URL}/community/${post.id}`,
+            link: `${APP_URL}/community/${post.id}`,
             summary: post.content.replace(/[#*`\n]/g, " ").slice(0, 300),
             published: post.createdAt.toISOString(),
             updated: post.updatedAt.toISOString(),

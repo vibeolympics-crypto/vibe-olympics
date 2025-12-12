@@ -5,6 +5,8 @@ import { authOptions } from "@/lib/auth";
 import { createCheckoutSession } from "@/lib/stripe";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
+
 const checkoutSchema = z.object({
   productId: z.string().cuid(),
 });

@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { TargetType } from "@prisma/client";
 
+export const dynamic = 'force-dynamic';
+
 // GET: 특정 콘텐츠의 댓글 목록 조회
 export async function GET(request: NextRequest) {
   try {

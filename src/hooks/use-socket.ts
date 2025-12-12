@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 import { useSession } from "next-auth/react";
+import { logger } from "@/lib/logger";
 import type { 
   ServerToClientEvents, 
   ClientToServerEvents, 
@@ -60,7 +61,7 @@ export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
 
     // 연결 성공
     socketRef.current.on("connect", () => {
-      console.log("[Socket] Connected:", socketRef.current?.id);
+      logger.log("[Socket] Connected:", socketRef.current?.id);
       setIsConnected(true);
       setError(null);
       reconnectAttemptsRef.current = 0;
@@ -73,7 +74,7 @@ export function useSocket(options: UseSocketOptions = {}): UseSocketReturn {
 
     // 연결 해제
     socketRef.current.on("disconnect", (reason) => {
-      console.log("[Socket] Disconnected:", reason);
+      logger.log("[Socket] Disconnected:", reason);
       setIsConnected(false);
       setIsAuthenticated(false);
     });

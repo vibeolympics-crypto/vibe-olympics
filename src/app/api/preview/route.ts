@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 // 미리보기 콘텐츠 타입
 interface PreviewContent {
   type: "SAMPLE_PAGES" | "TRAILER" | "AUDIO_PREVIEW" | "DEMO" | "SCREENSHOTS";

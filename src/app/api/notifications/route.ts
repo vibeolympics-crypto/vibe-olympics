@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { NotificationType } from "@prisma/client";
 
+export const dynamic = 'force-dynamic';
+
 // 알림 목록 조회
 export async function GET(request: NextRequest) {
   try {

@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
+export const dynamic = 'force-dynamic';
+
 // ============================================
 // 🧠 베이지안 자동 진화 추천 시스템 v2.0
 // ============================================

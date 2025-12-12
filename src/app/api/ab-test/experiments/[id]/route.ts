@@ -12,6 +12,8 @@ import { ABTestService } from '@/lib/ab-test';
 import { prisma } from '@/lib/prisma';
 import { ExperimentStatus } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 interface RouteParams {
   params: Promise<{ id: string }>;
 }

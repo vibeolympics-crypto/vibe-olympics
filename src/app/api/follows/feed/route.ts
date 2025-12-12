@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = 'force-dynamic';
+
 // 팔로우한 판매자들의 최신 상품 피드 (GET)
 export async function GET(request: NextRequest) {
   try {

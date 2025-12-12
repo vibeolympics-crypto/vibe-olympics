@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { TargetType, ReactionType } from "@prisma/client";
 
+export const dynamic = 'force-dynamic';
+
 // 좋아요 토글 (POST) - Reaction 시스템 사용
 export async function POST(
   request: NextRequest,

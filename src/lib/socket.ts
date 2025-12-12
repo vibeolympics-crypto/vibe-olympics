@@ -1,6 +1,7 @@
 // Socket.io 서버 및 유틸리티
 import { Server as SocketIOServer } from "socket.io";
 import { Server as NetServer } from "http";
+import { logger } from "./logger";
 
 // 전역 Socket.io 서버 인스턴스
 let io: SocketIOServer | null = null;
@@ -91,7 +92,7 @@ export function initSocketServer(httpServer: NetServer): SocketIOServer {
   });
 
   io.on("connection", (socket) => {
-    console.log(`[Socket] Client connected: ${socket.id}`);
+    logger.log(`[Socket] Client connected: ${socket.id}`);
 
     // 인증 처리
     socket.on("auth", async (data) => {
@@ -115,7 +116,7 @@ export function initSocketServer(httpServer: NetServer): SocketIOServer {
       // 사용자 전용 룸에 조인
       socket.join(`user:${userId}`);
 
-      console.log(`[Socket] User authenticated: ${userId} (socket: ${socket.id})`);
+      logger.log(`[Socket] User authenticated: ${userId} (socket: ${socket.id})`);
     });
 
     // 알림 읽음 처리
@@ -172,7 +173,7 @@ export function initSocketServer(httpServer: NetServer): SocketIOServer {
         }
       }
 
-      console.log(`[Socket] Client disconnected: ${socket.id}`);
+      logger.log(`[Socket] Client disconnected: ${socket.id}`);
     });
   });
 

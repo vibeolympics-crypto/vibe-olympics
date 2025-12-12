@@ -20,6 +20,8 @@ import {
   generateSignedUploadUrl,
 } from '@/lib/cloudinary';
 
+export const dynamic = 'force-dynamic';
+
 // 최대 파일 크기 (10MB)
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 

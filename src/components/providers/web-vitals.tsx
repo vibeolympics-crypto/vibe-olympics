@@ -2,6 +2,7 @@
 
 import { useReportWebVitals } from 'next/web-vitals';
 import * as Sentry from '@sentry/nextjs';
+import { logger } from '@/lib/logger';
 
 // Web Vitals 메트릭 타입
 type WebVitalsMetric = {
@@ -75,7 +76,7 @@ function sendToAnalytics(metric: WebVitalsMetric) {
   // 개발 환경에서 콘솔 로그
   if (process.env.NODE_ENV === 'development') {
     const color = rating === 'good' ? '🟢' : rating === 'needs-improvement' ? '🟡' : '🔴';
-    console.log(`${color} ${name}: ${value.toFixed(name === 'CLS' ? 3 : 0)} (${rating})`);
+    logger.log(`${color} ${name}: ${value.toFixed(name === 'CLS' ? 3 : 0)} (${rating})`);
   }
 }
 

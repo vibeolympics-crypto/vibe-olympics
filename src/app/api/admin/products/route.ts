@@ -3,6 +3,8 @@ import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 import { ProductStatus } from "@prisma/client";
 
+export const dynamic = 'force-dynamic';
+
 // 상품 목록 조회 (관리자용)
 export async function GET(request: NextRequest) {
   const adminCheck = await requireAdmin();

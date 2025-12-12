@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { Decimal } from "@prisma/client/runtime/library";
 
+export const dynamic = 'force-dynamic';
+
 // 번들 구매 스키마
 const purchaseBundleSchema = z.object({
   collectionId: z.string(),

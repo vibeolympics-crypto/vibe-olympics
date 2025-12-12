@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { SubscriptionStatus } from "@prisma/client";
 import { triggerSubscriptionWelcomeNotification } from "@/lib/notification-triggers";
 
+export const dynamic = 'force-dynamic';
+
 // GET: 내 구독 목록 조회
 export async function GET(request: NextRequest) {
   try {

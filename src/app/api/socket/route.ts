@@ -1,6 +1,8 @@
 // Socket.io API 엔드포인트 (Next.js App Router)
 import { NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 // Socket.io는 Next.js의 Edge Runtime과 호환되지 않으므로
 // 이 엔드포인트는 Socket.io 연결 상태 확인 및 헬스체크용으로 사용
 export async function GET() {

@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { APP_URL, SITE_CONFIG } from "@/lib/config";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://vibeolympics.com";
-const SITE_TITLE = "Vibe Olympics";
-const SITE_DESCRIPTION = "VIBE 코딩 기반 지적 상품 마켓플레이스. 아이디어를 현실로, 지식을 가치로 만들어보세요.";
+export const dynamic = 'force-dynamic';
+
+const SITE_TITLE = SITE_CONFIG.name;
+const SITE_DESCRIPTION = SITE_CONFIG.description;
 
 // RSS 2.0 형식 생성
 function generateRssFeed(items: RssItem[]): string {
@@ -25,15 +27,15 @@ function generateRssFeed(items: RssItem[]): string {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>${SITE_TITLE}</title>
-    <link>${BASE_URL}</link>
+    <link>${APP_URL}</link>
     <description>${SITE_DESCRIPTION}</description>
     <language>ko</language>
     <lastBuildDate>${now}</lastBuildDate>
-    <atom:link href="${BASE_URL}/api/feed/rss" rel="self" type="application/rss+xml"/>
+    <atom:link href="${APP_URL}/api/feed/rss" rel="self" type="application/rss+xml"/>
     <image>
-      <url>${BASE_URL}/logo.png</url>
+      <url>${APP_URL}/logo.png</url>
       <title>${SITE_TITLE}</title>
-      <link>${BASE_URL}</link>
+      <link>${APP_URL}</link>
     </image>
     ${itemsXml}
   </channel>
@@ -75,7 +77,7 @@ export async function GET(request: Request) {
         products.forEach(product => {
           items.push({
             title: product.title,
-            link: `${BASE_URL}/marketplace/${product.id}`,
+            link: `${APP_URL}/marketplace/${product.id}`,
             description: product.shortDescription || product.description.slice(0, 300),
             pubDate: product.createdAt.toISOString(),
             author: product.seller.name || product.seller.email || undefined,
@@ -110,7 +112,7 @@ export async function GET(request: Request) {
 
           items.push({
             title: `[${typeLabel}] ${tutorial.title}`,
-            link: `${BASE_URL}/education/${tutorial.id}`,
+            link: `${APP_URL}/education/${tutorial.id}`,
             description: tutorial.description,
             pubDate: tutorial.createdAt.toISOString(),
             author: tutorial.author.name || tutorial.author.email || undefined,
@@ -145,7 +147,7 @@ export async function GET(request: Request) {
         posts.forEach(post => {
           items.push({
             title: post.title,
-            link: `${BASE_URL}/community/${post.id}`,
+            link: `${APP_URL}/community/${post.id}`,
             description: post.content.replace(/[#*`\n]/g, " ").slice(0, 300),
             pubDate: post.createdAt.toISOString(),
             author: post.author.name || post.author.email || undefined,

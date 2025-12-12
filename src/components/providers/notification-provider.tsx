@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, Rea
 import { useSession } from "next-auth/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNotificationSocket } from "@/hooks/use-socket";
+import { logger } from "@/lib/logger";
 import type { NotificationPayload } from "@/lib/socket";
 
 // 알림 컨텍스트 타입
@@ -49,14 +50,14 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   } = useNotificationSocket({
     onNewNotification: (notification) => {
       // 새 알림 수신 시 토스트 표시 (선택적)
-      console.log("[Notification] New:", notification.title);
+      logger.log("[Notification] New:", notification.title);
       
       // React Query 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
     onUnreadCountChange: (count) => {
       // 읽지 않은 수 변경 시
-      console.log("[Notification] Unread count:", count);
+      logger.log("[Notification] Unread count:", count);
     },
   });
 

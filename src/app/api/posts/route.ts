@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
+
 // 게시글 생성 스키마
 const createPostSchema = z.object({
   title: z.string().min(2, "제목은 2자 이상이어야 합니다").max(200),

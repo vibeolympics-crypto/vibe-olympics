@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Bootpay } from "@bootpay/backend-js";
 
+export const dynamic = 'force-dynamic';
+
 // 부트페이 설정
 const BOOTPAY_APPLICATION_ID = process.env.BOOTPAY_REST_API_KEY;
 const BOOTPAY_PRIVATE_KEY = process.env.BOOTPAY_PRIVATE_KEY;

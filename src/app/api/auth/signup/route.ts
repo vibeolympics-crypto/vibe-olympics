@@ -4,6 +4,8 @@ import { sendWelcomeEmail } from "@/lib/email";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
+
 // 회원가입 스키마
 const signupSchema = z.object({
   name: z.string().min(2, "이름은 2자 이상이어야 합니다"),

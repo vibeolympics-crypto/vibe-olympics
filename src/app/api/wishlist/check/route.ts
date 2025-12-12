@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 
+export const dynamic = 'force-dynamic';
+
 // 특정 상품의 위시리스트 상태 확인 (GET)
 export async function GET(request: NextRequest) {
   try {

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { sendPasswordChangedEmail } from "@/lib/email";
 import bcrypt from "bcryptjs";
 
+export const dynamic = 'force-dynamic';
+
 // POST /api/auth/reset-password - 비밀번호 재설정
 export async function POST(request: NextRequest) {
   try {

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 
+export const dynamic = 'force-dynamic';
+
 // Anthropic 클라이언트 초기화
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,

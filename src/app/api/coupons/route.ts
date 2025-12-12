@@ -10,6 +10,8 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
+export const dynamic = 'force-dynamic';
+
 // 쿠폰 목록 조회 또는 코드로 조회
 export async function GET(request: NextRequest) {
   try {

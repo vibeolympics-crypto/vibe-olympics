@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Bootpay } from "@bootpay/backend-js";
+import { logger } from "@/lib/logger";
+
+export const dynamic = 'force-dynamic';
 
 // 부트페이 설정
 const BOOTPAY_APPLICATION_ID = process.env.BOOTPAY_REST_API_KEY;
@@ -46,7 +49,7 @@ export async function POST(request: NextRequest) {
   try {
     const payload: WebhookPayload = await request.json();
     
-    console.log("Bootpay 웹훅 수신:", {
+    logger.log("Bootpay 웹훅 수신:", {
       receipt_id: payload.receipt_id,
       order_id: payload.order_id,
       status: payload.status,
@@ -134,7 +137,7 @@ export async function POST(request: NextRequest) {
                 },
               });
 
-              console.log("Bootpay 웹훅: 구매 처리 완료", {
+              logger.log("Bootpay 웹훅: 구매 처리 완료", {
                 purchaseId: purchase.id,
                 productId: product.id,
                 amount: productPrice,
@@ -206,7 +209,7 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        console.log("Bootpay 웹훅: 환불 처리 완료", {
+        logger.log("Bootpay 웹훅: 환불 처리 완료", {
           purchaseId: purchase.id,
           productId: purchase.productId,
         });

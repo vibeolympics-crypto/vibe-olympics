@@ -1,8 +1,8 @@
 # 🗺️ Vibe Olympics - 사이트 구조 & 카테고리 시각화
 
-> 마지막 업데이트: 2025년 12월 11일 (세션 77 완료)
+> 마지막 업데이트: 2025년 12월 12일 (세션 79 완료)
 > AI 생성 콘텐츠 마켓플레이스 사이트 구조
-> 총 77개 세션 완료 | 8개 단위 테스트 파일 | 80+ API 엔드포인트
+> 총 79개 세션 완료 | 8개 단위 테스트 파일 | 97개 API 엔드포인트
 
 ---
 
@@ -40,17 +40,21 @@
 │
 ├── 📊 대시보드 (/dashboard) [로그인 필요]
 │   ├── 개요 (/dashboard)
-│   ├── 📈 분석 (/dashboard/analytics)
-│   ├── 📦 상품 관리
+│   ├── � 상품 관리
 │   │   ├── 상품 목록 (/dashboard/products)
-│   │   └── 상품 등록 (/dashboard/products/new)
+│   │   ├── 상품 등록 (/dashboard/products/new)
 │   │   └── 상품 수정 (/dashboard/products/[id]/edit)
 │   ├── 📚 컬렉션 (/dashboard/collections)
 │   ├── 🛒 구매 내역 (/dashboard/purchases)
 │   ├── ❤️ 위시리스트 (/dashboard/wishlist)
 │   ├── 👥 팔로잉 (/dashboard/following)
 │   ├── 🔔 알림 (/dashboard/notifications)
-│   ├── 💰 정산 (/dashboard/settlements)
+│   ├── [판매자 전용]
+│   │   ├── 📈 분석 (/dashboard/analytics)
+│   │   ├── 💰 정산 관리 (/dashboard/settlements)
+│   │   ├── 🎫 쿠폰 관리 (/dashboard/seller/coupons)
+│   │   └── 🧪 A/B 테스트 (/dashboard/ab-tests)
+│   ├── 💳 구독 관리 (/dashboard/subscriptions)
 │   └── ⚙️ 설정 (/dashboard/settings)
 │
 ├── 🔧 관리자 (/admin) [관리자 전용]
@@ -66,7 +70,7 @@
 │   ├── 개인정보처리방침 (/privacy)
 │   └── 환불정책 (/refund)
 │
-└── 🔌 API 엔드포인트 (/api) [80+ 엔드포인트]
+└── 🔌 API 엔드포인트 (/api) [97개 엔드포인트]
     ├── 인증 (/api/auth/*)
     ├── 상품 (/api/products/*)
     ├── 카테고리 (/api/categories)
@@ -537,37 +541,18 @@
 ## 🗂️ 헤더 네비게이션 구조
 
 ```
-🔝 메인 네비게이션
+🔝 메인 네비게이션 (5개 탭 + 검색 + 사용자 메뉴)
 │
-├── 🏠 홈 (/)
+├── 🔍 검색 버튼 → /marketplace?focus=search
+│   └── 마켓플레이스 검색으로 이동
 │
 ├── 🛍️ 마켓플레이스 (/marketplace)
-│   │
-│   ├── [메가메뉴 드롭다운]
-│   │   │
-│   │   ├── 💼 비즈니스/업무
-│   │   │   ├── 노션 템플릿
-│   │   │   ├── 프레젠테이션
-│   │   │   ├── 스프레드시트
-│   │   │   └── 문서 템플릿
-│   │   │
-│   │   ├── 🛠️ 개발도구
-│   │   │   ├── UI 키트
-│   │   │   ├── 코드 템플릿
-│   │   │   ├── 개발 도구
-│   │   │   └── 플러그인
-│   │   │
-│   │   └── 🎨 라이프스타일
-│   │       ├── 디자인 에셋
-│   │       ├── 사진/이미지
-│   │       ├── 아이콘/일러스트
-│   │       └── 소셜 미디어 템플릿
-│   │
-│   └── [빠른 필터]
-│       ├── 🔥 인기급상승
-│       ├── ✨ 신규
-│       ├── ⭐ 평점순
-│       └── 🤖 AI생성
+│   └── 상품 목록, 검색, 필터
+│
+├── 🎨 크리에이터 (/artists)
+│   ├── 아티스트 목록
+│   ├── 타입별 필터 (작가/디자이너/개발자/뮤지션 등)
+│   └── 인증된 아티스트 필터
 │
 ├── 🎓 교육 센터 (/education)
 │   └── 튜토리얼, 강의, 가이드
@@ -576,6 +561,7 @@
 │   └── 게시글, 토론, 질문/답변
 │
 ├── ❓ FAQ (/faq)
+│   └── 자주 묻는 질문
 │
 └── 👤 사용자 메뉴 [로그인 후]
     ├── 📊 대시보드
@@ -589,29 +575,24 @@
 ## 📱 대시보드 사이드바 구조
 
 ```
-📊 대시보드 네비게이션
+📊 대시보드 네비게이션 (3개 섹션, 13개 메뉴)
 │
-├── 📈 개요 (/dashboard)
+├── ═══ 기본 메뉴 (모든 사용자) ═══
+│
+├── 📊 대시보드 (/dashboard)
 │   └── 요약 통계, 최근 활동
 │
-├── 📊 분석 (/dashboard/analytics)
-│   └── 판매 분석, 트렌드 차트
-│       ├── 매출 차트
-│       ├── ProductType별 분석
-│       ├── 기간별 비교
-│       └── 레이더 차트
-│
-├── 📦 상품 관리
-│   ├── 상품 목록 (/dashboard/products)
+├── 📦 내 상품 (/dashboard/products)
+│   ├── 상품 목록
 │   └── 상품 등록 (/dashboard/products/new)
 │
-├── 📚 컬렉션 관리 (/dashboard/collections)
+├── 📚 컬렉션 (/dashboard/collections)
 │   └── 번들, 시리즈, 플레이리스트
 │
 ├── 🛒 구매 내역 (/dashboard/purchases)
 │   └── 구매한 상품, 다운로드
 │
-├── ❤️ 위시리스트 (/dashboard/wishlist)
+├── ❤️ 찜한 상품 (/dashboard/wishlist)
 │
 ├── 👥 팔로잉 (/dashboard/following)
 │   └── 팔로우한 크리에이터
@@ -619,8 +600,24 @@
 ├── 🔔 알림 (/dashboard/notifications)
 │   └── 구매, 판매, 리뷰, 시스템 알림
 │
-├── 💰 정산 (/dashboard/settlements)
+├── ═══ 판매자 전용 (isSeller: true) ═══
+│
+├── 📈 수익/통계 (/dashboard/analytics)
+│   └── 판매 분석, 트렌드 차트, ProductType별 분석
+│
+├── 💰 정산 관리 (/dashboard/settlements)
 │   └── 정산 내역, 출금 요청
+│
+├── 🎫 쿠폰 관리 (/dashboard/seller/coupons)
+│   └── 할인 쿠폰 생성/관리
+│
+├── ═══ 계정 관리 ═══
+│
+├── 💳 구독 관리 (/dashboard/subscriptions)
+│   └── 구독 플랜, 결제 내역
+│
+├── 🧪 A/B 테스트 (/dashboard/ab-tests) [판매자 전용]
+│   └── 실험 관리, 결과 분석
 │
 └── ⚙️ 설정 (/dashboard/settings)
     ├── 프로필 수정
@@ -882,6 +879,16 @@
 │   ├── 상세 통계 및 분석
 │   └── 승자 변형 선택 기능
 │
+├── ✅ Phase 9: 코드 품질 & UX 개선 (세션 78-79 완료)
+│   ├── 97개 API 라우트에 force-dynamic 추가
+│   ├── logger 유틸리티 (개발 환경 전용)
+│   ├── api-utils.ts (인증/페이지네이션/응답)
+│   ├── config.ts (중앙 집중식 URL 관리)
+│   ├── 대시보드 사이드바 완성 (11개 메뉴)
+│   ├── 관리자 사이드바 추가 (5개 메뉴)
+│   ├── 헤더 크리에이터 탭 추가
+│   └── GitHub Actions 개선
+│
 └── 📋 향후 계획
     ├── 푸시 알림 (Service Worker)
     ├── GA4 연동
@@ -1042,6 +1049,11 @@
 │   ├── Jest (단위 테스트)
 │   └── Playwright (E2E 테스트)
 │
+├── 📁 공통 유틸리티 (세션 78 추가)
+│   ├── src/lib/logger.ts - 개발 환경 전용 로깅
+│   ├── src/lib/api-utils.ts - API 인증/페이지네이션 헬퍼
+│   └── src/lib/config.ts - 중앙 집중식 URL/설정 관리
+│
 └── 🚀 배포
     ├── Vercel [기본]
     └── Render [현재 활성]
@@ -1051,4 +1063,4 @@
 
 *이 문서는 Vibe Olympics 프로젝트의 전체 구조를 시각화합니다.*
 *업데이트 시 CHANGELOG.md와 함께 관리됩니다.*
-*마지막 갱신: 세션 77 (2025-12-11)*
+*마지막 갱신: 세션 79 (2025-12-12)*

@@ -5,6 +5,8 @@ import { authOptions } from "@/lib/auth";
 import { sendReviewNotificationEmail } from "@/lib/email";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
+
 // 리뷰 생성 스키마
 const createReviewSchema = z.object({
   productId: z.string().cuid(),

@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
+
 // 구매 생성 스키마
 const createPurchaseSchema = z.object({
   productId: z.string().cuid(),

@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
+
 const replySchema = z.object({
   content: z.string().min(5, "Reply must be at least 5 characters").max(1000),
 });

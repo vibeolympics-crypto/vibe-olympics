@@ -23,6 +23,8 @@ import {
   getExcelResponseHeaders,
 } from "@/lib/excel";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     // 세션 확인
