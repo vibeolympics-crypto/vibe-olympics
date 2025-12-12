@@ -266,7 +266,7 @@ export async function POST(request: NextRequest) {
           session.user.name || "사용자",
           productId,
           newPurchase.product.title,
-          product.price
+          Number(product.price)
         );
       }
 
