@@ -70,9 +70,13 @@ const contentTypes = [
   { id: "MUSIC_ALBUM", name: "AI 음악", icon: Zap },
 ];
 
-export function MarketplaceContent() {
+interface MarketplaceContentProps {
+  initialCategory?: string;
+}
+
+export function MarketplaceContent({ initialCategory }: MarketplaceContentProps = {}) {
   const { data: session } = useSession();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(initialCategory || null);
   const [selectedContentType, setSelectedContentType] = useState<string>("all");
   const [sortBy, setSortBy] = useState("latest");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");

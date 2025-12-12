@@ -1,6 +1,6 @@
 # 📋 Vibe Olympics - 예정 작업 (TODO)
 
-> 마지막 업데이트: 2025년 12월 13일 (세션 81 완료)
+> 마지막 업데이트: 2025년 12월 13일 (세션 82 진행중)
 > 배포 URL: https://vibe-olympics.onrender.com
 > 워크플로우: TODO.md 검토 → 작업 수행 → CHANGELOG.md 기록 → TEST_SPECS.md 작성
 
@@ -14,8 +14,9 @@
 | 1 | S80-SEO | SEO 자동화 완성 | ✅ 완료 | 게시글/튜토리얼/판매자/아티스트 SEO |
 | 2 | S80-OPS | 운영 지원 도구 | ✅ 완료 | Rate Limiting, 감사로그, 티켓시스템, 뉴스레터 |
 | 3 | S81-OPS | Phase 11 운영 도구 | ✅ 완료 | 티켓UI, 벌크작업, CSV, 피드백, 레퍼럴 |
-| 4 | PRISMA | DB 마이그레이션 | ⏳ 대기 | prisma db push 필요 (배포 후) |
-| 5 | BACK-04 | Vercel 환경변수 설정 | ⏳ 대기 | 11개 환경변수 (수동 작업 필요) |
+| 4 | S82-OPS | 서버 헬스 & 카테고리 SEO | ✅ 완료 | 헬스 모니터링, 카테고리 SEO |
+| 5 | PRISMA | DB 마이그레이션 | ⏳ 대기 | prisma db push 필요 (배포 후) |
+| 6 | BACK-04 | Vercel 환경변수 설정 | ⏳ 대기 | 11개 환경변수 (수동 작업 필요) |
 
 ### 🟡 중간 (Medium Priority) - 기능 개선
 | 순위 | 작업 ID | 작업명 | 상태 | 비고 |
@@ -29,6 +30,44 @@
 | 8 | BACK-16 | 검색 콘솔 등록 | ⏳ 대기 | Google/Naver/Bing (수동 작업 필요) |
 | 9 | BACK-13 | 커스텀 도메인 연결 | ⏳ 대기 | Vercel 도메인 설정 (수동 작업 필요) |
 | 10 | BACK-12 | Context7 MCP 자동 글 발행 | ⏳ 대기 | 외부 API 연동 |
+
+---
+
+## ✅ 세션 82 진행중 - Phase 11 서버 헬스 & SEO
+
+### 세션 82 (2025-12-13): 서버 헬스 모니터링 & 카테고리 SEO
+| 작업 ID | 작업명 | 상태 | 비고 |
+|---------|--------|------|------|
+| P11-04 | 서버 헬스 모니터링 | ✅ 완료 | /dashboard/health 대시보드 (관리자) |
+| P11-12 | 카테고리 페이지 SEO | ✅ 완료 | /marketplace/category/[slug] 동적 SEO |
+
+**신규 생성 파일:**
+- `src/lib/server-metrics.ts` - 서버 메트릭 수집 유틸리티
+- `src/app/api/admin/health/route.ts` - 헬스 모니터링 API
+- `src/app/dashboard/health/page.tsx` - 헬스 대시보드 페이지
+- `src/app/dashboard/health/health-content.tsx` - 헬스 대시보드 UI (300+ lines)
+- `src/app/marketplace/category/[slug]/page.tsx` - 카테고리 SEO 페이지
+
+**수정된 파일:**
+- `src/app/dashboard/layout.tsx` - 서버 모니터링 메뉴 추가 (관리자 전용)
+- `src/app/marketplace/marketplace-content.tsx` - initialCategory prop 추가
+
+**헬스 모니터링 기능:**
+- 서버 상태 (정상/주의)
+- 평균 응답 시간, 에러율, 총 요청 수
+- DB 상태 및 지연 시간
+- 메모리 사용량 (Heap/RSS)
+- API 호출 추이 차트
+- 상위 엔드포인트 통계
+- 최근 에러 로그
+- 기간 선택 (1h/6h/24h/7d)
+- 자동 새로고침 (30초)
+
+**카테고리 SEO:**
+- 동적 메타데이터 (title, description, keywords)
+- Open Graph / Twitter Card
+- JSON-LD 구조화 데이터 (CollectionPage, BreadcrumbList)
+- 정적 경로 생성 (generateStaticParams)
 
 ---
 
@@ -65,13 +104,13 @@
 
 ## 🚀 Phase 11 - 운영 고도화 (남은 작업)
 
-> 완료: 5개 / 남은 작업: 8개
+> 완료: 7개 / 남은 작업: 6개
 
-### 📊 관리자 도구 (2개 남음)
+### 📊 관리자 도구 (1개 남음)
 | 작업 ID | 작업명 | 설명 | 예상 시간 | 상태 |
 |---------|--------|------|----------|------|
 | P11-01 | 대시보드 실시간 알림 | 신규 가입/구매/환불 푸시 알림 | 2h | ⏳ |
-| P11-04 | 서버 헬스 모니터링 | API 응답 시간, 에러율 대시보드 | 2h | ⏳ |
+| P11-04 | 서버 헬스 모니터링 | API 응답 시간, 에러율 대시보드 | 2h | ✅ |
 
 ### 📈 판매자 지원 (4개 남음)
 | 작업 ID | 작업명 | 설명 | 예상 시간 | 상태 |
@@ -81,11 +120,11 @@
 | P11-07 | 프로모션 스케줄러 | 할인 시작/종료 시간 예약 | 2h | ⏳ |
 | P11-08 | 경쟁 상품 분석 | 유사 상품 가격/리뷰 비교 | 3h | ⏳ |
 
-### 💬 고객 지원/마케팅 (2개 남음)
+### 💬 고객 지원/마케팅 (1개 남음)
 | 작업 ID | 작업명 | 설명 | 예상 시간 | 상태 |
 |---------|--------|------|----------|------|
 | P11-11 | 자동 백업 알림 | DB 백업 상태 확인 및 알림 | 1h | ⏳ |
-| P11-12 | 카테고리 페이지 SEO | 카테고리별 랜딩 페이지 메타데이터 | 1h | ⏳ |
+| P11-12 | 카테고리 페이지 SEO | 카테고리별 랜딩 페이지 메타데이터 | 1h | ✅ |
 
 ---
 

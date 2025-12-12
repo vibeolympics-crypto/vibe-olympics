@@ -20,6 +20,7 @@ import {
   CreditCard,
   Ticket,
   FlaskConical,
+  Activity,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -101,6 +102,12 @@ const bottomLinks = [
     sellerOnly: true,
   },
   {
+    name: "서버 모니터링",
+    href: "/dashboard/health",
+    icon: Activity,
+    adminOnly: true,
+  },
+  {
     name: "설정",
     href: "/dashboard/settings",
     icon: Settings,
@@ -115,8 +122,9 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const { data: session, status } = useSession();
 
-  // 판매자 여부 확인
+  // 판매자/관리자 여부 확인
   const isSeller = (session?.user as { isSeller?: boolean })?.isSeller ?? false;
+  const isAdmin = (session?.user as { role?: string })?.role === "ADMIN";
 
   // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
   if (status === "loading") {
@@ -215,6 +223,10 @@ export default function DashboardLayout({
               {bottomLinks.map((link) => {
                 // 판매자 전용 메뉴 필터링
                 if ('sellerOnly' in link && link.sellerOnly && !isSeller) {
+                  return null;
+                }
+                // 관리자 전용 메뉴 필터링
+                if ('adminOnly' in link && link.adminOnly && !isAdmin) {
                   return null;
                 }
                 const isActive = isLinkActive(link.href);
