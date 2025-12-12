@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
+import { recordPurchase } from "@/lib/realtime-events";
 
 export const dynamic = 'force-dynamic';
 
@@ -258,6 +259,15 @@ export async function POST(request: NextRequest) {
             data: { purchaseId: newPurchase.id, productId },
           },
         });
+
+        // 실시간 이벤트 기록 (관리자 대시보드용)
+        recordPurchase(
+          session.user.id,
+          session.user.name || "사용자",
+          productId,
+          newPurchase.product.title,
+          product.price
+        );
       }
 
       return newPurchase;

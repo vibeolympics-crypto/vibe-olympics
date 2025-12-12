@@ -1,6 +1,6 @@
 # 📋 Vibe Olympics - 예정 작업 (TODO)
 
-> 마지막 업데이트: 2025년 12월 13일 (세션 82 진행중)
+> 마지막 업데이트: 2025년 12월 13일 (세션 82 완료)
 > 배포 URL: https://vibe-olympics.onrender.com
 > 워크플로우: TODO.md 검토 → 작업 수행 → CHANGELOG.md 기록 → TEST_SPECS.md 작성
 
@@ -33,24 +33,32 @@
 
 ---
 
-## ✅ 세션 82 진행중 - Phase 11 서버 헬스 & SEO
+## ✅ 세션 82 완료 - Phase 11 서버 헬스 & 실시간 알림
 
-### 세션 82 (2025-12-13): 서버 헬스 모니터링 & 카테고리 SEO
+### 세션 82 (2025-12-13): 서버 헬스 모니터링 & 카테고리 SEO & 실시간 알림
 | 작업 ID | 작업명 | 상태 | 비고 |
 |---------|--------|------|------|
 | P11-04 | 서버 헬스 모니터링 | ✅ 완료 | /dashboard/health 대시보드 (관리자) |
 | P11-12 | 카테고리 페이지 SEO | ✅ 완료 | /marketplace/category/[slug] 동적 SEO |
+| P11-01 | 대시보드 실시간 알림 | ✅ 완료 | 신규 가입/구매/환불 푸시 알림 |
 
 **신규 생성 파일:**
 - `src/lib/server-metrics.ts` - 서버 메트릭 수집 유틸리티
+- `src/lib/realtime-events.ts` - 실시간 이벤트 저장/조회 유틸리티
 - `src/app/api/admin/health/route.ts` - 헬스 모니터링 API
+- `src/app/api/admin/realtime-events/route.ts` - 실시간 이벤트 API
 - `src/app/dashboard/health/page.tsx` - 헬스 대시보드 페이지
 - `src/app/dashboard/health/health-content.tsx` - 헬스 대시보드 UI (300+ lines)
 - `src/app/marketplace/category/[slug]/page.tsx` - 카테고리 SEO 페이지
+- `src/components/dashboard/realtime-notifications.tsx` - 실시간 알림 컴포넌트
 
 **수정된 파일:**
-- `src/app/dashboard/layout.tsx` - 서버 모니터링 메뉴 추가 (관리자 전용)
+- `src/app/dashboard/layout.tsx` - 서버 모니터링 메뉴 + 실시간 알림 헤더 추가
 - `src/app/marketplace/marketplace-content.tsx` - initialCategory prop 추가
+- `src/app/api/purchases/route.ts` - 구매 이벤트 기록 추가
+- `src/app/api/auth/signup/route.ts` - 회원가입 이벤트 기록 추가
+- `src/app/api/refunds/route.ts` - 환불 이벤트 기록 추가
+- `src/app/api/products/route.ts` - 상품 등록 이벤트 기록 추가
 
 **헬스 모니터링 기능:**
 - 서버 상태 (정상/주의)
@@ -62,6 +70,15 @@
 - 최근 에러 로그
 - 기간 선택 (1h/6h/24h/7d)
 - 자동 새로고침 (30초)
+
+**실시간 알림 기능:**
+- 신규 회원 가입 알림
+- 구매 완료 알림 (금액 포함)
+- 환불 요청 알림
+- 상품 등록 알림
+- 개별/전체 읽음 처리
+- 30초 자동 폴링
+- 관리자/판매자 전용
 
 **카테고리 SEO:**
 - 동적 메타데이터 (title, description, keywords)
@@ -104,12 +121,12 @@
 
 ## 🚀 Phase 11 - 운영 고도화 (남은 작업)
 
-> 완료: 7개 / 남은 작업: 6개
+> 완료: 8개 / 남은 작업: 5개
 
-### 📊 관리자 도구 (1개 남음)
+### 📊 관리자 도구 (완료)
 | 작업 ID | 작업명 | 설명 | 예상 시간 | 상태 |
 |---------|--------|------|----------|------|
-| P11-01 | 대시보드 실시간 알림 | 신규 가입/구매/환불 푸시 알림 | 2h | ⏳ |
+| P11-01 | 대시보드 실시간 알림 | 신규 가입/구매/환불 푸시 알림 | 2h | ✅ |
 | P11-04 | 서버 헬스 모니터링 | API 응답 시간, 에러율 대시보드 | 2h | ✅ |
 
 ### 📈 판매자 지원 (4개 남음)

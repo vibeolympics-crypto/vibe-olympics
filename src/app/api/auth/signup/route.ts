@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendWelcomeEmail } from "@/lib/email";
 import { withAuthRateLimit } from "@/lib/rate-limit-middleware";
+import { recordSignup } from "@/lib/realtime-events";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
@@ -74,6 +75,9 @@ export const POST = withAuthRateLimit(async (request: NextRequest) => {
     } catch (emailError) {
       console.error("Welcome email sending failed:", emailError);
     }
+
+    // 실시간 이벤트 기록 (관리자 대시보드용)
+    recordSignup(user.id, name);
 
     return NextResponse.json(
       {

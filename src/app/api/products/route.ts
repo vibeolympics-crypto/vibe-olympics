@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
+import { recordProductCreated } from "@/lib/realtime-events";
 
 export const dynamic = 'force-dynamic';
 
@@ -491,6 +492,16 @@ export async function POST(request: NextRequest) {
         musicAlbumMeta: true,
       },
     });
+
+    // 실시간 이벤트 기록 (임시저장이 아닌 경우, 관리자 대시보드용)
+    if (status !== "DRAFT") {
+      recordProductCreated(
+        session.user.id,
+        session.user.name || "판매자",
+        product.id,
+        product.title
+      );
+    }
 
     return NextResponse.json(
       { message: "상품이 생성되었습니다", product },

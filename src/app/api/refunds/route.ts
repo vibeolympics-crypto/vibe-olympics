@@ -9,6 +9,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendRefundRequestedEmail } from "@/lib/email";
+import { recordRefund } from "@/lib/realtime-events";
 
 export const dynamic = 'force-dynamic';
 
@@ -191,6 +192,15 @@ export async function POST(request: NextRequest) {
     } catch (emailError) {
       console.error("환불 요청 이메일 발송 실패:", emailError);
     }
+
+    // 실시간 이벤트 기록 (관리자 대시보드용)
+    recordRefund(
+      session.user.id,
+      refundRequest.user.name || "사용자",
+      purchaseId,
+      refundRequest.purchase.product.title,
+      Number(refundRequest.amount)
+    );
 
     return NextResponse.json(refundRequest, { status: 201 });
   } catch (error) {
