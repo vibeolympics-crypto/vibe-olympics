@@ -1,11 +1,37 @@
 # 📜 Vibe Olympics - 변경 이력 (CHANGELOG)
 
-> 마지막 업데이트: 2025년 1월 13일
+> 마지막 업데이트: 2025년 12월 12일
 > 형식: 세션별 완료 작업 + 수정된 파일 목록
 
 ---
 
-## 세션 80 (2025-01-13) - SEO 자동화 & 운영 도구 ⭐ NEW
+## DB 연동 개선 (2025-12-12) - 데이터베이스 안정성 강화
+
+### 작업 요약
+1. **DB 헬스체크 유틸리티**: 데이터베이스 연결 상태 모니터링
+2. **마이그레이션 스크립트**: 세션 80 모델 SQL 마이그레이션 파일 생성
+3. **코드 완결성 검증**: Prisma 타입 동기화 및 빌드 테스트 완료
+
+### 신규 파일
+```
+src/lib/db-health.ts                          # DB 헬스체크 유틸리티
+src/app/api/health/db/route.ts                # DB 상태 확인 API
+prisma/migrations/session80_operational_models.sql  # 세션 80 모델 마이그레이션
+```
+
+### 신규 기능
+- `checkDatabaseHealth()` - DB 연결 상태 및 지연시간 확인
+- `getTableStatuses()` - 핵심 테이블 레코드 수 조회
+- `checkMigrationStatus()` - 마이그레이션 필요 여부 확인
+- `GET /api/health/db` - DB 상태 확인 (공개)
+- `GET /api/health/db?detailed=true` - 상세 정보 (관리자 전용)
+
+### API 라우트 현황
+- **총 API 엔드포인트: 102개** (신규 1개 추가)
+
+---
+
+## 세션 80 (2025-12-12) - SEO 자동화 & 운영 도구 ⭐
 
 ### 작업 요약
 1. **SEO 자동화 완성**: Post, Tutorial, Seller, Artist 모든 콘텐츠에 SEO 자동화 적용
