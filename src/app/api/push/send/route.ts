@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
  * GET /api/push/send
  * 푸시 알림 구독자 통계 조회
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     

@@ -133,7 +133,7 @@ export async function DELETE(request: NextRequest) {
  * GET /api/push/subscribe
  * 구독 상태 확인
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     

@@ -109,7 +109,7 @@ export interface ProductDescriptionInput {
 export function generateLocalDescription(
   input: ProductDescriptionInput
 ): AIDescriptionResult {
-  const { title, category, productType, keywords = [], price, language = 'ko' } = input;
+  const { title, category, productType, keywords = [], price: _price, language = 'ko' } = input;
   
   // 템플릿 선택
   const template = DESCRIPTION_TEMPLATES[productType as keyof typeof DESCRIPTION_TEMPLATES] 

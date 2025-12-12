@@ -297,12 +297,11 @@ export function analyzeTrend(values: number[]): TrendAnalysis {
   
   const sma7 = simpleMovingAverage(values, 7);
   const sma21 = simpleMovingAverage(values, Math.min(21, values.length));
-  const ema12 = exponentialMovingAverage(values, 12);
+  const _ema12 = exponentialMovingAverage(values, 12);
   
   // 방향 결정
   const lastSma7 = sma7[sma7.length - 1];
   const lastSma21 = sma21[sma21.length - 1];
-  const lastEma12 = ema12[ema12.length - 1];
   const lastValue = values[values.length - 1];
   
   let direction: 'bullish' | 'bearish' | 'neutral' = 'neutral';

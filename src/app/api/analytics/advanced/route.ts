@@ -318,7 +318,7 @@ function calculateMetrics(purchases: { amount: unknown }[]): Record<string, numb
 
 function generateForecastSummary(
   forecast: ForecastSummary,
-  historical: DailyData[]
+  _historical: DailyData[]
 ): {
   nextWeekRevenue: number;
   nextMonthRevenue: number;
