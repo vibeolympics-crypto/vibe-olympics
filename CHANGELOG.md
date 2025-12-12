@@ -5,6 +5,84 @@
 
 ---
 
+## 세션 84 (2025-12-13) - E2E 테스트 보강 & 성능 최적화 🧪
+
+### 작업 요약
+1. **E2E 테스트 보강**: 세션 82-83 신규 기능 테스트 추가
+2. **성능 최적화 유틸리티**: 캐싱, 쿼리 최적화, HTTP 응답 최적화
+
+### 완료 항목
+| 작업 ID | 작업명 | 설명 | 상태 |
+|---------|--------|------|------|
+| S84-01 | E2E 테스트 보강 | 판매자 API, 대시보드 페이지 테스트 | ✅ |
+| S84-02 | 성능 최적화 유틸리티 | 캐시, 쿼리, HTTP 응답 최적화 | ✅ |
+
+### 신규 파일
+```
+# E2E 테스트
+e2e/seller-api.spec.ts              # 판매자 API 테스트 (25개 케이스)
+e2e/dashboard.spec.ts               # 대시보드 페이지 테스트 (17개 케이스)
+
+# 성능 최적화 유틸리티
+src/lib/cache.ts                    # 메모리 캐시 유틸리티
+src/lib/query-utils.ts              # 쿼리 최적화 헬퍼
+src/lib/response-utils.ts           # HTTP 응답 최적화
+```
+
+### E2E 테스트 상세
+
+#### seller-api.spec.ts (25개 테스트 케이스)
+- **판매 리포트 API**: TC-SELLER-001~003 (인증, 이메일 트리거, 파라미터 검증)
+- **재고 알림 API**: TC-SELLER-004~005 (인증, 트리거)
+- **프로모션 API**: TC-SELLER-006~008 (목록, 생성, 취소)
+- **경쟁 분석 API**: TC-SELLER-009~010 (인증, 파라미터 검증)
+- **관리자 백업 API**: TC-ADMIN-001~002 (상태 조회, 백업 트리거)
+- **헬스 모니터링 API**: TC-ADMIN-003~004 (메트릭, 실시간 이벤트)
+- **레퍼럴 시스템**: TC-REF-001~002 (통계, 코드 생성)
+- **피드백 시스템**: TC-FEED-001~002 (제출, 검증)
+- **CSV 내보내기/가져오기**: TC-CSV-001~002
+- **벌크 작업**: TC-BULK-001~002
+- **지원 티켓**: TC-TICKET-001~002
+
+#### dashboard.spec.ts (17개 테스트 케이스)
+- **헬스 모니터링 대시보드**: TC-DASH-001~002
+- **판매 리포트 대시보드**: TC-DASH-003~004
+- **지원 대시보드**: TC-DASH-005~006
+- **관리자 대시보드**: TC-ADMIN-005~009
+- **대시보드 네비게이션**: TC-DASH-007~017 (11개 페이지)
+- **판매자 대시보드**: TC-SELLER-011~012
+
+### 성능 최적화 상세
+
+#### cache.ts - 메모리 캐시 유틸리티
+- `getCache()` / `setCache()` - 기본 캐시 작업
+- `withCache()` - 캐시 미들웨어 래퍼
+- `invalidateCacheByTag()` - 태그 기반 캐시 무효화
+- `invalidateCacheByPattern()` - 패턴 기반 캐시 무효화
+- `CACHE_TTL` - 캐시 TTL 상수 (SHORT, MEDIUM, LONG, HOUR, DAY)
+- `CACHE_TAGS` - 캐시 태그 상수 (PRODUCTS, USERS, etc.)
+
+#### query-utils.ts - 쿼리 최적화 헬퍼
+- `parsePagination()` / `formatPaginatedResult()` - 페이지네이션 표준화
+- `parseSort()` - 정렬 파라미터 파싱
+- `dateRangeFilter()` / `priceRangeFilter()` - 필터 생성
+- `productListSelect` / `productDetailSelect` - Prisma 셀렉트 최적화
+- `processBatch()` / `processParallelBatch()` - 배치 처리 헬퍼
+- `measureQueryTime()` - 쿼리 실행 시간 측정
+
+#### response-utils.ts - HTTP 응답 최적화
+- `createCacheControl()` - Cache-Control 헤더 생성
+- `CACHE_PRESETS` - 캐시 프리셋 (STATIC, PUBLIC_API, PRIVATE_API, etc.)
+- `generateETag()` / `generateWeakETag()` - ETag 생성
+- `jsonResponseWithCache()` - 캐시 헤더 포함 응답
+- `streamResponse()` - 스트리밍 응답 (대용량 데이터)
+- `checkConditionalRequest()` - 304 Not Modified 지원
+
+### 테스트 케이스 현황
+- **총 테스트 케이스: 562개** (신규 42개 추가)
+
+---
+
 ## 세션 83 (2025-12-13) - Phase 11 완료: 판매자 지원 도구 ⭐
 
 ### 작업 요약
