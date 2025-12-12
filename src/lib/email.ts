@@ -16,8 +16,8 @@ function getResendClient(): Resend {
 
 // 이메일 발송자 주소
 const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@vibeolympics.com";
-const APP_NAME = "Vibe Olympics";
-const APP_URL = process.env.NEXTAUTH_URL || "http://localhost:3001";
+export const APP_NAME = "Vibe Olympics";
+export const APP_URL = process.env.NEXTAUTH_URL || "http://localhost:3001";
 
 // ==========================================
 // 이메일 템플릿
@@ -29,7 +29,7 @@ interface EmailTemplate {
 }
 
 // 기본 이메일 레이아웃
-const baseLayout = (content: string) => `
+export const baseLayout = (content: string) => `
 <!DOCTYPE html>
 <html>
 <head>
@@ -1337,5 +1337,142 @@ export async function sendRefundNotificationSellerEmail(
   data: Parameters<typeof refundNotificationSellerEmail>[0]
 ) {
   const template = refundNotificationSellerEmail(data);
+  return sendEmail({ to, subject: template.subject, html: template.html });
+}
+
+// ==========================================
+// 판매 리포트 이메일 템플릿
+// ==========================================
+
+// 주간 판매 리포트 이메일
+export const weeklySalesReportEmail = (data: {
+  sellerName: string;
+  weekStart: string; // "2025년 1월 6일"
+  weekEnd: string; // "2025년 1월 12일"
+  totalRevenue: number;
+  salesCount: number;
+  platformFee: number;
+  paymentFee: number;
+  netAmount: number;
+  previousWeekRevenue: number;
+  growthRate: number; // 퍼센트
+  topProducts: Array<{ title: string; sales: number; revenue: number }>;
+  dailyStats: Array<{ day: string; revenue: number; count: number }>;
+  viewCount: number;
+  conversionRate: number; // 퍼센트
+}): EmailTemplate => ({
+  subject: `[${APP_NAME}] ${data.weekStart} ~ ${data.weekEnd} 주간 판매 리포트`,
+  html: baseLayout(`
+    <h2>📊 주간 판매 리포트</h2>
+    <p>안녕하세요, <span class="highlight">${data.sellerName}</span>님!</p>
+    <p><strong>${data.weekStart} ~ ${data.weekEnd}</strong> 판매 현황을 안내해 드립니다.</p>
+    
+    <!-- 핵심 지표 요약 -->
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 24px; color: white; margin: 24px 0;">
+      <h3 style="margin: 0 0 16px 0; font-size: 18px;">💰 이번 주 수익</h3>
+      <p style="font-size: 36px; font-weight: bold; margin: 0;">₩${data.totalRevenue.toLocaleString()}</p>
+      <p style="margin: 8px 0 0 0; font-size: 14px; opacity: 0.9;">
+        ${data.growthRate >= 0 ? '📈' : '📉'} 지난주 대비 
+        <strong style="color: ${data.growthRate >= 0 ? '#4ade80' : '#f87171'};">${data.growthRate >= 0 ? '+' : ''}${data.growthRate.toFixed(1)}%</strong>
+        (₩${data.previousWeekRevenue.toLocaleString()})
+      </p>
+    </div>
+    
+    <!-- 상세 통계 테이블 -->
+    <div class="info-box">
+      <h3 style="margin-top: 0;">📋 상세 내역</h3>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">총 판매액</td>
+          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: bold;">₩${data.totalRevenue.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">판매 건수</td>
+          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">${data.salesCount}건</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">상품 조회수</td>
+          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">${data.viewCount.toLocaleString()}회</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">전환율</td>
+          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">${data.conversionRate.toFixed(2)}%</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">플랫폼 수수료 (10%)</td>
+          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #ef4444;">-₩${data.platformFee.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">PG 수수료 (3.5%)</td>
+          <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb; text-align: right; color: #ef4444;">-₩${data.paymentFee.toLocaleString()}</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 0; font-weight: bold;">예상 정산 금액</td>
+          <td style="padding: 12px 0; text-align: right; font-weight: bold; color: #059669;">₩${data.netAmount.toLocaleString()}</td>
+        </tr>
+      </table>
+    </div>
+    
+    <!-- 일별 판매 추이 -->
+    ${data.dailyStats.length > 0 ? `
+      <div class="info-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">📅 일별 판매 추이</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background: #f9fafb;">
+              <th style="padding: 8px; text-align: left; font-weight: 600;">요일</th>
+              <th style="padding: 8px; text-align: right; font-weight: 600;">매출</th>
+              <th style="padding: 8px; text-align: right; font-weight: 600;">건수</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.dailyStats.map((stat) => `
+              <tr>
+                <td style="padding: 8px; border-top: 1px solid #e5e7eb;">${stat.day}</td>
+                <td style="padding: 8px; border-top: 1px solid #e5e7eb; text-align: right;">₩${stat.revenue.toLocaleString()}</td>
+                <td style="padding: 8px; border-top: 1px solid #e5e7eb; text-align: right;">${stat.count}건</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    ` : ""}
+    
+    <!-- 인기 상품 -->
+    ${data.topProducts.length > 0 ? `
+      <div class="info-box" style="margin-top: 20px;">
+        <h3 style="margin-top: 0;">🏆 인기 상품 TOP 5</h3>
+        ${data.topProducts.map((p, i) => `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; ${i < data.topProducts.length - 1 ? 'border-bottom: 1px solid #e5e7eb;' : ''}">
+            <div>
+              <span style="display: inline-block; width: 24px; height: 24px; line-height: 24px; text-align: center; background: ${i === 0 ? '#fbbf24' : i === 1 ? '#94a3b8' : i === 2 ? '#b45309' : '#e5e7eb'}; color: ${i < 3 ? 'white' : '#374151'}; border-radius: 50%; font-size: 12px; margin-right: 8px;">${i + 1}</span>
+              ${p.title}
+            </div>
+            <div style="text-align: right;">
+              <div style="font-weight: 600;">₩${p.revenue.toLocaleString()}</div>
+              <div style="font-size: 12px; color: #6b7280;">${p.sales}건</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    ` : ""}
+    
+    <p style="margin-top: 24px; font-size: 14px; color: #6b7280;">
+      * 정산은 매월 15일, 말일에 진행됩니다.<br>
+      * 환불 대기 기간(7일) 이후 최종 정산됩니다.
+    </p>
+    
+    <p style="text-align: center; margin-top: 24px;">
+      <a href="${APP_URL}/dashboard/reports" class="button">상세 리포트 보기</a>
+    </p>
+  `),
+});
+
+// 발송 함수
+export async function sendWeeklySalesReportEmail(
+  to: string,
+  data: Parameters<typeof weeklySalesReportEmail>[0]
+) {
+  const template = weeklySalesReportEmail(data);
   return sendEmail({ to, subject: template.subject, html: template.html });
 }

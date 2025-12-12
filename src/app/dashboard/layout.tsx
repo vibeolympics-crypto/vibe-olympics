@@ -21,6 +21,7 @@ import {
   Ticket,
   FlaskConical,
   Activity,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -76,6 +77,11 @@ const sellerLinks = [
     name: "정산 관리",
     href: "/dashboard/settlements",
     icon: Wallet,
+  },
+  {
+    name: "판매 리포트",
+    href: "/dashboard/reports",
+    icon: FileText,
   },
   {
     name: "쿠폰 관리",

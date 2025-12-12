@@ -1,6 +1,6 @@
 # 📋 Vibe Olympics - 예정 작업 (TODO)
 
-> 마지막 업데이트: 2025년 12월 13일 (세션 82 완료)
+> 마지막 업데이트: 2025년 12월 13일 (세션 83 완료)
 > 배포 URL: https://vibe-olympics.onrender.com
 > 워크플로우: TODO.md 검토 → 작업 수행 → CHANGELOG.md 기록 → TEST_SPECS.md 작성
 
@@ -15,139 +15,88 @@
 | 2 | S80-OPS | 운영 지원 도구 | ✅ 완료 | Rate Limiting, 감사로그, 티켓시스템, 뉴스레터 |
 | 3 | S81-OPS | Phase 11 운영 도구 | ✅ 완료 | 티켓UI, 벌크작업, CSV, 피드백, 레퍼럴 |
 | 4 | S82-OPS | 서버 헬스 & 카테고리 SEO | ✅ 완료 | 헬스 모니터링, 카테고리 SEO |
-| 5 | PRISMA | DB 마이그레이션 | ⏳ 대기 | prisma db push 필요 (배포 후) |
-| 6 | BACK-04 | Vercel 환경변수 설정 | ⏳ 대기 | 11개 환경변수 (수동 작업 필요) |
+| 5 | S83-OPS | 판매자 지원 도구 | ✅ 완료 | 리포트, 재고알림, 프로모션, 경쟁분석, 백업 |
+| 6 | PRISMA | DB 마이그레이션 | ⏳ 대기 | prisma db push 필요 (배포 후) |
+| 7 | BACK-04 | Vercel 환경변수 설정 | ⏳ 대기 | 11개 환경변수 (수동 작업 필요) |
 
 ### 🟡 중간 (Medium Priority) - 기능 개선
 | 순위 | 작업 ID | 작업명 | 상태 | 비고 |
 |------|---------|--------|------|------|
-| 6 | BACK-01 | Anthropic API 크레딧 충전 | ⏳ 대기 | AI 챗봇 활성화 (수동 작업 필요) |
-| 7 | BACK-05 | 광고 슬롯 재구성 | ⏳ 보류 | 3D/카테고리 결정 대기 |
+| 8 | BACK-01 | Anthropic API 크레딧 충전 | ⏳ 대기 | AI 챗봇 활성화 (수동 작업 필요) |
+| 9 | BACK-05 | 광고 슬롯 재구성 | ⏳ 보류 | 3D/카테고리 결정 대기 |
 
 ### 🟢 낮음 (Low Priority) - 최적화/부가 기능
 | 순위 | 작업 ID | 작업명 | 상태 | 비고 |
 |------|---------|--------|------|------|
-| 8 | BACK-16 | 검색 콘솔 등록 | ⏳ 대기 | Google/Naver/Bing (수동 작업 필요) |
-| 9 | BACK-13 | 커스텀 도메인 연결 | ⏳ 대기 | Vercel 도메인 설정 (수동 작업 필요) |
-| 10 | BACK-12 | Context7 MCP 자동 글 발행 | ⏳ 대기 | 외부 API 연동 |
+| 10 | BACK-16 | 검색 콘솔 등록 | ⏳ 대기 | Google/Naver/Bing (수동 작업 필요) |
+| 11 | BACK-13 | 커스텀 도메인 연결 | ⏳ 대기 | Vercel 도메인 설정 (수동 작업 필요) |
+| 12 | BACK-12 | Context7 MCP 자동 글 발행 | ⏳ 대기 | 외부 API 연동 |
+
+---
+
+## ✅ 세션 83 완료 - Phase 11 판매자 지원 도구
+
+### 세션 83 (2025-12-13): 판매자 지원 도구 완성 🎉
+| 작업 ID | 작업명 | 상태 | 비고 |
+|---------|--------|------|------|
+| P11-05 | 판매 리포트 이메일 | ✅ 완료 | 주간/월간 판매 요약 자동 발송 |
+| P11-06 | 재고/한정 판매 알림 | ✅ 완료 | 상품 소진 임박 알림 시스템 |
+| P11-07 | 프로모션 스케줄러 | ✅ 완료 | 할인 시작/종료 시간 예약 |
+| P11-08 | 경쟁 상품 분석 | ✅ 완료 | 유사 상품 가격/리뷰 비교 |
+| P11-11 | 자동 백업 알림 | ✅ 완료 | DB 백업 상태 확인 및 알림 |
+
+**신규 생성 파일:**
+- `src/lib/sales-report.ts` - 판매 리포트 생성 유틸리티
+- `src/lib/stock-alert.ts` - 재고/한정 판매 알림 시스템
+- `src/lib/promotion-scheduler.ts` - 프로모션 스케줄러
+- `src/lib/competitor-analysis.ts` - 경쟁 상품 분석 유틸리티
+- `src/lib/backup-monitor.ts` - DB 백업 모니터링
+- `src/app/api/seller/sales-report/route.ts` - 판매 리포트 API
+- `src/app/api/seller/stock-alert/route.ts` - 재고 알림 API
+- `src/app/api/seller/promotions/route.ts` - 프로모션 스케줄러 API
+- `src/app/api/seller/competitor-analysis/route.ts` - 경쟁 분석 API
+- `src/app/api/admin/backup/route.ts` - 백업 모니터링 API
+- `src/app/dashboard/reports/page.tsx` - 판매 리포트 페이지
+- `src/app/dashboard/reports/reports-content.tsx` - 판매 리포트 UI
+
+**수정된 파일:**
+- `src/lib/email.ts` - 주간 판매 리포트 이메일 템플릿 추가
+- `src/app/dashboard/layout.tsx` - "판매 리포트" 메뉴 추가
+
+**API 현황: 111개 라우트**
+
+---
+
+## ✅ Phase 11 완료 - 운영 고도화 (13/13) 🎉
+
+### 📊 관리자 도구 (완료)
+| 작업 ID | 작업명 | 설명 | 상태 |
+|---------|--------|------|------|
+| P11-01 | 대시보드 실시간 알림 | 신규 가입/구매/환불 푸시 알림 | ✅ |
+| P11-04 | 서버 헬스 모니터링 | API 응답 시간, 에러율 대시보드 | ✅ |
+| P11-11 | 자동 백업 알림 | DB 백업 상태 확인 및 알림 | ✅ |
+
+### 📈 판매자 지원 (완료)
+| 작업 ID | 작업명 | 설명 | 상태 |
+|---------|--------|------|------|
+| P11-05 | 판매 리포트 이메일 | 주간/월간 판매 요약 자동 발송 | ✅ |
+| P11-06 | 재고/한정 판매 알림 | 상품 소진 임박 알림 | ✅ |
+| P11-07 | 프로모션 스케줄러 | 할인 시작/종료 시간 예약 | ✅ |
+| P11-08 | 경쟁 상품 분석 | 유사 상품 가격/리뷰 비교 | ✅ |
+
+### 💬 운영 도구 (완료)
+| 작업 ID | 작업명 | 설명 | 상태 |
+|---------|--------|------|------|
+| P11-02 | 벌크 작업 도구 | 상품 일괄 수정/삭제 | ✅ |
+| P11-03 | CSV 가져오기/내보내기 | 데이터 일괄 등록/추출 | ✅ |
+| P11-09 | 만족도 조사 | 구매/지원 후 피드백 수집 | ✅ |
+| P11-10 | 레퍼럴 시스템 | 친구 추천 보상 프로그램 | ✅ |
+| P11-12 | 카테고리 페이지 SEO | 카테고리별 메타데이터 | ✅ |
+| P11-13 | 티켓 시스템 UI | 고객 지원 대시보드 | ✅ |
 
 ---
 
 ## ✅ 세션 82 완료 - Phase 11 서버 헬스 & 실시간 알림
-
-### 세션 82 (2025-12-13): 서버 헬스 모니터링 & 카테고리 SEO & 실시간 알림
-| 작업 ID | 작업명 | 상태 | 비고 |
-|---------|--------|------|------|
-| P11-04 | 서버 헬스 모니터링 | ✅ 완료 | /dashboard/health 대시보드 (관리자) |
-| P11-12 | 카테고리 페이지 SEO | ✅ 완료 | /marketplace/category/[slug] 동적 SEO |
-| P11-01 | 대시보드 실시간 알림 | ✅ 완료 | 신규 가입/구매/환불 푸시 알림 |
-
-**신규 생성 파일:**
-- `src/lib/server-metrics.ts` - 서버 메트릭 수집 유틸리티
-- `src/lib/realtime-events.ts` - 실시간 이벤트 저장/조회 유틸리티
-- `src/app/api/admin/health/route.ts` - 헬스 모니터링 API
-- `src/app/api/admin/realtime-events/route.ts` - 실시간 이벤트 API
-- `src/app/dashboard/health/page.tsx` - 헬스 대시보드 페이지
-- `src/app/dashboard/health/health-content.tsx` - 헬스 대시보드 UI (300+ lines)
-- `src/app/marketplace/category/[slug]/page.tsx` - 카테고리 SEO 페이지
-- `src/components/dashboard/realtime-notifications.tsx` - 실시간 알림 컴포넌트
-
-**수정된 파일:**
-- `src/app/dashboard/layout.tsx` - 서버 모니터링 메뉴 + 실시간 알림 헤더 추가
-- `src/app/marketplace/marketplace-content.tsx` - initialCategory prop 추가
-- `src/app/api/purchases/route.ts` - 구매 이벤트 기록 추가
-- `src/app/api/auth/signup/route.ts` - 회원가입 이벤트 기록 추가
-- `src/app/api/refunds/route.ts` - 환불 이벤트 기록 추가
-- `src/app/api/products/route.ts` - 상품 등록 이벤트 기록 추가
-
-**헬스 모니터링 기능:**
-- 서버 상태 (정상/주의)
-- 평균 응답 시간, 에러율, 총 요청 수
-- DB 상태 및 지연 시간
-- 메모리 사용량 (Heap/RSS)
-- API 호출 추이 차트
-- 상위 엔드포인트 통계
-- 최근 에러 로그
-- 기간 선택 (1h/6h/24h/7d)
-- 자동 새로고침 (30초)
-
-**실시간 알림 기능:**
-- 신규 회원 가입 알림
-- 구매 완료 알림 (금액 포함)
-- 환불 요청 알림
-- 상품 등록 알림
-- 개별/전체 읽음 처리
-- 30초 자동 폴링
-- 관리자/판매자 전용
-
-**카테고리 SEO:**
-- 동적 메타데이터 (title, description, keywords)
-- Open Graph / Twitter Card
-- JSON-LD 구조화 데이터 (CollectionPage, BreadcrumbList)
-- 정적 경로 생성 (generateStaticParams)
-
----
-
-## ✅ 세션 81 완료 - Phase 11 운영 고도화
-
-### 세션 81 (2025-12-13): 운영 도구 확장
-| 작업 ID | 작업명 | 상태 | 비고 |
-|---------|--------|------|------|
-| P11-13 | 티켓 시스템 UI | ✅ 완료 | /dashboard/support 대시보드 |
-| P11-02 | 벌크 작업 도구 | ✅ 완료 | /api/admin/bulk-products API |
-| P11-03 | CSV 가져오기/내보내기 | ✅ 완료 | /api/admin/csv API |
-| P11-09 | 만족도 조사 | ✅ 완료 | FeedbackSurvey 모델/API |
-| P11-10 | 레퍼럴 시스템 | ✅ 완료 | Referral 모델/API |
-
-**신규 생성 파일:**
-- `src/app/dashboard/support/page.tsx` - 고객 지원 페이지
-- `src/app/dashboard/support/support-content.tsx` - 티켓 관리 UI (550+ lines)
-- `src/app/api/admin/bulk-products/route.ts` - 벌크 상품 작업 API
-- `src/app/api/admin/csv/route.ts` - CSV 내보내기/가져오기 API
-- `src/app/api/feedback/route.ts` - 피드백 조사 API
-- `src/app/api/referral/route.ts` - 레퍼럴 시스템 API
-
-**신규 Prisma 모델 (배포 후 `prisma db push` 필요):**
-- `FeedbackSurvey` - 고객 만족도 조사
-- `Referral` - 친구 추천 시스템
-
-**신규 Enum:**
-- `SurveyType` - PURCHASE, TICKET, PRODUCT, GENERAL, NPS
-- `ReferralStatus` - PENDING, REGISTERED, QUALIFIED, REWARDED, EXPIRED, CANCELLED
-
-**API 현황: 106개 라우트**
-
----
-
-## 🚀 Phase 11 - 운영 고도화 (남은 작업)
-
-> 완료: 8개 / 남은 작업: 5개
-
-### 📊 관리자 도구 (완료)
-| 작업 ID | 작업명 | 설명 | 예상 시간 | 상태 |
-|---------|--------|------|----------|------|
-| P11-01 | 대시보드 실시간 알림 | 신규 가입/구매/환불 푸시 알림 | 2h | ✅ |
-| P11-04 | 서버 헬스 모니터링 | API 응답 시간, 에러율 대시보드 | 2h | ✅ |
-
-### 📈 판매자 지원 (4개 남음)
-| 작업 ID | 작업명 | 설명 | 예상 시간 | 상태 |
-|---------|--------|------|----------|------|
-| P11-05 | 판매 리포트 이메일 | 주간/월간 판매 요약 자동 발송 | 2h | ⏳ |
-| P11-06 | 재고/한정 판매 알림 | 상품 소진 임박 알림 | 1h | ⏳ |
-| P11-07 | 프로모션 스케줄러 | 할인 시작/종료 시간 예약 | 2h | ⏳ |
-| P11-08 | 경쟁 상품 분석 | 유사 상품 가격/리뷰 비교 | 3h | ⏳ |
-
-### 💬 고객 지원/마케팅 (1개 남음)
-| 작업 ID | 작업명 | 설명 | 예상 시간 | 상태 |
-|---------|--------|------|----------|------|
-| P11-11 | 자동 백업 알림 | DB 백업 상태 확인 및 알림 | 1h | ⏳ |
-| P11-12 | 카테고리 페이지 SEO | 카테고리별 랜딩 페이지 메타데이터 | 1h | ✅ |
-
----
-
-## ✅ 세션 80 완료 - 운영 지원 도구 & SEO 자동화
-
----
 
 ### ✅ 최근 완료 (세션 67-81)
 | 세션 | 작업명 | 완료일 |

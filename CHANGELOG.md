@@ -5,6 +5,128 @@
 
 ---
 
+## 세션 83 (2025-12-13) - Phase 11 완료: 판매자 지원 도구 ⭐
+
+### 작업 요약
+1. **판매 리포트 이메일**: 주간/월간 판매 현황 리포트 생성 및 이메일 발송
+2. **재고/한정 판매 알림**: 한정 상품 소진 임박 알림 시스템
+3. **프로모션 스케줄러**: 할인 시작/종료 시간 예약 기능
+4. **경쟁 상품 분석**: 유사 상품 가격/리뷰/판매량 비교 분석
+5. **자동 백업 알림**: DB 백업 상태 확인 및 알림
+
+### 완료 항목
+| 작업 ID | 작업명 | 설명 | 상태 |
+|---------|--------|------|------|
+| P11-05 | 판매 리포트 이메일 | 주간/월간 판매 요약 자동 발송 | ✅ |
+| P11-06 | 재고/한정 판매 알림 | 상품 소진 임박 알림 | ✅ |
+| P11-07 | 프로모션 스케줄러 | 할인 시작/종료 시간 예약 | ✅ |
+| P11-08 | 경쟁 상품 분석 | 유사 상품 가격/리뷰 비교 | ✅ |
+| P11-11 | 자동 백업 알림 | DB 백업 상태 확인 및 알림 | ✅ |
+
+### 신규 파일
+```
+# 유틸리티
+src/lib/sales-report.ts                             # 판매 리포트 생성 유틸리티
+src/lib/stock-alert.ts                              # 재고/한정 판매 알림 시스템
+src/lib/promotion-scheduler.ts                       # 프로모션 스케줄러
+src/lib/competitor-analysis.ts                       # 경쟁 상품 분석 유틸리티
+src/lib/backup-monitor.ts                            # DB 백업 모니터링
+
+# API 라우트
+src/app/api/seller/sales-report/route.ts            # 판매 리포트 API
+src/app/api/seller/stock-alert/route.ts             # 재고 알림 API
+src/app/api/seller/promotions/route.ts              # 프로모션 스케줄러 API
+src/app/api/seller/competitor-analysis/route.ts     # 경쟁 분석 API
+src/app/api/admin/backup/route.ts                   # 백업 모니터링 API
+
+# 대시보드 페이지
+src/app/dashboard/reports/page.tsx                  # 판매 리포트 페이지
+src/app/dashboard/reports/reports-content.tsx       # 판매 리포트 UI (450+ lines)
+```
+
+### 수정 파일
+- `src/lib/email.ts` - 주간 판매 리포트 이메일 템플릿 추가, APP_NAME/APP_URL/baseLayout export
+- `src/app/dashboard/layout.tsx` - "판매 리포트" 메뉴 추가
+
+### API 라우트 현황
+- **총 API 엔드포인트: 111개** (신규 5개 추가)
+
+### 기능 상세
+
+#### 판매 리포트 (`/api/seller/sales-report`)
+- `GET`: 주간/월간 리포트 데이터 조회 (미리보기)
+- `POST`: 리포트 이메일 발송 (개인/전체)
+- 일별 판매 추이, 인기 상품 TOP 5, 수수료 내역
+- 지난주 대비 성장률 계산
+
+#### 판매 리포트 대시보드 (`/dashboard/reports`)
+- 주간/월간 리포트 전환
+- 핵심 지표 카드 (총 매출, 판매 건수, 조회수, 예상 정산금)
+- 수수료 상세 내역
+- 일별 판매 추이 바 차트
+- 인기 상품 TOP 5
+- 이메일 발송 버튼
+
+#### 재고/한정 판매 알림 (`/api/seller/stock-alert`)
+- 한정 수량 상품: `tags`에 `limited:100` 형태로 저장
+- 알림 임계값: LOW(10개), CRITICAL(3개), SOLDOUT(0개)
+- 구매 후 자동 재고 체크 및 알림
+- `auto_disable_on_soldout` 태그로 완판 시 자동 비활성화
+
+#### 프로모션 스케줄러 (`/api/seller/promotions`)
+- `GET`: 프로모션 목록/상세 조회, 요약 통계
+- `POST`: 프로모션 생성, 예약 처리 트리거
+- `PATCH`: 프로모션 취소
+- 프로모션 타입: FLASH_SALE, SEASONAL, BUNDLE, CLEARANCE
+- 할인 타입: PERCENTAGE, FIXED
+- 자동 가격 적용/복원
+
+#### 경쟁 상품 분석 (`/api/seller/competitor-analysis`)
+- 유사 상품 조회 (같은 카테고리 + 태그 유사도)
+- 시장 포지션 분석 (가격/판매/평점 순위)
+- 인사이트 생성 (가격, 평점, 판매량, 전환율 비교)
+- 추천사항 자동 생성
+
+#### 백업 모니터링 (`/api/admin/backup`)
+- `GET`: 백업 요약, DB 통계, 백업 이력
+- `POST`: 수동 백업 트리거, 건강 체크 및 알림
+- 상태: SUCCESS, FAILED, IN_PROGRESS, PENDING
+- 건강 상태: HEALTHY, WARNING, CRITICAL
+
+### Phase 11 완료 현황
+- **완료: 13개 / 전체: 13개** ✅
+- P11-01 ~ P11-13 모든 작업 완료
+
+---
+
+## 세션 82 (2025-12-13) - Phase 11 서버 헬스 & 실시간 알림
+
+### 작업 요약
+1. **서버 헬스 모니터링**: 응답 시간, 에러율, 메모리 대시보드
+2. **카테고리 페이지 SEO**: 동적 메타데이터 + JSON-LD
+3. **대시보드 실시간 알림**: 신규 가입/구매/환불 푸시 알림
+
+### 완료 항목
+| 작업 ID | 작업명 | 설명 | 상태 |
+|---------|--------|------|------|
+| P11-04 | 서버 헬스 모니터링 | /dashboard/health 대시보드 | ✅ |
+| P11-12 | 카테고리 페이지 SEO | /marketplace/category/[slug] SEO | ✅ |
+| P11-01 | 대시보드 실시간 알림 | 신규 가입/구매/환불 푸시 알림 | ✅ |
+
+### 신규 파일
+```
+src/lib/server-metrics.ts                           # 서버 메트릭 수집 유틸리티
+src/lib/realtime-events.ts                          # 실시간 이벤트 저장/조회
+src/app/api/admin/health/route.ts                   # 헬스 모니터링 API
+src/app/api/admin/realtime-events/route.ts          # 실시간 이벤트 API
+src/app/dashboard/health/page.tsx                   # 헬스 대시보드 페이지
+src/app/dashboard/health/health-content.tsx         # 헬스 대시보드 UI
+src/app/marketplace/category/[slug]/page.tsx        # 카테고리 SEO 페이지
+src/components/dashboard/realtime-notifications.tsx # 실시간 알림 컴포넌트
+```
+
+---
+
 ## 세션 81 (2025-12-13) - Phase 11 운영 고도화 ⭐
 
 ### 작업 요약
