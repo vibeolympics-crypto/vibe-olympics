@@ -1,8 +1,40 @@
 # 📋 Vibe Olympics - 예정 작업 (TODO)
 
-> 마지막 업데이트: 2025년 12월 13일 (세션 85 완료)
+> 마지막 업데이트: 2025년 12월 13일 (세션 86 완료)
 > 배포 URL: https://vibe-olympics.onrender.com
 > 워크플로우: TODO.md 검토 → 작업 수행 → CHANGELOG.md 기록 → TEST_SPECS.md 작성
+
+---
+
+## 🚀 세션 86 완료 - Phase 12 외부 연동 및 AI 가격 추천
+
+### 세션 86 (2025-12-13): Phase 12 고급 외부 연동 🎉
+| 작업 ID | 작업명 | 상태 | 비고 |
+|---------|--------|------|------|
+| S86-01 | P12-06 AI 가격 추천 | ✅ 완료 | 시장 분석 기반 가격 제안 시스템 |
+| S86-02 | P12-07 소셜 미디어 연동 | ✅ 완료 | 자동 홍보 포스팅 (5개 플랫폼) |
+| S86-03 | P12-08 이메일 마케팅 연동 | ✅ 완료 | 캠페인 관리, 구독자, 템플릿 |
+
+**신규 생성 파일 (Phase 12):**
+- `src/lib/pricing-recommendation.ts` - AI 가격 추천 유틸리티
+- `src/app/api/ai/pricing/route.ts` - AI 가격 추천 API
+- `src/components/marketplace/ai-pricing-recommender.tsx` - AI 가격 추천 UI
+- `src/lib/social-media.ts` - 소셜 미디어 연동 유틸리티
+- `src/app/api/social/route.ts` - 소셜 미디어 API
+- `src/components/dashboard/social-media-manager.tsx` - 소셜 미디어 관리 UI
+- `src/lib/email-marketing.ts` - 이메일 마케팅 유틸리티
+- `src/app/api/email-marketing/route.ts` - 이메일 마케팅 API
+- `src/components/dashboard/email-marketing-dashboard.tsx` - 이메일 마케팅 대시보드 UI
+
+### 프로젝트 현황
+```
+✅ Phase 1-11: 전체 완료
+✅ Phase 12: 9개 작업 완료 (P12-01~P12-08, P12-11)
+📊 API 엔드포인트: 120개 (+3)
+📄 UI 페이지: 57개 (+3)
+🧪 테스트 케이스: 562개+
+🔧 빌드: Next.js 14.2.33 성공
+```
 
 ---
 
@@ -26,7 +58,7 @@
 - `src/app/api/ai/image-analysis/route.ts` - 이미지 분석 API
 - `src/components/marketplace/ai-image-analyzer.tsx` - 이미지 분석 UI
 
-### 프로젝트 현황
+### 프로젝트 현황 (세션 85)
 ```
 ✅ Phase 1-11: 전체 완료
 ✅ Phase 12: 6개 작업 완료 (P12-01, P12-02, P12-03, P12-04, P12-05, P12-11)
@@ -122,13 +154,13 @@
 |---------|--------|------|------|
 | P12-04 | AI 상품 설명 생성 | Claude/GPT 활용 자동 설명 | ✅ 완료 |
 | P12-05 | AI 이미지 분석 | 상품 이미지 자동 태깅 | ✅ 완료 |
-| P12-06 | AI 가격 추천 | 시장 분석 기반 가격 제안 | ⏳ 대기 |
+| P12-06 | AI 가격 추천 | 시장 분석 기반 가격 제안 | ✅ 완료 |
 
 ### 🔗 외부 연동
 | 작업 ID | 작업명 | 설명 | 상태 |
 |---------|--------|------|------|
-| P12-07 | 소셜 미디어 연동 | 자동 홍보 포스팅 | ⏳ 대기 |
-| P12-08 | 이메일 마케팅 연동 | Mailchimp/Sendgrid 통합 | ⏳ 대기 |
+| P12-07 | 소셜 미디어 연동 | 자동 홍보 포스팅 | ✅ 완료 |
+| P12-08 | 이메일 마케팅 연동 | Mailchimp/Sendgrid 통합 | ✅ 완료 |
 | P12-09 | 외부 결제 연동 | PayPal, Toss 추가 | ⏳ 대기 |
 
 ### 📱 모바일 & PWA 강화
