@@ -1,8 +1,8 @@
 # 🧪 Vibe Olympics - 테스트 명세 (TEST_SPECS)
 
-> 마지막 업데이트: 2025년 12월 10일
+> 마지막 업데이트: 2025년 12월 14일
 > TestSprite MCP 자동 테스트용 역할별 테스트 케이스 정의
-> 총 테스트 케이스: 299개 (명세) + 160개 (Playwright E2E) + 61개 (Jest)
+> 총 테스트 케이스: 562개+ (명세) + 206개 (Playwright E2E) + 61개 (Jest)
 > 
 > **🌐 배포 URL**: https://vibe-olympics.onrender.com
 
@@ -25,13 +25,142 @@
 | 🟡 P2 | 일반유저 | 18개 | 설정, 알림 |
 | 🟢 P3 | API | 25개 | API 직접 테스트 |
 | 🟢 P3 | 반응형/접근성 | 15개 | UI/UX 테스트 |
-| 🟢 P3 | 세션 58: 번들/쿠폰 | 30개 | Bundle, Coupon API 테스트 |
-| 🟢 P3 | 세션 59: Cloudinary | 12개 | 파일 업로드 테스트 |
-| 🟢 P3 | 세션 60: 조건부 확률 | 15개 | 추천 시스템 테스트 |
-| 🟢 P3 | 세션 61: 글로벌 추천 | 12개 | 글로벌 추천 + 버그수정 |
-| 🟢 P3 | 세션 62: 이커머스 UX | 20개 | 메가메뉴, 비교, 최근본 상품 |
-| 🟢 P3 | 세션 63: AI 콘텐츠 | 11개 | 상품타입, SEO, AI정보 |
-| 🟢 P3 | 세션 64: 컬렉션/아티스트 | 25개 | 컬렉션, 아티스트, 미리보기 |
+
+### 세션별 테스트 로드맵 (Session 1-87)
+
+#### Phase 1: 프로젝트 기반 (S01-S10)
+| 세션 | 주요 작업 | 테스트 항목 | 상태 |
+|------|----------|------------|------|
+| S01 | 프로젝트 초기 설정 | Prisma, NextAuth 연동 | ✅ |
+| S02 | 검색/알림 시스템 | 검색 API, 알림 기능 | ✅ |
+| S03 | 상품 등록, 사용자 설정 | CRUD API, 설정 페이지 | ✅ |
+| S04 | 분석, Stripe 결제 | 분석 대시보드, 결제 플로우 | ✅ |
+| S05 | 커뮤니티 기능 | 게시글, 댓글, 반응 | ✅ |
+| S06 | 구매 UX, 이메일 시스템 | 구매 플로우, 이메일 발송 | ✅ |
+| S07 | SEO, 성능 최적화 | 메타데이터, 캐싱 | ✅ |
+| S08 | 교육 센터 | 튜토리얼 목록/상세 | ✅ |
+| S09 | 테스트 환경, CI/CD, Sentry | E2E, GitHub Actions | ✅ |
+| S10 | 관리자 대시보드 | Admin 통계, 사용자 관리 | ✅ |
+
+#### Phase 2: 기능 확장 (S11-S20)
+| 세션 | 주요 작업 | 테스트 항목 | 상태 |
+|------|----------|------------|------|
+| S11 | FAQ 페이지 | 아코디언, 검색, 필터 | ✅ |
+| S12 | 통합 반응 시스템 | Reaction 모델, 좋아요/추천 | ✅ |
+| S13 | 교육 상세 페이지, 마크다운 | 콘텐츠 렌더링 | ✅ |
+| S14 | 위시리스트, 판매자 프로필 | 위시리스트 API, 프로필 | ✅ |
+| S15 | 팔로우 시스템 | 팔로우/언팔로우 | ✅ |
+| S16 | 팔로잉/피드 시스템 | 피드 API | ✅ |
+| S17 | 알림 설정, 구매 내역 개선 | 설정 UI, 내역 페이지 | ✅ |
+| S18 | 비밀번호 찾기/재설정 | 이메일 발송, 토큰 검증 | ✅ |
+| S19 | 프로덕션 배포 준비 | 환경변수, 빌드 | ✅ |
+| S20 | Toast 시스템, UX 개선 | 토스트 알림, UX | ✅ |
+
+#### Phase 3: 법적/결제 (S21-S30)
+| 세션 | 주요 작업 | 테스트 항목 | 상태 |
+|------|----------|------------|------|
+| S21 | 이용약관, 개인정보, 환불정책 | 정적 페이지 | ✅ |
+| S22 | 카카오페이, 토스페이, Google OAuth | 결제 수단, OAuth | ✅ |
+| S23 | 검색/필터 고도화, 통계 차트 | 필터 UI, 차트 | ✅ |
+| S24 | 이메일 알림 템플릿, 푸시 알림 | 알림 시스템 | ✅ |
+| S25 | 정산/엑셀 시스템, 환불 관리 | Settlement, Refund API | ✅ |
+| S26 | 교육 콘텐츠 정책, AI 챗봇 | 마크다운 에디터, 챗봇 | ✅ |
+| S27 | 반응 통계, 개인화 추천 API | Analytics, Recommendations | ✅ |
+| S28 | 마이그레이션 스크립트, 전환율 | Like→Reaction, 전환율 API | ✅ |
+| S29 | SEO 최적화, 추천 UI 적용 | JSON-LD, 추천 섹션 | ✅ |
+| S30 | API 캐싱, E2E 테스트 확대 | 캐싱 헤더, Playwright | ✅ |
+
+#### Phase 4: 접근성/보안 (S31-S40)
+| 세션 | 주요 작업 | 테스트 항목 | 상태 |
+|------|----------|------------|------|
+| S31 | 접근성 개선, 챗봇 API | ARIA, Skip Nav | ✅ |
+| S32 | Supabase 연결, DB 시드 | DB 연결, 초기 데이터 | ✅ |
+| S33 | 기능 검증, 에러 핸들링 | 페이지 검증, AI 에러 | ✅ |
+| S34 | 인증 시스템 검증 | NextAuth 프로바이더 | ✅ |
+| S35 | 코드 전면 재검토 | API, UI, 스키마 검토 | ✅ |
+| S36 | Like → Reaction 마이그레이션 | 데이터 마이그레이션 | ✅ |
+| S37 | 마이그레이션 검증, API 테스트 | 코드 검증, 런타임 테스트 | ✅ |
+| S38 | 역할별 수동 테스트 실행 | Visitor 11개, API 6개 | ✅ |
+| S39 | 인증 기능 테스트 | 로그인, 회원가입 폼 | ✅ |
+| S40 | 상품/판매자/튜토리얼 API 테스트 | 공개 API 5개 | ✅ |
+
+#### Phase 5: API 보안 테스트 (S41-S50)
+| 세션 | 주요 작업 | 테스트 항목 | 상태 |
+|------|----------|------------|------|
+| S41 | 인증 필요 API 보안 테스트 | 401 응답 검증 7개 | ✅ |
+| S42 | 에러 처리, 검색 API 테스트 | 404, 경계 조건, 검색 | ✅ |
+| S43 | 페이지네이션 유효성 검사 | 음수/0 파라미터 → 400 | ✅ |
+| S44 | 인증/결제 API 테스트 | NextAuth, Stripe, PortOne | ✅ |
+| S45 | 판매자/분석/정산 API 보안 | 권한 검증 21개 | ✅ |
+| S46 | 알림/팔로우/댓글/리뷰 API | 보안 테스트 16개 | ✅ |
+| S47 | API 종합 테스트, 다국어/성능 | 116개 테스트 통과 | ✅ |
+| S48 | SEO/검색 노출 최적화 | robots, sitemap, 메타데이터 | ✅ |
+| S49 | 광고 슬롯, RSS 피드 | AdSlot, RSS/Atom API | ✅ |
+| S50 | 자동 글 발행 API, 예약 발행 | MCP 연동, 스케줄러 | ✅ |
+
+#### Phase 6: 배포/테스트 (S51-S57)
+| 세션 | 주요 작업 | 테스트 항목 | 상태 |
+|------|----------|------------|------|
+| S51 | DB 마이그레이션, E2E 통과 | Prisma, Playwright 24개 | ✅ |
+| S52 | 프로덕션 배포 준비 | 환경변수, Vercel 가이드 | ✅ |
+| S53 | Cloudflare → Vercel 전환 | 배포 플랫폼 변경 | ✅ |
+| S54 | 코드 품질 개선 | ESLint, Jest 61개 통과 | ✅ |
+| S55 | 부트페이 결제 시스템 | Stripe → Bootpay 전환 | ✅ |
+| S56 | ESLint 에러/경고 정리 | 0 errors, 0 warnings | ✅ |
+| S57 | Playwright E2E 자동화 | 160개 테스트 작성 | ✅ |
+
+#### Phase 7: 번들/추천 시스템 (S58-S64)
+| 세션 | 주요 작업 | 테스트 수 | 상태 |
+|------|----------|----------|------|
+| S58 | 번들 판매, 쿠폰/할인 시스템 | 30개 | ✅ |
+| S59 | Cloudinary 파일 업로드 | 12개 | ✅ |
+| S60 | 조건부 확률 추천 시스템 | 15개 | ✅ |
+| S61 | 글로벌 추천, Hydration 버그 | 12개 | ✅ |
+| S62 | 이커머스 UX, 상품 비교 | 20개 | ✅ |
+| S63 | AI 콘텐츠 등록, SEO 자동화 | 11개 | ✅ |
+| S64 | 컬렉션, 아티스트, 미리보기 | 25개 | ✅ |
+
+#### Phase 8: 구독/알림/실시간 (S65-S73)
+| 세션 | 주요 작업 | 테스트 수 | 상태 |
+|------|----------|----------|------|
+| S65 | 검색 자동완성, 필터 UX 개선 | 10개 | ✅ |
+| S66 | 정기 구독 결제, 빌링키 | 18개 | ✅ |
+| S67 | 알림 시스템 고도화, 이메일 | 14개 | ✅ |
+| S68 | Socket.io 실시간 알림 | 12개 | ✅ |
+| S69 | TypeScript 타입 오류 수정 | - | ✅ |
+| S70 | img → next/image 변환 (LCP) | 8개 | ✅ |
+| S71 | Google Analytics 4 연동 | 10개 | ✅ |
+| S72 | 추천 시스템 DB 검증 | - | ✅ |
+| S73 | PWA 오프라인 지원 강화 | 15개 | ✅ |
+
+#### Phase 9: A/B 테스트/대시보드 (S74-S78)
+| 세션 | 주요 작업 | 테스트 수 | 상태 |
+|------|----------|----------|------|
+| S74 | A/B 테스트 프레임워크 | 16개 | ✅ |
+| S75 | 결제/환불 이메일 알림 | 10개 | ✅ |
+| S76 | 대시보드 기능 강화 | 15개 | ✅ |
+| S77 | A/B 테스트 관리 대시보드 | 12개 | ✅ |
+| S78 | 코드 품질 (force-dynamic, logger) | 5개 | ✅ |
+
+#### Phase 10: SEO/운영 도구 (S80)
+| 세션 | 주요 작업 | 테스트 수 | 상태 |
+|------|----------|----------|------|
+| S80 | Rate Limit, 감사 로그, 티켓, 뉴스레터 | 20개 | ✅ |
+
+#### Phase 11: 판매자 도구 (S81-S83)
+| 세션 | 주요 작업 | 테스트 수 | 상태 |
+|------|----------|----------|------|
+| S81 | 벌크 작업, CSV, 피드백, 레퍼럴 | 15개 | ✅ |
+| S82 | 서버 헬스 모니터링, 실시간 알림 | 10개 | ✅ |
+| S83 | 판매 리포트, 재고 알림, 경쟁 분석 | 10개 | ✅ |
+
+#### Phase 12: AI 분석/고급 기능 (S84-S87)
+| 세션 | 주요 작업 | 테스트 수 | 상태 |
+|------|----------|----------|------|
+| S84 | E2E 테스트 보강, 고급 분석, AI 설명 | 15개 | ✅ |
+| S85 | 행동 분석, AI 인사이트, 이미지 분석 | 12개 | ✅ |
+| S86 | AI 가격 책정, 소셜 미디어, 이메일 마케팅 | 10개 | ✅ |
+| S87 | 외부 결제 (PayPal/Stripe), 네이티브 앱 | 8개 | ✅ |
 
 ---
 
@@ -40,16 +169,20 @@
 ### 테스트 파일 구조
 ```
 e2e/
-├── app.spec.ts          # 기본 페이지 테스트 (27개)
-├── auth.spec.ts         # 인증 테스트 (14개)
-├── marketplace.spec.ts  # 마켓플레이스 테스트 (16개)
-├── education.spec.ts    # 교육 센터 테스트 (14개)
-├── community.spec.ts    # 커뮤니티 테스트 (13개)
-├── responsive.spec.ts   # 반응형 디자인 테스트 (17개)
-├── api.spec.ts          # API 테스트 (25개)
 ├── accessibility.spec.ts # 접근성 테스트 (19개)
-└── performance.spec.ts  # 성능 테스트 (16개)
+├── api.spec.ts          # API 테스트 (25개)
+├── app.spec.ts          # 기본 페이지 테스트 (24개)
+├── auth.spec.ts         # 인증 테스트 (14개)
+├── community.spec.ts    # 커뮤니티 테스트 (13개)
+├── dashboard.spec.ts    # 대시보드 테스트 (24개)
+├── education.spec.ts    # 교육 센터 테스트 (14개)
+├── marketplace.spec.ts  # 마켓플레이스 테스트 (16개)
+├── performance.spec.ts  # 성능 테스트 (16개)
+├── responsive.spec.ts   # 반응형 디자인 테스트 (17개)
+└── seller-api.spec.ts   # 판매자 API 테스트 (24개)
 ```
+
+**총 테스트**: 206개 (11개 파일)
 
 ### 실행 명령
 ```bash
@@ -64,14 +197,17 @@ npx playwright test --headed  # 브라우저 표시하며 실행
 
 | 파일 | 테스트 수 | 주요 테스트 내용 |
 |------|----------|-----------------|
-| auth.spec.ts | 14 | 로그인, 회원가입, 비밀번호 찾기, 보호된 라우트 |
-| marketplace.spec.ts | 16 | 상품 목록, 검색, 필터, 상세 페이지 |
-| education.spec.ts | 14 | 튜토리얼 목록, 난이도 필터, 상세 페이지 |
-| community.spec.ts | 13 | 게시글 목록, 카테고리, 상호작용 |
-| responsive.spec.ts | 17 | 모바일/태블릿/데스크톱 레이아웃 |
-| api.spec.ts | 25 | Health check, CRUD, 인증, 에러 처리 |
 | accessibility.spec.ts | 19 | 랜드마크, 키보드, alt, 레이블 |
+| api.spec.ts | 25 | Health check, CRUD, 인증, 에러 처리 |
+| app.spec.ts | 24 | 홈페이지, 네비게이션, 기본 페이지 |
+| auth.spec.ts | 14 | 로그인, 회원가입, 비밀번호 찾기, 보호된 라우트 |
+| community.spec.ts | 13 | 게시글 목록, 카테고리, 상호작용 |
+| dashboard.spec.ts | 24 | 대시보드, 관리자 페이지, 헬스 모니터링 |
+| education.spec.ts | 14 | 튜토리얼 목록, 난이도 필터, 상세 페이지 |
+| marketplace.spec.ts | 16 | 상품 목록, 검색, 필터, 상세 페이지 |
 | performance.spec.ts | 16 | 로드 시간, 응답 시간, 캐싱 |
+| responsive.spec.ts | 17 | 모바일/태블릿/데스크톱 레이아웃 |
+| seller-api.spec.ts | 24 | 판매자 API, 관리자 API, 레퍼럴, 피드백 |
 
 ---
 
@@ -6063,13 +6199,1186 @@ validation:
 
 ---
 
-**마지막 업데이트**: 2025-12-10  
-**작성자**: Vibe Olympics 개발팀  
-**버전**: 2.5 (Session 58-64 전체 테스트 케이스 추가)
+## 🔍 Session 65: 검색/필터 UX 개선 테스트
 
-### 세션별 테스트 추가 내역
+> **추가일**: 2025-12-10
+> **테스트 수**: 10개
+
+### 검색 자동완성 테스트
+
+#### TC-S65-SEARCH-001: 카테고리 포함 자동완성
+```yaml
+url: /api/search/suggestions?q=템플릿
+method: GET
+precondition: 없음
+steps:
+  1. GET /api/search/suggestions?q=템플릿 호출
+expected:
+  - HTTP 200 응답
+  - products, categories 섹션 포함
+  - 검색어와 일치하는 카테고리 반환
+validation:
+  - 최대 5개 상품, 3개 카테고리 반환
+```
+
+#### TC-S65-SEARCH-002: 키보드 네비게이션
+```yaml
+url: /marketplace
+method: UI
+precondition: 검색창 포커스
+steps:
+  1. 검색어 입력
+  2. 화살표 키로 자동완성 항목 이동
+  3. Enter로 선택
+expected:
+  - 화살표 위/아래로 하이라이트 이동
+  - Enter로 선택된 항목 적용
+  - Escape로 닫기
+validation:
+  - aria-selected 속성 정확히 설정
+```
+
+#### TC-S65-FILTER-001: AI 생성 필터
+```yaml
+url: /marketplace?isAIGenerated=true
+method: GET
+precondition: 없음
+steps:
+  1. AI 생성 필터 체크박스 클릭
+expected:
+  - URL에 isAIGenerated=true 추가
+  - AI 생성 상품만 표시
+validation:
+  - Sparkles 아이콘 표시
+```
+
+#### TC-S65-SORT-001: 다운로드순 정렬
+```yaml
+url: /marketplace?sortBy=downloadCount
+method: GET
+precondition: 없음
+steps:
+  1. 정렬 옵션에서 "다운로드순" 선택
+expected:
+  - downloadCount 내림차순 정렬
+validation:
+  - 다운로드 수 표시
+```
+
+---
+
+## 💳 Session 66: 정기 구독 결제 시스템 테스트
+
+> **추가일**: 2025-12-11
+> **테스트 수**: 18개
+
+### 구독 플랜 API 테스트
+
+#### TC-S66-PLAN-001: 구독 플랜 목록 조회
+```yaml
+url: /api/subscriptions/plans
+method: GET
+precondition: 없음
+steps:
+  1. GET /api/subscriptions/plans 호출
+expected:
+  - HTTP 200 응답
+  - 월간/연간 플랜 목록
+  - 가격, 혜택, 트라이얼 정보 포함
+validation:
+  - isActive: true 플랜만 반환
+```
+
+#### TC-S66-PLAN-002: 구독 플랜 생성 (관리자)
+```yaml
+url: /api/subscriptions/plans
+method: POST
+precondition: 관리자 로그인
+body:
+  name: "프리미엄 월간"
+  interval: "monthly"
+  price: 9900
+  trialDays: 7
+steps:
+  1. POST /api/subscriptions/plans 호출
+expected:
+  - HTTP 201 응답
+  - 플랜 생성 완료
+validation:
+  - 관리자만 생성 가능
+```
+
+### 구독 관리 API 테스트
+
+#### TC-S66-SUB-001: 구독 생성
+```yaml
+url: /api/subscriptions
+method: POST
+precondition: 로그인 상태, 빌링키 존재
+body:
+  planId: "{planId}"
+  billingKey: "{billingKey}"
+steps:
+  1. POST /api/subscriptions 호출
+expected:
+  - HTTP 201 응답
+  - 구독 생성 및 첫 결제 처리
+  - ACTIVE 또는 TRIAL 상태
+validation:
+  - SubscriptionPayment 레코드 생성
+```
+
+#### TC-S66-SUB-002: 빌링키 발급
+```yaml
+url: /api/subscriptions/billing
+method: POST
+precondition: 로그인 상태
+body:
+  cardNumber: "4242424242424242"
+  expiryMonth: "12"
+  expiryYear: "25"
+steps:
+  1. POST /api/subscriptions/billing 호출
+expected:
+  - HTTP 200 응답
+  - 부트페이 빌링키 반환
+validation:
+  - 안전한 키 저장
+```
+
+#### TC-S66-SUB-003: 자동 갱신 처리
+```yaml
+url: /api/subscriptions/renew
+method: POST
+precondition: 만료된 ACTIVE 구독 존재
+steps:
+  1. POST /api/subscriptions/renew (Cron) 호출
+expected:
+  - HTTP 200 응답
+  - 대상 구독 자동 결제
+  - 기간 연장
+validation:
+  - 결제 실패 시 PAST_DUE 상태
+```
+
+#### TC-S66-RETRY-001: 결제 재시도
+```yaml
+url: /api/subscriptions/retry
+method: POST
+precondition: 결제 실패 구독 존재
+steps:
+  1. POST /api/subscriptions/retry 호출
+expected:
+  - HTTP 200 응답
+  - 1일/3일/7일 스케줄 재시도
+validation:
+  - 3회 실패 시 EXPIRED 상태
+```
+
+---
+
+## 🔔 Session 67: 알림 시스템 고도화 테스트
+
+> **추가일**: 2025-12-12
+> **테스트 수**: 14개
+
+### 이메일 템플릿 테스트
+
+#### TC-S67-EMAIL-001: 구독 환영 이메일
+```yaml
+url: /api/subscriptions
+method: POST (트리거)
+precondition: 구독 생성
+steps:
+  1. 구독 생성 API 호출
+expected:
+  - 구독 환영 이메일 발송
+  - 플랜명, 혜택 정보 포함
+validation:
+  - 이메일 발송 로그 확인
+```
+
+#### TC-S67-EMAIL-002: 결제 실패 알림 이메일
+```yaml
+url: /api/subscriptions/renew
+method: POST (트리거)
+precondition: 결제 실패
+steps:
+  1. 결제 실패 발생
+expected:
+  - 결제 실패 안내 이메일 발송
+  - 재시도 일정, 결제수단 업데이트 링크 포함
+validation:
+  - paymentFailed 알림 설정 확인
+```
+
+### 알림 설정 API 테스트
+
+#### TC-S67-SETTINGS-001: 알림 설정 조회/수정
+```yaml
+url: /api/user/notification-settings
+method: GET/PATCH
+precondition: 로그인 상태
+steps:
+  1. GET으로 현재 설정 조회
+  2. PATCH로 설정 수정
+expected:
+  - 이메일/푸시/인앱 알림 옵션 포함
+  - subscriptionReminder, paymentFailed 옵션 확인
+validation:
+  - 옵션별 토글 동작
+```
+
+---
+
+## 🔌 Session 68: 실시간 알림 웹소켓 테스트
+
+> **추가일**: 2025-12-12
+> **테스트 수**: 12개
+
+### Socket.io 연결 테스트
+
+#### TC-S68-SOCKET-001: 소켓 연결
+```yaml
+url: /api/socket
+method: WebSocket
+precondition: 로그인 상태
+steps:
+  1. Socket.io 연결 시도
+  2. 사용자 인증 (userId 전송)
+expected:
+  - 연결 성공
+  - user:{userId} 룸 참여
+validation:
+  - 연결 상태 확인
+```
+
+#### TC-S68-SOCKET-002: 실시간 알림 수신
+```yaml
+url: WebSocket
+method: Event
+precondition: 소켓 연결됨
+steps:
+  1. 서버에서 notification:new 이벤트 발송
+expected:
+  - 클라이언트에서 알림 수신
+  - 알림 목록 자동 업데이트
+validation:
+  - React Query 캐시 무효화
+```
+
+#### TC-S68-SOCKET-003: 알림 읽음 처리
+```yaml
+url: WebSocket
+method: Event
+precondition: 소켓 연결됨
+steps:
+  1. notification:read 이벤트 발송
+expected:
+  - 알림 읽음 상태 업데이트
+  - unread-count:update 이벤트 수신
+validation:
+  - 읽지 않은 수 감소
+```
+
+---
+
+## 🖼️ Session 69-70: 이미지 최적화 & 타입 오류 수정 테스트
+
+> **추가일**: 2025-12-12
+> **테스트 수**: 8개
+
+### next/image 최적화 테스트
+
+#### TC-S70-IMAGE-001: 상품 썸네일 최적화
+```yaml
+url: /marketplace
+method: GET
+precondition: 상품 목록 존재
+steps:
+  1. 마켓플레이스 페이지 로드
+expected:
+  - next/image 컴포넌트 사용
+  - WebP/AVIF 자동 변환
+  - Lazy loading 적용
+validation:
+  - LCP 성능 개선
+```
+
+#### TC-S70-IMAGE-002: 프로필 이미지 최적화
+```yaml
+url: /dashboard/settings
+method: GET
+precondition: 로그인 상태
+steps:
+  1. 설정 페이지 로드
+expected:
+  - 프로필 이미지 최적화 로드
+  - sizes 속성 적절히 설정
+validation:
+  - 적절한 크기 이미지 로드
+```
+
+---
+
+## 📊 Session 71: Google Analytics 4 연동 테스트
+
+> **추가일**: 2025-12-12
+> **테스트 수**: 10개
+
+### GA4 이벤트 트래킹 테스트
+
+#### TC-S71-GA-001: 페이지 뷰 트래킹
+```yaml
+url: /*
+method: GET
+precondition: GA_MEASUREMENT_ID 설정
+steps:
+  1. 페이지 이동
+expected:
+  - page_view 이벤트 전송
+  - page_path, page_title 포함
+validation:
+  - GA4 디버그 뷰 확인
+```
+
+#### TC-S71-GA-002: 상품 조회 트래킹
+```yaml
+url: /marketplace/{id}
+method: GET
+precondition: 상품 존재
+steps:
+  1. 상품 상세 페이지 접근
+expected:
+  - view_item 이벤트 전송
+  - item_id, item_name, price, category 포함
+validation:
+  - GA4 이벤트 파라미터 확인
+```
+
+#### TC-S71-GA-003: 구매 완료 트래킹
+```yaml
+url: /marketplace/{id}
+method: POST (결제 완료)
+precondition: 결제 성공
+steps:
+  1. 구매 완료
+expected:
+  - purchase 이벤트 전송
+  - transaction_id, value, currency, items 포함
+validation:
+  - GA4 이커머스 전환 추적
+```
+
+---
+
+## 📱 Session 72-73: PWA 오프라인 지원 강화 테스트
+
+> **추가일**: 2025-12-12
+> **테스트 수**: 15개
+
+### Service Worker 테스트
+
+#### TC-S73-SW-001: API 캐싱 (Network First)
+```yaml
+url: /api/products
+method: GET
+precondition: Service Worker 등록
+steps:
+  1. 온라인 상태에서 API 호출
+  2. 오프라인 전환
+  3. 동일 API 재호출
+expected:
+  - 캐시된 응답 반환
+  - 5분 TTL 적용
+validation:
+  - Cache Storage 확인
+```
+
+#### TC-S73-SW-002: 이미지 캐싱 (Cache First)
+```yaml
+url: /images/*
+method: GET
+precondition: Service Worker 등록
+steps:
+  1. 이미지 로드
+  2. 오프라인 전환
+  3. 동일 이미지 재로드
+expected:
+  - 캐시된 이미지 반환
+  - 백그라운드 업데이트
+validation:
+  - image-cache 확인
+```
+
+### 오프라인 UI 테스트
+
+#### TC-S73-OFFLINE-001: 오프라인 배너 표시
+```yaml
+url: /*
+method: UI
+precondition: 오프라인 상태
+steps:
+  1. 네트워크 연결 끊기
+expected:
+  - 오프라인 상태 배너 표시
+  - "동기화" 버튼 표시
+validation:
+  - navigator.onLine 감지
+```
+
+#### TC-S73-PWA-001: PWA 설치 프롬프트
+```yaml
+url: /*
+method: UI
+precondition: beforeinstallprompt 이벤트
+steps:
+  1. 설치 프롬프트 조건 충족
+expected:
+  - 설치 안내 UI 표시
+  - Android/iOS 별도 안내
+validation:
+  - standalone 모드 아님
+```
+
+---
+
+## 🧪 Session 74: A/B 테스트 프레임워크 테스트
+
+> **추가일**: 2025-12-11
+> **테스트 수**: 16개
+
+### A/B 테스트 API 테스트
+
+#### TC-S74-AB-001: 변형 할당
+```yaml
+url: /api/ab-test/assign
+method: POST
+precondition: 실험 진행 중
+body:
+  experimentKey: "homepage_cta"
+steps:
+  1. POST /api/ab-test/assign 호출
+expected:
+  - HTTP 200 응답
+  - 변형 ID 반환 (가중치 기반)
+  - ExperimentAssignment 생성
+validation:
+  - 동일 사용자 동일 변형 반환
+```
+
+#### TC-S74-AB-002: 이벤트 추적
+```yaml
+url: /api/ab-test/track
+method: POST
+precondition: 변형 할당됨
+body:
+  experimentKey: "homepage_cta"
+  eventType: "conversion"
+  metadata: { revenue: 50000 }
+steps:
+  1. POST /api/ab-test/track 호출
+expected:
+  - HTTP 200 응답
+  - ExperimentEvent 생성
+validation:
+  - view, click, conversion, revenue 타입
+```
+
+#### TC-S74-AB-003: 실험 통계 조회
+```yaml
+url: /api/ab-test/experiments/{id}
+method: GET
+precondition: 실험 존재
+steps:
+  1. GET /api/ab-test/experiments/{id} 호출
+expected:
+  - HTTP 200 응답
+  - 변형별 전환율, 개선율, 신뢰도 포함
+validation:
+  - 95% 이상 신뢰도에서 승자 판정
+```
+
+---
+
+## 📧 Session 75: 결제/환불 이메일 알림 테스트
+
+> **추가일**: 2025-12-11
+> **테스트 수**: 10개
+
+### 결제 알림 테스트
+
+#### TC-S75-EMAIL-001: 결제 영수증 이메일
+```yaml
+url: /api/payment/bootpay/verify
+method: POST (트리거)
+precondition: 결제 완료
+steps:
+  1. 결제 검증 API 호출
+expected:
+  - 구매자에게 영수증 이메일 발송
+  - 상품명, 금액, 결제수단, 거래번호 포함
+validation:
+  - 이메일 발송 성공
+```
+
+#### TC-S75-EMAIL-002: 판매자 판매 알림
+```yaml
+url: /api/payment/bootpay/verify
+method: POST (트리거)
+precondition: 결제 완료
+steps:
+  1. 결제 검증 API 호출
+expected:
+  - 판매자에게 판매 알림 이메일 발송
+validation:
+  - 판매자 이메일 확인
+```
+
+### 환불 알림 테스트
+
+#### TC-S75-REFUND-001: 환불 요청 접수 알림
+```yaml
+url: /api/refunds
+method: POST
+precondition: 구매 내역 존재
+steps:
+  1. POST /api/refunds 호출
+expected:
+  - 환불 요청 접수 이메일 발송
+validation:
+  - 요청 번호 포함
+```
+
+#### TC-S75-REFUND-002: 환불 완료/거절 알림
+```yaml
+url: /api/refunds/{id}
+method: PATCH
+precondition: 환불 요청 존재
+steps:
+  1. PATCH로 승인/거절 처리
+expected:
+  - 구매자에게 결과 이메일 발송
+  - 판매자에게 환불 알림 (승인 시)
+validation:
+  - 상태별 적절한 이메일
+```
+
+---
+
+## 📈 Session 76: 대시보드 기능 강화 테스트
+
+> **추가일**: 2025-12-11
+> **테스트 수**: 15개
+
+### 관리자 대시보드 API 테스트
+
+#### TC-S76-ADMIN-001: 종합 통계 조회
+```yaml
+url: /api/admin/dashboard
+method: GET
+precondition: 관리자 로그인
+steps:
+  1. GET /api/admin/dashboard 호출
+expected:
+  - HTTP 200 응답
+  - overview, period, refunds, topSellers, dailyTrend 포함
+validation:
+  - 관리자만 접근 가능
+```
+
+#### TC-S76-STATS-001: 상품별 통계 조회
+```yaml
+url: /api/dashboard/product-stats
+method: GET
+precondition: 판매자 로그인
+steps:
+  1. GET /api/dashboard/product-stats 호출
+expected:
+  - HTTP 200 응답
+  - 상품별 조회수, 판매량, 전환율 포함
+validation:
+  - 본인 상품만 조회
+```
+
+### 실시간 위젯 테스트
+
+#### TC-S76-WIDGET-001: 실시간 판매 알림 위젯
+```yaml
+url: /dashboard
+method: UI
+precondition: 판매자 로그인, Socket 연결
+steps:
+  1. 판매 발생
+expected:
+  - 실시간 판매 알림 표시
+  - sale:new 이벤트 수신
+validation:
+  - 위젯 자동 업데이트
+```
+
+---
+
+## 🔬 Session 77: A/B 테스트 관리 대시보드 테스트
+
+> **추가일**: 2025-12-11
+> **테스트 수**: 12개
+
+### A/B 테스트 관리 API 테스트
+
+#### TC-S77-AB-ADMIN-001: 대시보드 통계
+```yaml
+url: /api/admin/ab-test
+method: GET
+precondition: 관리자 로그인
+steps:
+  1. GET /api/admin/ab-test 호출
+expected:
+  - HTTP 200 응답
+  - summary, recentExperiments, topPerformers, trends 포함
+validation:
+  - 전체 실험 통계
+```
+
+#### TC-S77-AB-ADMIN-002: 일괄 작업
+```yaml
+url: /api/admin/ab-test/bulk
+method: POST
+precondition: 관리자 로그인
+body:
+  action: "start"
+  experimentIds: ["exp1", "exp2"]
+steps:
+  1. POST /api/admin/ab-test/bulk 호출
+expected:
+  - HTTP 200 응답
+  - 선택한 실험 일괄 상태 변경
+validation:
+  - start, pause, resume, archive, delete 액션
+```
+
+---
+
+## 🛠️ Session 78: 코드 품질 개선 테스트
+
+> **추가일**: 2025-12-12
+> **테스트 수**: 5개
+
+### force-dynamic 테스트
+
+#### TC-S78-DYNAMIC-001: API 동적 렌더링
+```yaml
+url: /api/*
+method: GET
+precondition: 배포 환경
+steps:
+  1. API 엔드포인트 호출
+expected:
+  - 동적 렌더링 (캐싱 없음)
+  - force-dynamic 설정 적용
+validation:
+  - 빌드 시 정적 생성 안됨
+```
+
+### logger 유틸리티 테스트
+
+#### TC-S78-LOGGER-001: 개발 환경 로깅
+```yaml
+url: N/A
+method: Utility
+precondition: NODE_ENV=development
+steps:
+  1. logger.log() 호출
+expected:
+  - 콘솔에 로그 출력
+validation:
+  - 프로덕션에서는 출력 안됨
+```
+
+---
+
+## 🔒 Session 80: SEO 자동화 & 운영 도구 테스트
+
+> **추가일**: 2025-12-12
+> **테스트 수**: 20개
+
+### Rate Limiting 테스트
+
+#### TC-S80-RATE-001: 인증 API 속도 제한
+```yaml
+url: /api/auth/signup
+method: POST
+precondition: 없음
+steps:
+  1. 11회 연속 API 호출
+expected:
+  - 10회까지 성공
+  - 11회째 HTTP 429 응답
+  - "요청이 너무 많습니다" 메시지
+validation:
+  - 분당 10회 제한
+```
+
+### 감사 로그 테스트
+
+#### TC-S80-AUDIT-001: 감사 로그 기록
+```yaml
+url: /api/admin/audit-logs
+method: GET
+precondition: 관리자 로그인
+steps:
+  1. 관리자 작업 수행
+  2. GET /api/admin/audit-logs 호출
+expected:
+  - HTTP 200 응답
+  - 관리자 활동 로그 목록
+  - action, targetType, targetId, userId 포함
+validation:
+  - 시간순 정렬
+```
+
+### 티켓 시스템 테스트
+
+#### TC-S80-TICKET-001: 티켓 생성
+```yaml
+url: /api/support/tickets
+method: POST
+precondition: 로그인 상태
+body:
+  subject: "결제 문의"
+  category: "PAYMENT"
+  message: "환불 요청합니다"
+steps:
+  1. POST /api/support/tickets 호출
+expected:
+  - HTTP 201 응답
+  - 티켓 생성 완료
+  - 상태: OPEN
+validation:
+  - TicketMessage 자동 생성
+```
+
+#### TC-S80-TICKET-002: 티켓 응답
+```yaml
+url: /api/support/tickets/{id}
+method: POST
+precondition: 티켓 존재
+body:
+  message: "답변 내용"
+steps:
+  1. POST /api/support/tickets/{id} 호출
+expected:
+  - HTTP 200 응답
+  - 메시지 추가
+  - 상태 업데이트
+validation:
+  - isStaffReply 플래그
+```
+
+### 뉴스레터 테스트
+
+#### TC-S80-NEWSLETTER-001: 구독 신청
+```yaml
+url: /api/newsletter
+method: POST
+precondition: 없음
+body:
+  email: "test@example.com"
+steps:
+  1. POST /api/newsletter 호출
+expected:
+  - HTTP 200 응답
+  - 구독 등록 완료
+validation:
+  - 이메일 중복 체크
+```
+
+---
+
+## 🏭 Session 81-83: Phase 11 판매자 도구 테스트
+
+> **추가일**: 2025-12-13
+> **테스트 수**: 35개
+
+### 벌크 작업 테스트
+
+#### TC-S81-BULK-001: 상품 일괄 가격 변경
+```yaml
+url: /api/admin/bulk-products
+method: POST
+precondition: 판매자 로그인
+body:
+  action: "UPDATE_PRICE"
+  productIds: ["p1", "p2"]
+  value: 50000
+steps:
+  1. POST /api/admin/bulk-products 호출
+expected:
+  - HTTP 200 응답
+  - 선택 상품 가격 일괄 변경
+validation:
+  - 본인 상품만 수정 가능
+```
+
+### CSV 내보내기/가져오기 테스트
+
+#### TC-S81-CSV-001: 상품 데이터 내보내기
+```yaml
+url: /api/admin/csv?type=products
+method: GET
+precondition: 판매자 로그인
+steps:
+  1. GET /api/admin/csv?type=products 호출
+expected:
+  - HTTP 200 응답
+  - CSV 파일 다운로드
+validation:
+  - 본인 상품만 포함
+```
+
+### 판매 리포트 테스트
+
+#### TC-S83-REPORT-001: 주간 판매 리포트
+```yaml
+url: /api/seller/sales-report
+method: GET
+precondition: 판매자 로그인
+steps:
+  1. GET /api/seller/sales-report?period=weekly 호출
+expected:
+  - HTTP 200 응답
+  - 일별 판매 추이
+  - 인기 상품 TOP 5
+  - 수수료 내역
+validation:
+  - 지난주 대비 성장률 포함
+```
+
+### 서버 헬스 모니터링 테스트
+
+#### TC-S82-HEALTH-001: 헬스 대시보드
+```yaml
+url: /dashboard/health
+method: GET
+precondition: 관리자 로그인
+steps:
+  1. /dashboard/health 페이지 접근
+expected:
+  - 서버 응답 시간 차트
+  - 에러율 표시
+  - 메모리 사용량
+validation:
+  - 실시간 업데이트
+```
+
+---
+
+## 🤖 Session 84-87: Phase 12 AI 분석 & 고급 기능 테스트
+
+> **추가일**: 2025-12-13~14
+> **테스트 수**: 45개
+
+### 고급 분석 대시보드 테스트 (P12-01)
+
+#### TC-S84-ANALYTICS-001: 매출 예측
+```yaml
+url: /api/analytics/advanced
+method: GET
+precondition: 판매 데이터 존재
+steps:
+  1. GET /api/analytics/advanced 호출
+expected:
+  - HTTP 200 응답
+  - 선형 회귀 기반 예측
+  - R² 정확도 포함
+validation:
+  - 트렌드 방향, 강도, 변동성 포함
+```
+
+### AI 상품 설명 생성 테스트 (P12-04)
+
+#### TC-S84-AI-DESC-001: AI 설명 생성
+```yaml
+url: /api/ai/description
+method: POST
+precondition: 로그인 상태
+body:
+  title: "프리미엄 템플릿"
+  category: "template"
+steps:
+  1. POST /api/ai/description 호출
+expected:
+  - HTTP 200 응답
+  - 3가지 변형 설명 생성
+  - 마케팅 문구 포함
+validation:
+  - Claude/폴백 로직 동작
+```
+
+### 행동 분석 테스트 (P12-02)
+
+#### TC-S85-BEHAVIOR-001: 사용자 행동 분석
+```yaml
+url: /api/analytics/behavior
+method: GET
+precondition: 관리자 로그인
+steps:
+  1. GET /api/analytics/behavior 호출
+expected:
+  - HTTP 200 응답
+  - 체류 시간, 클릭 패턴 분석
+  - 전환 퍼널 데이터
+validation:
+  - 세그먼트별 분석 지원
+```
+
+### AI 인사이트 테스트 (P12-03)
+
+#### TC-S85-INSIGHTS-001: AI 비즈니스 인사이트
+```yaml
+url: /api/ai/insights
+method: GET
+precondition: 관리자 로그인
+steps:
+  1. GET /api/ai/insights 호출
+expected:
+  - HTTP 200 응답
+  - 트렌드 분석
+  - 이상 탐지 결과
+  - 권장 사항 목록
+validation:
+  - 우선순위별 정렬
+```
+
+### 이미지 분석 테스트 (P12-05)
+
+#### TC-S85-IMAGE-001: AI 이미지 분석
+```yaml
+url: /api/ai/image-analysis
+method: POST
+precondition: 이미지 URL 존재
+body:
+  imageUrl: "https://..."
+steps:
+  1. POST /api/ai/image-analysis 호출
+expected:
+  - HTTP 200 응답
+  - 자동 태그 (주제, 스타일, 분위기)
+  - 색상 분석
+  - 품질 점수
+  - 개선 제안
+validation:
+  - 한국어 태그 포함
+```
+
+### AI 가격 책정 테스트 (P12-06)
+
+#### TC-S86-PRICING-001: AI 가격 추천
+```yaml
+url: /api/ai/pricing
+method: POST
+precondition: 상품 데이터 존재
+body:
+  productData: { category, features }
+steps:
+  1. POST /api/ai/pricing 호출
+expected:
+  - HTTP 200 응답
+  - 추천 가격대
+  - 경쟁 분석 기반 근거
+validation:
+  - 시장 데이터 참조
+```
+
+### 소셜 미디어 연동 테스트 (P12-07)
+
+#### TC-S86-SOCIAL-001: 소셜 공유 API
+```yaml
+url: /api/social
+method: POST
+precondition: 판매자/관리자 로그인
+body:
+  action: "create"
+  platform: "twitter"
+  type: "product"
+  content: "상품 홍보 포스트"
+  hashtags: ["#artwork", "#digital"]
+steps:
+  1. POST /api/social (action: create) 호출
+expected:
+  - HTTP 200 응답
+  - 포스트 ID 반환
+  - 유효성 검사 결과 포함
+validation:
+  - 플랫폼별 글자수 제한 검증
+  - 해시태그 최대 개수 검증
+```
+
+### 이메일 마케팅 테스트 (P12-08)
+
+#### TC-S86-EMAIL-MKT-001: 캠페인 생성
+```yaml
+url: /api/email-marketing
+method: POST
+precondition: 판매자/관리자 로그인
+body:
+  action: "create-campaign"
+  campaign:
+    name: "신년 프로모션"
+    subject: "새해 특별 할인!"
+    htmlContent: "<h1>새해 복 많이 받으세요</h1>"
+    listIds: ["list_1"]
+steps:
+  1. POST /api/email-marketing (action: create-campaign) 호출
+expected:
+  - HTTP 200 응답
+  - campaign.id 반환
+  - status: 'draft'
+validation:
+  - 필수 필드 검증 (name, subject, htmlContent, listIds)
+  - 템플릿 변수 치환 지원
+```
+
+### 외부 결제 연동 테스트 (P12-09)
+
+#### TC-S87-PAYPAL-001: PayPal 결제
+```yaml
+url: /api/payment/providers
+method: POST
+precondition: 로그인 상태
+body:
+  action: "create"
+  provider: "paypal"
+  orderName: "디지털 아트 구매"
+  amount: 50000
+  currency: "KRW"
+steps:
+  1. POST /api/payment/providers (action: create, provider: paypal) 호출
+expected:
+  - HTTP 200 응답
+  - PayPal 결제 URL 반환 (approveUrl)
+  - orderId 생성
+validation:
+  - API 키 미설정 시 데모 모드 동작
+  - 샌드박스/프로덕션 환경 분기
+```
+
+#### TC-S87-STRIPE-001: Stripe 결제
+```yaml
+url: /api/payment/providers
+method: POST
+precondition: 로그인 상태
+body:
+  action: "create"
+  provider: "stripe"
+  orderName: "디지털 아트 구매"
+  amount: 50000
+  currency: "KRW"
+steps:
+  1. POST /api/payment/providers (action: create, provider: stripe) 호출
+expected:
+  - HTTP 200 응답
+  - Stripe clientSecret 반환
+  - PaymentIntent ID 생성
+validation:
+  - API 키 미설정 시 데모 모드 동작
+  - 웹훅 /api/webhook/stripe 연동
+```
+
+### 네이티브 앱 웹뷰 테스트 (P12-10)
+
+#### TC-S87-WEBVIEW-001: 네이티브 앱 감지
+```yaml
+url: /*
+method: GET
+precondition: 네이티브 앱 웹뷰
+steps:
+  1. 앱에서 페이지 로드
+expected:
+  - 네이티브 앱 감지
+  - 네이티브 기능 활성화
+  - 딥링크 처리
+validation:
+  - User-Agent 또는 커스텀 헤더 감지
+```
+
+#### TC-S87-WEBVIEW-002: 네이티브 브릿지 통신
+```yaml
+url: /*
+method: JavaScript Bridge
+precondition: 네이티브 앱 환경
+steps:
+  1. 네이티브 기능 호출 (공유, 결제 등)
+expected:
+  - 앱으로 메시지 전달
+  - 응답 수신
+validation:
+  - postMessage 또는 커스텀 스킴
+```
+
+### E2E 테스트 추가 (세션 84)
+
+#### TC-S84-E2E-001: 판매자 API 테스트 (24개)
+```yaml
+file: e2e/seller-api.spec.ts
+precondition: 테스트 환경 설정
+tests:
+  - TC-SELLER-001~003: 판매 리포트 API
+  - TC-SELLER-004~005: 재고 알림 API
+  - TC-SELLER-006~008: 프로모션 API
+  - TC-SELLER-009~010: 경쟁 분석 API
+  - TC-SELLER-011~012: 판매자 대시보드
+  - TC-ADMIN-001~004: 백업/헬스 모니터링
+  - TC-REF-001~002: 레퍼럴 시스템
+  - TC-FEED-001~002: 피드백 시스템
+  - TC-CSV-001~002: CSV 내보내기/가져오기
+  - TC-BULK-001~002: 볌크 작업
+  - TC-TICKET-001~002: 지원 티켓
+validation:
+  - npm run test:e2e 통과
+```
+
+#### TC-S84-E2E-002: 대시보드 페이지 테스트 (24개)
+```yaml
+file: e2e/dashboard.spec.ts
+precondition: 테스트 환경 설정
+tests:
+  - TC-DASH-001~006: 헬스/리포트/지원 대시보드
+  - TC-DASH-007~017: 대시보드 네비게이션 (상품, 구매, 위시리스트 등)
+  - TC-ADMIN-005~009: 관리자 페이지 (A/B 테스트, 정산, 환불)
+  - TC-SELLER-011~012: 판매자 대시보드 페이지
+validation:
+  - npm run test:e2e 통과
+```
+
+---
+
+**마지막 업데이트**: 2025-12-14  
+**작성자**: Vibe Olympics 개발팀  
+**버전**: 3.0 (Session 1-87 전체 테스트 케이스 포함)
+
+### 프로젝트 개발 로드맵 요약
+
+#### ✅ 완료된 Phase (Phase 1-12)
+| Phase | 세션 범위 | 주요 내용 | 테스트 수 |
+|-------|----------|----------|----------|
+| Phase 1 | S01-S10 | 프로젝트 기반, 인증, 검색, 결제 | 기반 구축 |
+| Phase 2 | S11-S20 | 기능 확장, 팔로우, 알림, UX | 기반 구축 |
+| Phase 3 | S21-S30 | 법적 페이지, 결제 수단, SEO | 기반 구축 |
+| Phase 4 | S31-S40 | 접근성, 보안, API 테스트 | 기반 구축 |
+| Phase 5 | S41-S50 | API 보안 테스트, SEO, 자동화 | 116개 통과 |
+| Phase 6 | S51-S57 | 배포, E2E 테스트, 부트페이 | 206개 |
+| Phase 7 | S58-S64 | 번들, 쿠폰, 추천 시스템 | 125개 |
+| Phase 8 | S65-S73 | 구독, 알림, Socket.io, PWA | 87개 |
+| Phase 9 | S74-S78 | A/B 테스트, 대시보드 | 58개 |
+| Phase 10 | S80 | SEO, 운영 도구 | 20개 |
+| Phase 11 | S81-S83 | 판매자 도구, 서버 헬스 | 35개 |
+| Phase 12 | S84-S87 | AI 분석, 외부 결제, 네이티브 앱 | 45개 |
+
+### 세션별 테스트 추가 내역 (상세)
 | 세션 | 테스트 수 | 주요 내용 |
 |------|----------|----------|
+| S01-S57 | 기반 | 프로젝트 구축, 기능 개발, 테스트 환경 |
 | S58 | 30개 | 번들 판매, 쿠폰/할인 시스템 |
 | S59 | 12개 | Cloudinary 파일 업로드 |
 | S60 | 15개 | 조건부 확률 추천 시스템 |
@@ -6077,6 +7386,29 @@ validation:
 | S62 | 20개 | 이커머스 UX, 상품 비교, 최근 본 상품 |
 | S63 | 11개 | AI 콘텐츠 등록, SEO 자동화 |
 | S64 | 25개 | 컬렉션, 번들 구매, 아티스트, 미리보기 |
+| S65 | 10개 | 검색 자동완성, 필터 UX 개선 |
+| S66 | 18개 | 정기 구독 결제, 빌링키, 자동갱신 |
+| S67 | 14개 | 알림 시스템 고도화, 이메일 템플릿 |
+| S68 | 12개 | Socket.io 실시간 알림 |
+| S69-70 | 8개 | next/image 최적화, 타입 오류 수정 |
+| S71 | 10개 | Google Analytics 4 연동 |
+| S72-73 | 15개 | PWA 오프라인 지원, Service Worker |
+| S74 | 16개 | A/B 테스트 프레임워크 |
+| S75 | 10개 | 결제/환불 이메일 알림 |
+| S76 | 15개 | 관리자 대시보드, 실시간 위젯 |
+| S77 | 12개 | A/B 테스트 관리 대시보드 |
+| S78 | 5개 | force-dynamic, logger 유틸리티 |
+| S80 | 20개 | Rate Limit, 감사 로그, 티켓, 뉴스레터 |
+| S81-83 | 35개 | Phase 11 판매자 도구, 서버 헬스 |
+| S84-87 | 45개 | Phase 12 AI 분석, 외부결제, 네이티브 앱 |
+
+### 테스트 실행 현황
+| 카테고리 | 통과 | 실패 | 통과율 |
+|----------|------|------|--------|
+| Jest 단위 테스트 | 61 | 0 | 100% |
+| Playwright E2E | 206 | 0 | 100% |
+| API 보안 테스트 | 116 | 0 | 100% |
+| 명세 테스트 | 562+ | - | 작성완료 |
 
 ---
 

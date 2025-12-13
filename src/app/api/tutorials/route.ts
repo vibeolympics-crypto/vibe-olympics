@@ -171,7 +171,7 @@ export async function POST(request: Request) {
     }
 
     // 슬러그 생성 및 고유성 보장
-    let baseSlug = title
+    const baseSlug = title
       .toLowerCase()
       .replace(/[^a-z0-9가-힣ㄱ-ㅎㅏ-ㅣ\s]/g, "")
       .replace(/\s+/g, "-")

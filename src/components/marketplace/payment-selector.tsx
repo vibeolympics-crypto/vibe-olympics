@@ -510,7 +510,7 @@ export function PaymentSelector({
 
 // 결제 내역 컴포넌트
 export function PaymentHistory({ className }: { className?: string }) {
-  // 데모 결제 내역
+  // 데모 결제 내역 - 고정된 날짜로 데모 데이터 생성
   const demoHistory = [
     {
       id: 'PAY-001',
@@ -519,7 +519,7 @@ export function PaymentHistory({ className }: { className?: string }) {
       currency: 'KRW' as Currency,
       status: 'completed',
       productName: '프리미엄 템플릿 팩',
-      createdAt: new Date(Date.now() - 86400000 * 2),
+      createdAt: new Date('2025-12-11'), // 2일 전
     },
     {
       id: 'PAY-002',
@@ -528,7 +528,7 @@ export function PaymentHistory({ className }: { className?: string }) {
       currency: 'USD' as Currency,
       status: 'completed',
       productName: 'Icon Set Bundle',
-      createdAt: new Date(Date.now() - 86400000 * 5),
+      createdAt: new Date('2025-12-08'), // 5일 전
     },
     {
       id: 'PAY-003',
@@ -537,7 +537,7 @@ export function PaymentHistory({ className }: { className?: string }) {
       currency: 'KRW' as Currency,
       status: 'refunded',
       productName: 'UI Kit Pro',
-      createdAt: new Date(Date.now() - 86400000 * 10),
+      createdAt: new Date('2025-12-03'), // 10일 전
     },
   ];
 

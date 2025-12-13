@@ -537,7 +537,7 @@ export function generatePostingSchedule(
   const schedule: Date[] = [];
   const daysInterval = frequency === 'daily' ? 1 : frequency === 'weekly' ? 7 : 14;
 
-  let currentDate = new Date(startDate);
+  const currentDate = new Date(startDate);
 
   for (let i = 0; i < count; i++) {
     const time = preferredTimes[i % preferredTimes.length];

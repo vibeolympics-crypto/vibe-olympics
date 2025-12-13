@@ -14,50 +14,57 @@ async function testRecommendationSystem() {
   try {
     const userClusterCount = await prisma.userCluster.count();
     console.log(`   ✅ UserCluster 테이블: ${userClusterCount}개 레코드`);
-  } catch (e: any) {
-    console.log(`   ❌ UserCluster 테이블 오류: ${e.message}`);
+  } catch (e: unknown) {
+    const error = e as Error;
+    console.log(`   ❌ UserCluster 테이블 오류: ${error.message}`);
   }
 
   try {
     const transitionCount = await prisma.transitionMatrix.count();
     console.log(`   ✅ TransitionMatrix 테이블: ${transitionCount}개 레코드`);
-  } catch (e: any) {
-    console.log(`   ❌ TransitionMatrix 테이블 오류: ${e.message}`);
+  } catch (e: unknown) {
+    const error = e as Error;
+    console.log(`   ❌ TransitionMatrix 테이블 오류: ${error.message}`);
   }
 
   try {
     const funnelCount = await prisma.funnelState.count();
     console.log(`   ✅ FunnelState 테이블: ${funnelCount}개 레코드`);
-  } catch (e: any) {
-    console.log(`   ❌ FunnelState 테이블 오류: ${e.message}`);
+  } catch (e: unknown) {
+    const error = e as Error;
+    console.log(`   ❌ FunnelState 테이블 오류: ${error.message}`);
   }
 
   try {
     const feedbackCount = await prisma.recommendationFeedback.count();
     console.log(`   ✅ RecommendationFeedback 테이블: ${feedbackCount}개 레코드`);
-  } catch (e: any) {
-    console.log(`   ❌ RecommendationFeedback 테이블 오류: ${e.message}`);
+  } catch (e: unknown) {
+    const error = e as Error;
+    console.log(`   ❌ RecommendationFeedback 테이블 오류: ${error.message}`);
   }
 
   try {
     const stateCount = await prisma.recommendationState.count();
     console.log(`   ✅ RecommendationState 테이블: ${stateCount}개 레코드`);
-  } catch (e: any) {
-    console.log(`   ❌ RecommendationState 테이블 오류: ${e.message}`);
+  } catch (e: unknown) {
+    const error = e as Error;
+    console.log(`   ❌ RecommendationState 테이블 오류: ${error.message}`);
   }
 
   try {
     const statsCount = await prisma.recommendationStats.count();
     console.log(`   ✅ RecommendationStats 테이블: ${statsCount}개 레코드`);
-  } catch (e: any) {
-    console.log(`   ❌ RecommendationStats 테이블 오류: ${e.message}`);
+  } catch (e: unknown) {
+    const error = e as Error;
+    console.log(`   ❌ RecommendationStats 테이블 오류: ${error.message}`);
   }
 
   try {
     const catTransCount = await prisma.categoryTransition.count();
     console.log(`   ✅ CategoryTransition 테이블: ${catTransCount}개 레코드`);
-  } catch (e: any) {
-    console.log(`   ❌ CategoryTransition 테이블 오류: ${e.message}`);
+  } catch (e: unknown) {
+    const error = e as Error;
+    console.log(`   ❌ CategoryTransition 테이블 오류: ${error.message}`);
   }
 
   // 2. 상품 데이터 확인

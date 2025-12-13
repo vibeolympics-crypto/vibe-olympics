@@ -897,6 +897,7 @@ export class StripeProvider {
       if (!timestamp) return false;
       
       const signedPayload = `${timestamp}.${payload}`;
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const crypto = require('crypto');
       const expectedSig = crypto
         .createHmac('sha256', secret)

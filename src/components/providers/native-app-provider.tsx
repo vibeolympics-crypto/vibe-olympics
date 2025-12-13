@@ -80,38 +80,7 @@ export function NativeAppProvider({
     }
   }, []);
 
-  // 앱 상태 변화 리스너
-  useEffect(() => {
-    const unsubscribe = nativeBridge.onAppStateChange(setAppState);
-    return unsubscribe;
-  }, []);
-
-  // 딥링크 리스너
-  useEffect(() => {
-    const unsubscribe = onDeepLink((url) => {
-      const { path, params } = parseDeepLink(url);
-      
-      if (onDeepLinkReceived) {
-        onDeepLinkReceived(path, params);
-      } else {
-        // 기본 라우팅
-        handleDeepLinkNavigation(path, params);
-      }
-    });
-    return unsubscribe;
-  }, [onDeepLinkReceived]);
-
-  // 푸시 알림 리스너
-  useEffect(() => {
-    const unsubscribe = onPushNotification((data) => {
-      if (onPushReceived) {
-        onPushReceived(data);
-      }
-    });
-    return unsubscribe;
-  }, [onPushReceived]);
-
-  // 딥링크 네비게이션
+  // 딜링크 네비게이션 (먼저 선언)
   const handleDeepLinkNavigation = useCallback((path: string, params: Record<string, string>) => {
     const routes: Record<string, string> = {
       '/product': '/marketplace',
@@ -137,6 +106,37 @@ export function NativeAppProvider({
 
     router.push(webPath);
   }, [router]);
+
+  // 앱 상태 변화 리스너
+  useEffect(() => {
+    const unsubscribe = nativeBridge.onAppStateChange(setAppState);
+    return unsubscribe;
+  }, []);
+
+  // 딥링크 리스너
+  useEffect(() => {
+    const unsubscribe = onDeepLink((url) => {
+      const { path, params } = parseDeepLink(url);
+      
+      if (onDeepLinkReceived) {
+        onDeepLinkReceived(path, params);
+      } else {
+        // 기본 라우팅
+        handleDeepLinkNavigation(path, params);
+      }
+    });
+    return unsubscribe;
+  }, [onDeepLinkReceived, handleDeepLinkNavigation]);
+
+  // 푸시 알림 리스너
+  useEffect(() => {
+    const unsubscribe = onPushNotification((data) => {
+      if (onPushReceived) {
+        onPushReceived(data);
+      }
+    });
+    return unsubscribe;
+  }, [onPushReceived]);
 
   // 공유
   const share = useCallback(async (content: { title?: string; message: string; url?: string }) => {

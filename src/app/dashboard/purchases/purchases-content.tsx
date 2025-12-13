@@ -62,7 +62,7 @@ export function PurchasesContent() {
   // URL 파라미터 기반 일회성 상태 초기화로, 이 패턴은 정당한 사용 사례입니다
   useEffect(() => {
     if (searchParams.get("success") === "true") {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       handlePaymentSuccess();
     }
   }, [searchParams, handlePaymentSuccess]);

@@ -22,8 +22,8 @@ import {
 export const dynamic = 'force-dynamic';
 
 // 메모리 저장소 (실제 구현시 DB 사용)
-let campaigns = generateDemoCampaigns();
-let subscribers = generateDemoSubscribers(100);
+const campaigns = generateDemoCampaigns();
+const subscribers = generateDemoSubscribers(100);
 const emailLists: EmailList[] = [
   {
     id: 'list_1',

@@ -498,6 +498,22 @@ function NewTicketModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
   );
 }
 
+// 티켓 메시지 타입
+interface TicketMessage {
+  id: string;
+  content: string;
+  isStaff: boolean;
+  createdAt: string;
+  user: {
+    name: string | null;
+  } | null;
+}
+
+// 티켓 상세 타입
+interface TicketDetail extends Ticket {
+  messages: TicketMessage[];
+}
+
 // 티켓 상세 모달
 function TicketDetailModal({
   ticketId,
@@ -508,7 +524,7 @@ function TicketDetailModal({
   onClose: () => void;
   onUpdate: () => void;
 }) {
-  const [ticket, setTicket] = useState<any>(null);
+  const [ticket, setTicket] = useState<TicketDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
@@ -606,7 +622,7 @@ function TicketDetailModal({
 
         {/* 메시지 목록 */}
         <div className="flex-1 overflow-auto p-4 space-y-4">
-          {ticket.messages?.map((msg: any) => (
+          {ticket.messages?.map((msg: TicketMessage) => (
             <div
               key={msg.id}
               className={`flex ${msg.isStaff ? "justify-start" : "justify-end"}`}

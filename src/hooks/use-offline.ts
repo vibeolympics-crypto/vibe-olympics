@@ -51,6 +51,20 @@ export function useOffline() {
     lastSyncTime: null,
   });
 
+  // 백그라운드 동기화 트리거 (선언을 먼저)
+  const triggerBackgroundSync = useCallback(async () => {
+    if ('serviceWorker' in navigator && 'SyncManager' in window) {
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        await (registration as ServiceWorkerRegistration & { sync: { register: (tag: string) => Promise<void> } }).sync.register('sync-cart');
+        await (registration as ServiceWorkerRegistration & { sync: { register: (tag: string) => Promise<void> } }).sync.register('sync-wishlist');
+        setState((prev) => ({ ...prev, lastSyncTime: new Date() }));
+      } catch (error) {
+        console.error('Background sync registration failed:', error);
+      }
+    }
+  }, []);
+
   // 네트워크 상태 변경 감지
   useEffect(() => {
     const handleOnline = () => {
@@ -70,7 +84,7 @@ export function useOffline() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [triggerBackgroundSync]);
 
   // Service Worker 상태 확인
   useEffect(() => {
@@ -78,20 +92,6 @@ export function useOffline() {
       navigator.serviceWorker.ready.then(() => {
         setState((prev) => ({ ...prev, isServiceWorkerReady: true }));
       });
-    }
-  }, []);
-
-  // 백그라운드 동기화 트리거
-  const triggerBackgroundSync = useCallback(async () => {
-    if ('serviceWorker' in navigator && 'SyncManager' in window) {
-      try {
-        const registration = await navigator.serviceWorker.ready;
-        await (registration as ServiceWorkerRegistration & { sync: { register: (tag: string) => Promise<void> } }).sync.register('sync-cart');
-        await (registration as ServiceWorkerRegistration & { sync: { register: (tag: string) => Promise<void> } }).sync.register('sync-wishlist');
-        setState((prev) => ({ ...prev, lastSyncTime: new Date() }));
-      } catch (error) {
-        console.error('Background sync registration failed:', error);
-      }
     }
   }, []);
 

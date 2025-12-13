@@ -491,7 +491,7 @@ function NotificationsTab() {
   // 외부 데이터 소스(API)와 로컬 상태 동기화를 위한 정당한 패턴입니다
   useEffect(() => {
     if (data?.settings) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       syncLocalSettings(data.settings);
     }
   }, [data, syncLocalSettings]);
