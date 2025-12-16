@@ -1,6 +1,9 @@
 # Cloudflare Pages 설정 (OpenNext)
 # 배포 명령: npm run deploy:cf
 # 로컬 테스트: npm run preview:cf
+#
+# 주의: Windows에서는 WSL 사용 권장
+# 문서: docs/CLOUDFLARE_DEPLOY.md 참조
 
 name = "vibe-olympics"
 compatibility_date = "2024-12-01"
@@ -12,21 +15,46 @@ pages_build_output_dir = ".open-next/cloudflare"
 # 환경 변수 (민감한 정보는 Cloudflare Dashboard에서 설정)
 [vars]
 NODE_VERSION = "20"
-NEXT_RUNTIME = "edge"
 
-# 바인딩 설정 (선택사항)
-# KV Namespace - 캐시용
+# ===========================================
+# 바인딩 설정 (Cloudflare Dashboard에서 ID 설정 필요)
+# ===========================================
+
+# KV Namespace - 세션/캐시용
+# Cloudflare Dashboard > Workers & Pages > KV에서 생성
 # [[kv_namespaces]]
 # binding = "VIBE_CACHE"
-# id = "your-kv-namespace-id"
+# id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
-# D1 Database (Prisma 대체 옵션)
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "vibe-olympics"
-# database_id = "your-d1-database-id"
-
-# R2 Storage (파일 업로드용)
+# R2 Storage - 파일 업로드용 (선택사항)
+# Cloudflare Dashboard > R2에서 생성
 # [[r2_buckets]]
 # binding = "UPLOADS"
 # bucket_name = "vibe-olympics-uploads"
+
+# ===========================================
+# 빌드 설정 (Cloudflare Pages Dashboard에서 설정)
+# ===========================================
+# Framework preset: Next.js (Static HTML)
+# Build command: npm run build:cf
+# Build output directory: .open-next/cloudflare
+# Root directory: /
+# Node.js version: 20
+
+# ===========================================
+# 필수 환경 변수 (Dashboard > Settings > Environment variables)
+# ===========================================
+# DATABASE_URL=prisma://accelerate.prisma-data.net/?api_key=YOUR_KEY
+# DIRECT_URL=postgresql://...
+# NEXTAUTH_URL=https://vibe-olympics.pages.dev
+# NEXTAUTH_SECRET=...
+# GITHUB_ID=...
+# GITHUB_SECRET=...
+# GOOGLE_CLIENT_ID=...
+# GOOGLE_CLIENT_SECRET=...
+# NEXT_PUBLIC_PORTONE_STORE_ID=...
+# PORTONE_API_SECRET=...
+# RESEND_API_KEY=...
+# CLOUDINARY_CLOUD_NAME=...
+# CLOUDINARY_API_KEY=...
+# CLOUDINARY_API_SECRET=...
