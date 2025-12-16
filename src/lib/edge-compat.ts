@@ -3,6 +3,12 @@
  * Cloudflare Pages / Vercel Edge 환경에서 사용
  */
 
+// Edge Runtime globalThis 확장 타입
+declare global {
+  // eslint-disable-next-line no-var
+  var EdgeRuntime: string | undefined;
+}
+
 /**
  * 현재 런타임 환경 감지
  */
@@ -15,7 +21,7 @@ export function getRuntime(): 'edge' | 'nodejs' | 'browser' {
   // Edge Runtime (Cloudflare Workers, Vercel Edge)
   if (
     typeof globalThis.EdgeRuntime !== 'undefined' ||
-    typeof (globalThis as any).caches !== 'undefined'
+    typeof (globalThis as Record<string, unknown>).caches !== 'undefined'
   ) {
     return 'edge';
   }
