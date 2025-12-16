@@ -3,7 +3,7 @@
 #architecture #tech-stack
 
 > Vibe Olympics에서 사용된 모든 기술, 프레임워크, 라이브러리
-> 업데이트: 2025년 12월 9일
+> 업데이트: 2025년 12월 16일
 
 ---
 

@@ -56,7 +56,7 @@ mindmap
 | 경로 | 파일 | 설명 |
 |------|------|------|
 | `/` | `page.tsx` | 홈페이지 |
-| `/marketplace` | `marketplace/page.tsx` | 마켓플레이스 |
+| `/marketplace` | `marketplace/page.tsx` | 판도라 샵 |
 | `/marketplace/[id]` | `marketplace/[id]/page.tsx` | 상품 상세 |
 | `/education` | `education/page.tsx` | 교육 센터 |
 | `/education/[slug]` | `education/[slug]/page.tsx` | 튜토리얼 상세 |

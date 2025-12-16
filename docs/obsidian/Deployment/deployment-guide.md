@@ -3,7 +3,7 @@
 #deployment #vercel
 
 > Vibe Olympics 배포 절차
-> 현재 → 배포 완료까지
+> 현재 → 배포 완료 (Vercel)
 
 ---
 
@@ -12,24 +12,20 @@
 ```mermaid
 flowchart LR
     subgraph Current["현재 상태"]
-        Dev[localhost:3000<br/>개발 완료]
+        Dev[✅ Vercel 배포 완료]
     end
     
-    subgraph Deploy["배포 단계"]
-        D1[Vercel 프로젝트 생성]
-        D2[환경변수 설정]
-        D3[GitHub 연결]
-        D4[빌드 & 배포]
+    subgraph Multi["멀티 플랫폼"]
+        CF[Cloudflare Pages 대기]
+        Render[Render 대기]
     end
     
     subgraph Live["운영 상태"]
         Prod[vibe-olympics.vercel.app<br/>서비스 중]
     end
     
-    Current --> Deploy
-    Deploy --> Live
-    
-    D1 --> D2 --> D3 --> D4
+    Current --> Live
+    Multi -.-> Live
 ```
 
 ---

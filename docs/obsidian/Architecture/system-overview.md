@@ -3,7 +3,7 @@
 #architecture #overview
 
 > Vibe Olympics 전체 시스템 아키텍처
-> 현재 상태: 개발 완료 → 배포 대기
+> 현재 상태: 배포 완료 (Vercel)
 
 ---
 
