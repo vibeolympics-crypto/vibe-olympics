@@ -308,12 +308,12 @@ export async function triggerProductApprovedNotification(data: {
   const { email } = userSettings;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-  // 인앱 알림 생성
+// 인앱 알림 생성
   await createInAppNotification({
     userId: data.sellerId,
     type: "SYSTEM",
     title: "상품이 승인되었습니다!",
-    message: `"${data.productTitle}"이 마켓플레이스에 게시되었습니다.`,
+    message: `"${data.productTitle}"이 판도라 샵에 게시되었습니다.`,
     data: { productSlug: data.productSlug },
   });
 

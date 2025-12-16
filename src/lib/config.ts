@@ -49,7 +49,7 @@ export const FROM_NAME = "Vibe Olympics";
 
 export const SITE_CONFIG = {
   name: "Vibe Olympics",
-  description: "AI 생성 디지털 콘텐츠 마켓플레이스",
+  description: "AI 생성 디지털 콘텐츠 판도라 샵",
   shortDescription: "AI 생성 콘텐츠를 발견하고 소유하세요",
   url: APP_URL,
   ogImage: `${APP_URL}/og-image.png`,

@@ -224,7 +224,7 @@ export const welcomeEmail = (data: {
     </div>
     
     <p style="text-align: center; margin-top: 24px;">
-      <a href="${APP_URL}/marketplace" class="button">마켓플레이스 둘러보기</a>
+      <a href="${APP_URL}/marketplace" class="button">판도라 샵 둘러보기</a>
     </p>
     
     <p style="margin-top: 24px; font-size: 14px; color: #6b7280;">
@@ -473,7 +473,7 @@ export const productApprovedEmail = (data: {
   html: baseLayout(`
     <h2>상품이 승인되었습니다! 🎊</h2>
     <p>안녕하세요, <span class="highlight">${data.sellerName}</span>님!</p>
-    <p>등록하신 상품 "<strong>${data.productTitle}</strong>"이 검토를 통과하여 마켓플레이스에 공개되었습니다.</p>
+    <p>등록하신 상품 "<strong>${data.productTitle}</strong>"이 검토를 통과하여 판도라 샵에 공개되었습니다.</p>
     
     <p style="text-align: center; margin: 32px 0;">
       <a href="${data.productUrl}" class="button">상품 페이지 보기</a>
@@ -580,7 +580,7 @@ export const weeklyDigestEmail = (data: {
     </p>
     
     <p style="text-align: center; margin-top: 24px;">
-      <a href="${APP_URL}/marketplace" class="button">마켓플레이스 둘러보기</a>
+      <a href="${APP_URL}/marketplace" class="button">판도라 샵 둘러보기</a>
     </p>
   `),
 });
@@ -649,7 +649,7 @@ export const productRegistrationEmail = (data: {
     </div>
     
     ${data.status === "PENDING_REVIEW" ? `
-      <p>상품이 검토 대기 상태입니다. 관리자 검토 후 마켓플레이스에 게시됩니다.</p>
+      <p>상품이 검토 대기 상태입니다. 관리자 검토 후 판도라 샵에 게시됩니다.</p>
       <p>검토는 보통 1-2 영업일 내에 완료됩니다.</p>
     ` : `
       <p>상품이 임시 저장되었습니다. 상품 관리 페이지에서 수정 후 게시할 수 있습니다.</p>
@@ -1049,7 +1049,7 @@ export const subscriptionCancelledEmail = (data: {
     </p>
     
     <p style="text-align: center; margin-top: 24px;">
-      <a href="${APP_URL}/marketplace" class="button" style="background-color: #6b7280;">마켓플레이스 둘러보기</a>
+      <a href="${APP_URL}/marketplace" class="button" style="background-color: #6b7280;">판도라 샵 둘러보기</a>
     </p>
   `),
 });

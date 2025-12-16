@@ -1,7 +1,7 @@
 {
   "common": {
     "home": "Home",
-    "marketplace": "Marketplace",
+    "marketplace": "Pandora Shop",
     "education": "Education",
     "community": "Community",
     "dashboard": "Dashboard",
@@ -31,9 +31,9 @@
     "badge": "A Space for VIBE Coding Creators",
     "titleLine1": "Create Your",
     "titleLine2": "Ideas Into Reality",
-    "subtitle": "Share and trade apps, templates, and prompts created with VIBE coding. A marketplace where creators' intellectual property has real value.",
+    "subtitle": "Share and trade apps, templates, and prompts created with VIBE coding. A Pandora Shop where creators' intellectual property has real value.",
     "cta": {
-      "explore": "Explore Marketplace",
+      "explore": "Explore Pandora Shop",
       "learn": "View Education",
       "title": "Start Now",
       "description": "Explore the possibilities of VIBE coding together",
@@ -46,13 +46,13 @@
     },
     "hero": {
       "title": "Turn Ideas into Reality",
-      "subtitle": "A marketplace to share and trade intellectual property created with VIBE coding",
-      "cta": "Explore Marketplace"
+      "subtitle": "A Pandora Shop to share and trade intellectual property created with VIBE coding",
+      "cta": "Explore Pandora Shop"
     },
     "features": {
       "title": "Why Vibe Olympics?",
       "marketplace": {
-        "title": "Digital Marketplace",
+        "title": "Digital Pandora Shop",
         "description": "Buy and sell apps, templates, and prompts created with AI coding"
       },
       "education": {
@@ -81,7 +81,7 @@
     }
   },
   "marketplace": {
-    "title": "Marketplace",
+    "title": "Pandora Shop",
     "subtitle": "Discover digital products created with VIBE coding",
     "searchPlaceholder": "Search products...",
     "filters": {
@@ -195,7 +195,7 @@
     }
   },
   "footer": {
-    "description": "VIBE coding-based intellectual property marketplace",
+    "description": "VIBE coding-based intellectual property Pandora Shop",
     "product": "Product",
     "resources": "Resources",
     "company": "Company",

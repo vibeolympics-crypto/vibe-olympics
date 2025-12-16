@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Vibe Olympics - Create your idea",
     short_name: "VibeOlympics",
-    description: "VIBE 코딩 기반 지적 상품 마켓플레이스. 아이디어를 현실로, 지식을 가치로 만들어보세요.",
+    description: "VIBE 코딩 기반 지적 상품 판도라 샵. 아이디어를 현실로, 지식을 가치로 만들어보세요.",
     start_url: "/",
     display: "standalone",
     orientation: "portrait-primary",
@@ -55,13 +55,13 @@ export default function manifest(): MetadataRoute.Manifest {
         type: "image/png",
         // @ts-expect-error - form_factor is valid but not in types
         form_factor: "wide",
-        label: "마켓플레이스",
+        label: "판도라 샵",
       },
     ],
     shortcuts: [
       {
-        name: "마켓플레이스",
-        short_name: "마켓",
+        name: "판도라 샵",
+        short_name: "샵",
         description: "디지털 상품 둘러보기",
         url: "/marketplace",
         icons: [{ src: "/icon-192.png", sizes: "192x192" }],

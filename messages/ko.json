@@ -1,7 +1,7 @@
 {
   "common": {
     "home": "홈",
-    "marketplace": "마켓플레이스",
+    "marketplace": "판도라 샵",
     "education": "교육 센터",
     "community": "커뮤니티",
     "dashboard": "대시보드",
@@ -31,9 +31,9 @@
     "badge": "VIBE 코딩 크리에이터를 위한 공간",
     "titleLine1": "당신의 아이디어를",
     "titleLine2": "현실로 창조하세요",
-    "subtitle": "VIBE 코딩으로 만든 앱, 템플릿, 프롬프트를 공유하고 거래하세요. 크리에이터들의 지식 재산이 가치를 갖는 마켓플레이스입니다.",
+    "subtitle": "VIBE 코딩으로 만든 앱, 템플릿, 프롬프트를 공유하고 거래하세요. 크리에이터들의 지식 재산이 가치를 갖는 판도라 샵입니다.",
     "cta": {
-      "explore": "마켓플레이스 둘러보기",
+      "explore": "판도라 샵 둘러보기",
       "learn": "교육 콘텐츠 보기",
       "title": "지금 바로 시작하세요",
       "description": "VIBE 코딩의 가능성을 함께 탐험해 보세요",
@@ -46,8 +46,8 @@
     },
     "hero": {
       "title": "아이디어를 현실로",
-      "subtitle": "VIBE 코딩으로 만든 지적 재산을 공유하고 거래하는 마켓플레이스",
-      "cta": "마켓플레이스 둘러보기"
+      "subtitle": "VIBE 코딩으로 만든 지적 재산을 공유하고 거래하는 판도라 샵",
+      "cta": "판도라 샵 둘러보기"
     },
     "features": {
       "title": "왜 Vibe Olympics인가요?",
@@ -81,7 +81,7 @@
     }
   },
   "marketplace": {
-    "title": "마켓플레이스",
+    "title": "판도라 샵",
     "subtitle": "VIBE 코딩으로 만든 디지털 상품을 만나보세요",
     "searchPlaceholder": "상품 검색...",
     "filters": {
@@ -195,7 +195,7 @@
     }
   },
   "footer": {
-    "description": "VIBE 코딩 기반 지식재산 마켓플레이스",
+    "description": "VIBE 코딩 기반 지식재산 판도라 샵",
     "product": "제품",
     "resources": "리소스",
     "company": "회사",

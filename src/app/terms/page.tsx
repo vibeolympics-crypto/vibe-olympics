@@ -49,7 +49,7 @@ export default function TermsPage() {
               </h2>
               <div className="bg-[var(--bg-surface)] rounded-xl p-6 border border-[var(--bg-border)]">
                 <p className="text-[var(--text-secondary)] leading-relaxed">
-                  이 약관은 Vibe Olympics(이하 &quot;회사&quot;)가 제공하는 디지털 상품 마켓플레이스 서비스(이하 &quot;서비스&quot;)의 이용 조건 및 절차, 회사와 회원 간의 권리, 의무 및 책임사항 등을 규정함을 목적으로 합니다.
+                  이 약관은 Vibe Olympics(이하 &quot;회사&quot;)가 제공하는 디지털 상품 판도라 샵 서비스(이하 &quot;서비스&quot;)의 이용 조건 및 절차, 회사와 회원 간의 권리, 의무 및 책임사항 등을 규정함을 목적으로 합니다.
                 </p>
               </div>
             </section>

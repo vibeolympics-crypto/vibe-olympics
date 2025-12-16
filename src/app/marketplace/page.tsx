@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { MarketplaceContent } from "./marketplace-content";
 
 export const metadata: Metadata = {
-  title: "마켓플레이스 - 디지털 상품 구매",
+  title: "판도라 샵 - 디지털 상품 구매",
   description: "VIBE 코딩 기반 디지털 상품을 둘러보세요. 비즈니스 모델, 업무 자동화, 데이터 분석 등 다양한 솔루션을 만나보세요.",
   keywords: [
     "디지털 상품",
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     "프롬프트 템플릿",
   ],
   openGraph: {
-    title: "마켓플레이스 - Vibe Olympics",
+    title: "판도라 샵 - Vibe Olympics",
     description: "VIBE 코딩 기반 디지털 상품을 둘러보세요.",
     url: "https://vibeolympics.com/marketplace",
   },

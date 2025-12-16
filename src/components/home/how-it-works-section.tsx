@@ -27,7 +27,7 @@ const steps = [
     step: 3,
     icon: DollarSign,
     title: "판매 & 수익",
-    description: "검토 후 마켓플레이스에 공개됩니다. 판매가 발생하면 수익이 정산됩니다.",
+    description: "검토 후 판도라 샵에 공개됩니다. 판매가 발생하면 수익이 정산됩니다.",
     color: "var(--accent-magenta)",
   },
   {

@@ -150,7 +150,7 @@ const PLATFORM_LIMITS: Record<SocialPlatform, { maxLength: number; maxHashtags: 
 };
 
 const DEFAULT_HASHTAGS: Record<string, string[]> = {
-  ko: ['#디지털아트', '#온라인마켓', '#창작물', '#아티스트', '#마켓플레이스'],
+  ko: ['#디지털아트', '#온라인마켓', '#창작물', '#아티스트', '#판도라샵'],
   en: ['#digitalart', '#marketplace', '#creators', '#artists', '#onlineshopping'],
 };
 
@@ -429,7 +429,7 @@ export function getDefaultTemplates(): PostTemplate[] {
       type: 'product',
       content: '✨ 새로운 작품이 등록되었어요!\n\n"{{productName}}"\n\n{{description}}\n\n💰 {{price}}\n🔗 {{productUrl}}',
       variables: ['productName', 'description', 'price', 'productUrl'],
-      hashtags: ['#신규등록', '#디지털아트', '#마켓플레이스'],
+      hashtags: ['#신규등록', '#디지털아트', '#판도라샵'],
       isDefault: true,
     },
     {

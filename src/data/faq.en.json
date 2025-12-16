@@ -19,28 +19,42 @@
         {
           "id": "g1",
           "question": "What is Vibe Olympics?",
-          "answer": "Vibe Olympics is a digital marketplace for VIBE coding-based intellectual products. You can buy and sell templates, prompts, automation scripts, educational content, and more created using AI coding and no-code tools. You can also learn VIBE coding at our Education Center.",
+          "answer": "Vibe Olympics is a digital marketplace for VIBE coding-based intellectual products. You can buy and sell templates, prompts, automation scripts, educational content, and more created using AI coding and no-code tools. You can also learn VIBE coding at our Education Center and connect with other users in the Community.",
           "relatedActions": ["Browse Marketplace", "Visit Education Center"],
           "priority": 1
         },
         {
           "id": "g2",
           "question": "Is registration free?",
-          "answer": "Yes, registration is completely free. You can sign up easily with your GitHub account or register directly with email. After signing up, you can use all basic features including marketplace, educational content, and community participation for free.",
+          "answer": "Yes, registration is completely free. You can sign up easily with your GitHub account or register directly with email. After signing up, you can use all basic features including marketplace, educational content, community participation, and AI chatbot assistance for free.",
           "relatedActions": ["Sign Up", "Login"],
           "priority": 1
         },
         {
           "id": "g3",
           "question": "What types of products can I purchase?",
-          "answer": "You can purchase various digital products including AI prompts, web/app templates, automation scripts, design assets, and educational content. All products are categorized for easy browsing.",
+          "answer": "You can purchase various digital products including AI prompts, web/app templates, automation scripts, design assets, and educational content. All products are categorized for easy browsing, and you can use the product comparison feature to compare multiple products at a glance.",
           "relatedActions": ["View Categories", "Popular Products"],
           "priority": 2
         },
         {
           "id": "g4",
           "question": "Can I use it on mobile?",
-          "answer": "Yes, Vibe Olympics is designed as a responsive web application and can be used optimally on PC, tablet, and smartphone devices.",
+          "answer": "Yes, Vibe Olympics is designed as a responsive web application and can be used optimally on PC, tablet, and smartphone devices. It also supports PWA (Progressive Web App), allowing you to install it on your home screen and use it like a native app.",
+          "relatedActions": [],
+          "priority": 3
+        },
+        {
+          "id": "g5",
+          "question": "How do I use the AI chatbot?",
+          "answer": "Click the chat icon at the bottom right of the screen to start a conversation with the AI chatbot. You can get help with product recommendations, service usage guidance, VIBE coding questions, and more.",
+          "relatedActions": [],
+          "priority": 3
+        },
+        {
+          "id": "g6",
+          "question": "Do you support multiple languages?",
+          "answer": "Yes, Vibe Olympics supports Korean and English. You can change to your preferred language in the language settings at the top of the screen.",
           "relatedActions": [],
           "priority": 3
         }
@@ -49,7 +63,7 @@
         {
           "id": "b1",
           "question": "How do I purchase a product?",
-          "answer": "1) Find the product you want and go to the detail page.\n2) Click the 'Buy Now' button.\n3) Enter your card information on the Stripe payment page.\n4) After payment, you'll be automatically redirected to the download page.\n5) Purchased products can be re-downloaded anytime from 'Dashboard > Purchases'.",
+          "answer": "1) Find the product you want and go to the detail page.\n2) Click the 'Buy Now' button.\n3) Enter your card information on the payment page.\n4) After payment, you'll be automatically redirected to the download page.\n5) Purchased products can be re-downloaded anytime from 'Dashboard > Purchases'.",
           "relatedActions": ["Marketplace", "Purchases"],
           "priority": 1
         },
@@ -63,15 +77,15 @@
         {
           "id": "b3",
           "question": "What payment methods are supported?",
-          "answer": "You can pay with major credit/debit cards including Visa, Mastercard, and American Express through Stripe. All payments are processed securely with SSL encryption.",
+          "answer": "You can pay with major credit/debit cards including Visa, Mastercard, and American Express through Stripe. Korean users can also use convenient payment options like KakaoPay, NaverPay, and TossPay through Bootpay and PortOne. All payments are processed securely with SSL encryption.",
           "relatedActions": [],
           "priority": 2
         },
         {
           "id": "b4",
           "question": "Can I get a refund after purchase?",
-          "answer": "Due to the nature of digital products, refunds are difficult after download. However, if the product significantly differs from the description or the file is corrupted, please contact support within 7 days of purchase for review and possible refund.",
-          "relatedActions": ["Contact Support"],
+          "answer": "Due to the nature of digital products, refunds are difficult after download. However, if the product significantly differs from the description or the file is corrupted, please request a refund from 'Dashboard > Purchases' or contact support within 7 days of purchase for review and possible refund.",
+          "relatedActions": ["Purchases", "Contact Support"],
           "priority": 1
         },
         {
@@ -87,6 +101,27 @@
           "answer": "You can save products you're interested in to your wishlist for easy access later. Click the heart icon on the product card or detail page to add to wishlist. View saved products in 'Dashboard > Wishlist'.",
           "relatedActions": ["Wishlist"],
           "priority": 3
+        },
+        {
+          "id": "b7",
+          "question": "How do I use the product comparison feature?",
+          "answer": "Select products you want to compare in the marketplace and a 'Compare' button will appear. Click it to go to a page where you can compare price, features, and review scores of selected products at a glance.",
+          "relatedActions": ["Marketplace", "Product Compare"],
+          "priority": 3
+        },
+        {
+          "id": "b8",
+          "question": "What are the benefits of following a seller?",
+          "answer": "Following a seller lets you receive notifications when they list new products or run discount events. View your followed sellers list and their latest news in 'Dashboard > Following'.",
+          "relatedActions": ["Following"],
+          "priority": 3
+        },
+        {
+          "id": "b9",
+          "question": "How do I use coupons?",
+          "answer": "Enter your coupon code in the coupon field during checkout to apply the discount. Coupons can be obtained from sellers or through promotional events. Each coupon has specific terms and expiration dates, so please check before using.",
+          "relatedActions": [],
+          "priority": 3
         }
       ],
       "seller": [
@@ -100,43 +135,57 @@
         {
           "id": "s2",
           "question": "How do I list a product?",
-          "answer": "After seller approval, go to 'Dashboard > My Products > Add New Product'. Enter product name, description, price, category, thumbnail image, and upload the sales file. Listed products will be published on the marketplace after review.",
+          "answer": "After seller approval, go to 'Dashboard > My Products > Add New Product'. Enter product name, description, price, category, thumbnail image, and upload the sales file. You can use AI features for automatic description generation and price recommendations.",
           "relatedActions": ["My Products", "Add Product"],
           "priority": 1
         },
         {
           "id": "s3",
           "question": "What is the selling fee?",
-          "answer": "10% of the sale amount is deducted as platform fee. For example, for a $10 product sale, $1 is deducted as fee and $9 is settled. Stripe PG fee of approximately 3.5% is charged separately.",
+          "answer": "10% of the sale amount is deducted as platform fee. For example, for a $10 product sale, $1 is deducted as fee and $9 is settled. Payment gateway fees vary from 2.5~3.5% depending on the payment method.",
           "relatedActions": [],
           "priority": 1
         },
         {
           "id": "s4",
           "question": "How do I receive sales earnings?",
-          "answer": "Previous month's sales earnings are settled on the 1st of each month. Minimum settlement amount is $10, deposited to your registered account. Check real-time sales status and expected settlement in 'Dashboard > Analytics'.",
-          "relatedActions": ["Analytics", "Settings"],
+          "answer": "Previous month's sales earnings are settled on the 1st of each month. Minimum settlement amount is $10, deposited to your registered account. Check settlement history, expected amounts, and status in real-time at 'Dashboard > Settlements'.",
+          "relatedActions": ["Settlements", "Settings"],
           "priority": 1
         },
         {
           "id": "s5",
           "question": "How do I set product prices?",
-          "answer": "You can freely set prices starting from $1. Free products are also allowed. Consider market research and your product's value when setting appropriate prices.",
+          "answer": "You can freely set prices starting from $1. Free products are also allowed. Use the AI price recommendation feature during product registration to get suggested prices based on similar products in the market.",
           "relatedActions": [],
           "priority": 2
         },
         {
           "id": "s6",
           "question": "Where can I check sales statistics?",
-          "answer": "In 'Dashboard > Analytics', you can view various statistics including total sales, revenue, views, and popular products. Filter by 7, 30, or 90 days for period-based analysis.",
+          "answer": "In 'Dashboard > Analytics', you can view various statistics including total sales, revenue, views, and popular products. Filter by 7, 30, or 90 days for period-based analysis, and use AI Insights to discover sales trends and areas for improvement.",
           "relatedActions": ["Analytics"],
           "priority": 2
         },
         {
           "id": "s7",
           "question": "What if my product is rejected?",
-          "answer": "After product review, rejection reasons are sent via email. Review the reasons, make corrections, and resubmit. Common rejection reasons include copyright issues, inappropriate content, or incomplete product descriptions.",
+          "answer": "After product review, rejection reasons are sent via email and notifications. Review the reasons, make corrections, and resubmit. Common rejection reasons include copyright issues, inappropriate content, or incomplete product descriptions.",
           "relatedActions": ["My Products"],
+          "priority": 3
+        },
+        {
+          "id": "s8",
+          "question": "How do I create coupons?",
+          "answer": "In 'Dashboard > Coupon Management', you can create discount coupons for your products. Set discount rates, expiration dates, and usage conditions to run promotions.",
+          "relatedActions": ["Coupon Management"],
+          "priority": 3
+        },
+        {
+          "id": "s9",
+          "question": "How do I create collections (bundles)?",
+          "answer": "In 'Dashboard > Collections', you can create collections that bundle multiple products at a discounted price. Bundling related products together provides greater value to buyers.",
+          "relatedActions": ["Collections"],
           "priority": 3
         }
       ],
@@ -144,7 +193,7 @@
         {
           "id": "e1",
           "question": "Is educational content free?",
-          "answer": "Basic tutorials and introductory courses are provided for free. Some advanced courses or premium content may be paid. Check the price of each content in the Education Center.",
+          "answer": "All tutorials and courses in the Education Center are provided for free. User-created educational content is also freely accessible, and you can show support by liking helpful content.",
           "relatedActions": ["Education Center"],
           "priority": 1
         },
@@ -158,7 +207,7 @@
         {
           "id": "e3",
           "question": "What educational content is available?",
-          "answer": "Various content including VIBE coding basics, AI prompt writing, web development fundamentals, automation scripts, and no-code tool tutorials. Available in various formats: tutorials, making-ofs, tips & tricks, and external links.",
+          "answer": "Various content including VIBE coding basics, AI prompt writing, web development fundamentals, automation scripts, and no-code tool tutorials. Available in various formats: tutorials, making-ofs, tips & tricks, and external links. YouTube videos are also embedded.",
           "relatedActions": ["Education Center"],
           "priority": 2
         },
@@ -168,20 +217,27 @@
           "answer": "Yes, any logged-in user can create educational content. Click 'Create Content' in the Education Center and enter title, content, and type. Quality content receives likes and gets featured as recommended content.",
           "relatedActions": ["Education Center", "Create Content"],
           "priority": 2
+        },
+        {
+          "id": "e5",
+          "question": "How do I get content recommendations?",
+          "answer": "In the 'Recommended' tab of the Education Center, you can discover popular content and personalized recommendations. Recommendations are based on your interests and learning history.",
+          "relatedActions": ["Education Center"],
+          "priority": 3
         }
       ],
       "community": [
         {
           "id": "c1",
           "question": "What can I do in the community?",
-          "answer": "You can engage in Q&A, share know-how, introduce projects, and request feedback with other users. Actively communicate through posts, comments, and likes.",
+          "answer": "You can engage in Q&A, share know-how, introduce projects, and request feedback with other users. Actively communicate through posts, comments, likes, and emoji reactions.",
           "relatedActions": ["Community"],
           "priority": 1
         },
         {
           "id": "c2",
           "question": "How do I write a post?",
-          "answer": "Click 'Write Post' button on the Community page and enter category, title, and content. Login is required.",
+          "answer": "Click 'Write Post' button on the Community page and enter category, title, and content. Image attachments are also supported. Login is required.",
           "relatedActions": ["Community", "Write Post"],
           "priority": 2
         },
@@ -190,6 +246,13 @@
           "question": "How do I report inappropriate posts?",
           "answer": "Click '...' menu at the top right of the post and select 'Report'. Reported posts are reviewed and addressed by administrators. False reports may result in penalties.",
           "relatedActions": [],
+          "priority": 3
+        },
+        {
+          "id": "c4",
+          "question": "Can I follow other users?",
+          "answer": "Yes, click the 'Follow' button on an interesting user's profile. You'll receive notifications about their new posts and activities.",
+          "relatedActions": ["Following"],
           "priority": 3
         }
       ],
@@ -204,7 +267,7 @@
         {
           "id": "a2",
           "question": "How do I edit my profile?",
-          "answer": "In 'Dashboard > Settings', you can edit your name, profile image, bio, website, and social media links.",
+          "answer": "In 'Dashboard > Settings', you can edit your name, profile image, bio, website, and social media links. Sellers can also manage their seller information here.",
           "relatedActions": ["Settings"],
           "priority": 2
         },
@@ -218,8 +281,15 @@
         {
           "id": "a4",
           "question": "How do I configure notifications?",
-          "answer": "In 'Dashboard > Settings', you can configure email and push notifications. Individually toggle purchase/sale notifications, review notifications, and promotional notifications.",
+          "answer": "In 'Dashboard > Settings', you can configure email and push notifications. Individually toggle purchase/sale notifications, review notifications, follow notifications, and promotional notifications.",
           "relatedActions": ["Settings"],
+          "priority": 3
+        },
+        {
+          "id": "a5",
+          "question": "How do I receive push notifications?",
+          "answer": "Allow notification permissions in your browser to receive real-time push notifications. Push notifications are also supported when installed as a PWA. View all received notifications in 'Dashboard > Notification Center'.",
+          "relatedActions": ["Notification Center", "Settings"],
           "priority": 3
         }
       ],
@@ -227,14 +297,14 @@
         {
           "id": "p1",
           "question": "My payment failed.",
-          "answer": "Payment may fail due to card limit, insufficient balance, or international payment block. Check if international payments are enabled with your card issuer and try with a different card. Contact support if the problem persists.",
+          "answer": "Payment may fail due to card limit, insufficient balance, or international payment block. Check if international payments are enabled with your card issuer and try with a different card or convenient payment method (KakaoPay, NaverPay, etc.). Contact support if the problem persists.",
           "relatedActions": ["Contact Support"],
           "priority": 1
         },
         {
           "id": "p2",
           "question": "Where can I get my payment receipt?",
-          "answer": "Receipts are automatically sent to your registered email after payment. You can also view receipts again in 'Dashboard > Purchases'.",
+          "answer": "Receipts are automatically sent to your registered email after payment. You can also view and download receipts again in 'Dashboard > Purchases'.",
           "relatedActions": ["Purchases"],
           "priority": 2
         },
@@ -244,6 +314,20 @@
           "answer": "Yes, you can pay with most Visa, Mastercard, and American Express cards worldwide through Stripe.",
           "relatedActions": [],
           "priority": 3
+        },
+        {
+          "id": "p4",
+          "question": "What convenient payment methods are supported?",
+          "answer": "Korean users can use various convenient payment methods through Bootpay and PortOne, including KakaoPay, NaverPay, TossPay, and Samsung Pay. Select your preferred payment method on the checkout screen.",
+          "relatedActions": [],
+          "priority": 2
+        },
+        {
+          "id": "p5",
+          "question": "How are refunds processed?",
+          "answer": "Approved refunds are returned to the original payment method. Card payments are typically processed within 3-7 business days depending on the card issuer. Convenient payment refunds follow each service's refund policy. Check refund status in 'Dashboard > Purchases'.",
+          "relatedActions": ["Purchases"],
+          "priority": 2
         }
       ],
       "legal": [
@@ -257,7 +341,7 @@
         {
           "id": "l2",
           "question": "How is my personal information protected?",
-          "answer": "Vibe Olympics complies with privacy laws and protects user information through SSL encryption and secure payment systems (Stripe). See our Privacy Policy for details.",
+          "answer": "Vibe Olympics complies with privacy laws and protects user information through SSL encryption and secure payment systems (Stripe, Bootpay, PortOne). See our Privacy Policy for details.",
           "relatedActions": ["Privacy Policy"],
           "priority": 2
         },
@@ -267,12 +351,19 @@
           "answer": "You can access the full Terms of Service through the 'Terms of Service' link at the bottom of the website. Please review before using the service.",
           "relatedActions": ["Terms of Service"],
           "priority": 3
+        },
+        {
+          "id": "l4",
+          "question": "What is the refund policy?",
+          "answer": "Due to the nature of digital products, refunds after download are limited. However, if the product significantly differs from the description or has file corruption issues, refund requests are possible within 7 days of purchase. See the 'Refund Policy' page for details.",
+          "relatedActions": ["Refund Policy"],
+          "priority": 2
         }
       ]
     },
     "contact": {
       "title": "Still have questions?",
-      "description": "If you couldn't find the answer you're looking for, please contact our support team.",
+      "description": "If you couldn't find the answer you're looking for, ask our AI chatbot or contact our support team.",
       "email": "support@vibeolympics.com",
       "responseTime": "Response within 24 hours on business days"
     }

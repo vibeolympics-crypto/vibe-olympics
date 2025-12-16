@@ -4,7 +4,7 @@ import { AdSlot } from "@/components/ads";
 
 const footerLinks = {
   platform: [
-    { name: "마켓플레이스", href: "/marketplace" },
+    { name: "판도라 샵", href: "/marketplace" },
     { name: "교육 센터", href: "/education" },
     { name: "커뮤니티", href: "/community" },
     { name: "가격 정책", href: "/pricing" },

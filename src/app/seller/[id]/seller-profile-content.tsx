@@ -69,7 +69,7 @@ export function SellerProfileContent({ sellerId }: SellerProfileContentProps) {
           <p className="text-[var(--semantic-error)]">판매자 정보를 불러올 수 없습니다</p>
           <Link href="/marketplace">
             <Button variant="outline" className="mt-4">
-              마켓플레이스로 돌아가기
+              판도라 샵으로 돌아가기
             </Button>
           </Link>
         </div>

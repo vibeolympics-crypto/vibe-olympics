@@ -39,7 +39,7 @@ export default function NotFound() {
           <Link href="/marketplace">
             <Button variant="outline" size="lg">
               <Search className="w-4 h-4 mr-2" />
-              마켓플레이스 둘러보기
+              판도라 샵 둘러보기
             </Button>
           </Link>
         </div>
@@ -54,7 +54,7 @@ export default function NotFound() {
               href="/marketplace" 
               className="text-[var(--primary)] hover:underline"
             >
-              마켓플레이스
+              판도라 샵
             </Link>
             <Link 
               href="/education" 

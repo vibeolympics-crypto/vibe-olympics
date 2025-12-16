@@ -11,7 +11,7 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "Vibe Olympics",
-  description: "VIBE 코딩 기반 지적 상품 마켓플레이스. 아이디어를 현실로, 지식을 가치로 만들어보세요.",
+  description: "VIBE 코딩 기반 지적 상품 판도라 샵. 아이디어를 현실로, 지식을 가치로 만들어보세요.",
   url: process.env.NEXTAUTH_URL || "https://vibeolympics.com",
   logo: `${process.env.NEXTAUTH_URL || "https://vibeolympics.com"}/logo.png`,
   sameAs: [

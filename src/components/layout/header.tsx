@@ -35,7 +35,7 @@ import {
 import type { Notification } from "@/lib/api";
 
 const navigation = [
-  { name: "마켓플레이스", href: "/marketplace" },
+  { name: "판도라 샵", href: "/marketplace" },
   { name: "크리에이터", href: "/artists" },
   { name: "교육 센터", href: "/education" },
   { name: "커뮤니티", href: "/community" },

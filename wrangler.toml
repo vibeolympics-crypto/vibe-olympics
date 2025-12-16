@@ -1,0 +1,32 @@
+# Cloudflare Pages 설정 (OpenNext)
+# 배포 명령: npm run deploy:cf
+# 로컬 테스트: npm run preview:cf
+
+name = "vibe-olympics"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+# OpenNext 빌드 출력 디렉토리
+pages_build_output_dir = ".open-next/cloudflare"
+
+# 환경 변수 (민감한 정보는 Cloudflare Dashboard에서 설정)
+[vars]
+NODE_VERSION = "20"
+NEXT_RUNTIME = "edge"
+
+# 바인딩 설정 (선택사항)
+# KV Namespace - 캐시용
+# [[kv_namespaces]]
+# binding = "VIBE_CACHE"
+# id = "your-kv-namespace-id"
+
+# D1 Database (Prisma 대체 옵션)
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "vibe-olympics"
+# database_id = "your-d1-database-id"
+
+# R2 Storage (파일 업로드용)
+# [[r2_buckets]]
+# binding = "UPLOADS"
+# bucket_name = "vibe-olympics-uploads"
