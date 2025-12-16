@@ -153,8 +153,8 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     const periodStart = now;
     let periodEnd = new Date(now);
-    let trialStart = null;
-    let trialEnd = null;
+    let trialStart: Date | null = null;
+    let trialEnd: Date | null = null;
     let nextBillingDate = new Date(now);
 
     // 트라이얼 기간 처리

@@ -306,7 +306,7 @@ export async function GET(request: NextRequest) {
 
 // 일별 매출 추이
 async function getDailyTrend(days: number) {
-  const results = [];
+  const results: { date: string; purchases: number; revenue: number; refunds: number; newUsers: number }[] = [];
   const today = new Date();
   today.setHours(23, 59, 59, 999);
 
@@ -359,7 +359,7 @@ async function getDailyTrend(days: number) {
 
 // 월별 사용자 증가 추이
 async function getUserGrowthByMonth(months: number) {
-  const results = [];
+  const results: { month: string; users: number }[] = [];
   const today = new Date();
 
   for (let i = months - 1; i >= 0; i--) {

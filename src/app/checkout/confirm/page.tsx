@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
@@ -12,7 +12,7 @@ function ConfirmContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
-  
+
   const [verificationStatus, setVerificationStatus] = useState<"loading" | "success" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [purchaseInfo, setPurchaseInfo] = useState<{
@@ -23,35 +23,14 @@ function ConfirmContent() {
   const paymentId = searchParams.get("paymentId");
   const productId = searchParams.get("productId");
 
-  useEffect(() => {
-    // 세션 로딩 중이면 대기
-    if (status === "loading") return;
-
-    // 로그인 필요
-    if (!session) {
-      router.push("/auth/login?callbackUrl=" + encodeURIComponent(window.location.href));
-      return;
-    }
-
-    // 결제 ID 없으면 에러
-    if (!paymentId) {
-      setVerificationStatus("error");
-      setErrorMessage("결제 정보가 없습니다.");
-      return;
-    }
-
-    // 결제 검증
-    verifyPayment();
-  }, [session, status, paymentId, productId]);
-
-  const verifyPayment = async () => {
+  const verifyPayment = useCallback(async () => {
     try {
       const response = await fetch("/api/payment/portone", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           paymentId,
-          productId 
+          productId
         }),
       });
 
@@ -72,7 +51,28 @@ function ConfirmContent() {
       setVerificationStatus("error");
       setErrorMessage("결제 확인 중 오류가 발생했습니다.");
     }
-  };
+  }, [paymentId, productId]);
+
+  useEffect(() => {
+    // 세션 로딩 중이면 대기
+    if (status === "loading") return;
+
+    // 로그인 필요
+    if (!session) {
+      router.push("/auth/login?callbackUrl=" + encodeURIComponent(window.location.href));
+      return;
+    }
+
+    // 결제 ID 없으면 에러
+    if (!paymentId) {
+      setVerificationStatus("error");
+      setErrorMessage("결제 정보가 없습니다.");
+      return;
+    }
+
+    // 결제 검증
+    verifyPayment();
+  }, [session, status, paymentId, router, verifyPayment]);
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center p-4">

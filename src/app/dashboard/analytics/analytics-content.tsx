@@ -197,7 +197,7 @@ export function AnalyticsContent() {
 
   // 트렌드 데이터 생성 (서버에서 안올 경우)
   function generateTrend(days: number, currentValue: number): number[] {
-    const trend = [];
+    const trend: number[] = [];
     for (let i = 0; i < days; i++) {
       const variance = Math.random() * 0.3 - 0.15;
       trend.push(Math.max(0, Math.round(currentValue * (0.7 + variance + (i * 0.04)))));

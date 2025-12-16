@@ -43,7 +43,7 @@ export async function GET() {
 }
 
 async function getDailyStats(days: number) {
-  const results = [];
+  const results: { date: string; users: number; products: number; sales: number }[] = [];
   const today = new Date();
   today.setHours(23, 59, 59, 999);
 

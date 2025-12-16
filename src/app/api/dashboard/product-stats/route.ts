@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
       _count: true,
       _sum: { amount: true },
     });
-    const prevPurchaseMap = new Map(
+    const prevPurchaseMap = new Map<string | null, { count: number; revenue: number }>(
       prevPurchases.map((p) => [p.productId, { count: p._count, revenue: Number(p._sum.amount || 0) }])
     );
 

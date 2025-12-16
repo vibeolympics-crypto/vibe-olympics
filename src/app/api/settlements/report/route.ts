@@ -165,12 +165,12 @@ export async function GET(request: NextRequest) {
     ]);
 
     // 상품 정보 조회 (상품별 통계용)
-    const productIds = productStats.map((p) => p.productId);
+    const productIds = productStats.map((p) => p.productId).filter((id): id is string => id !== null);
     const products = await prisma.product.findMany({
       where: { id: { in: productIds } },
       select: { id: true, title: true, price: true },
     });
-    const productMap = new Map(products.map((p) => [p.id, p]));
+    const productMap = new Map<string, { id: string; title: string; price: unknown }>(products.map((p) => [p.id, p]));
 
     // 통계 계산
     const totalRevenue = purchases.reduce((sum, p) => sum + Number(p.amount), 0);
@@ -276,7 +276,7 @@ async function getDailyRevenue(
   endDate: Date,
   sellerId?: string
 ) {
-  const results = [];
+  const results: { date: string; revenue: number; count: number }[] = [];
   const current = new Date(startDate);
 
   while (current <= endDate) {
