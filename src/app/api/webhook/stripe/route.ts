@@ -4,6 +4,8 @@ import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { sendPurchaseConfirmationEmail, sendSaleNotificationEmail } from "@/lib/email";
 import { logger } from "@/lib/logger";
+import { securityLogger } from "@/lib/security";
+import { replayProtection } from "@/lib/security/webhook";
 import Stripe from "stripe";
 
 export const dynamic = 'force-dynamic';
@@ -12,12 +14,20 @@ export const dynamic = 'force-dynamic';
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(request: NextRequest) {
+  const context = securityLogger.extractContext(request);
+
   try {
     const body = await request.text();
     const headersList = await headers();
     const signature = headersList.get("stripe-signature");
 
     if (!signature || !webhookSecret) {
+      securityLogger.log({
+        type: 'WEBHOOK_INVALID',
+        severity: 'high',
+        ...context,
+        details: { reason: 'Missing signature or webhook secret', provider: 'stripe' },
+      });
       return NextResponse.json(
         { error: "Missing signature or webhook secret" },
         { status: 400 }
@@ -29,12 +39,32 @@ export async function POST(request: NextRequest) {
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err) {
-      console.error("Webhook signature verification failed:", err);
+      securityLogger.log({
+        type: 'WEBHOOK_INVALID',
+        severity: 'critical',
+        ...context,
+        details: { reason: 'Signature verification failed', provider: 'stripe', error: err instanceof Error ? err.message : 'Unknown' },
+      });
       return NextResponse.json(
         { error: "Webhook signature verification failed" },
         { status: 400 }
       );
     }
+
+    // Replay Attack 방어: 이벤트 ID로 중복 체크
+    if (replayProtection.isDuplicate(event.id)) {
+      securityLogger.log({
+        type: 'WEBHOOK_INVALID',
+        severity: 'high',
+        ...context,
+        details: { reason: 'Replay attack prevented', provider: 'stripe', eventId: event.id },
+      });
+      return NextResponse.json(
+        { error: "Duplicate event (replay attack prevented)" },
+        { status: 400 }
+      );
+    }
+    replayProtection.record(event.id);
 
     // 이벤트 처리
     switch (event.type) {

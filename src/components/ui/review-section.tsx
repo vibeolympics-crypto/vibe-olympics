@@ -546,11 +546,10 @@ export function ReviewForm({
     const files = e.target.files;
     if (!files || images.length >= 5) return;
 
-    // TODO: 실제 이미지 업로드 구현
-    // 현재는 placeholder
+    // NOTE: 로드맵 - /api/upload에 "review" 타입 추가 후 실제 Supabase 업로드로 교체
+    // 현재는 클라이언트 Object URL 사용 (미리보기 전용)
     const newImages = [...images];
     for (let i = 0; i < Math.min(files.length, 5 - images.length); i++) {
-      // 임시로 object URL 사용 (실제로는 Supabase에 업로드)
       newImages.push(URL.createObjectURL(files[i]));
     }
     setImages(newImages);
@@ -787,7 +786,7 @@ export function ReviewSection({
 
   const handleReviewSuccess = () => {
     setShowWriteForm(false);
-    // TODO: 리뷰 목록 새로고침
+    // NOTE: 로드맵 - React Query의 invalidateQueries로 교체하여 불필요한 전체 페이지 리로드 제거
     window.location.reload();
   };
 

@@ -483,45 +483,122 @@ class ConditionalProbabilityEngine {
         }
       }
     });
-    
+
     const personalCount = transition?.transitionCount || 0;
     const totalFromFirst = transition?.totalFromFirst || 0;
-    
+
     // 전체 상품 수 (라플라스 스무딩용)
     const totalProducts = await prisma.product.count({ where: { status: "PUBLISHED" } });
-    
+
     // 라플라스 스무딩 적용 개인 확률
     const personal = safeDivide(
       personalCount + CONFIG.LAPLACE_ALPHA,
       totalFromFirst + CONFIG.LAPLACE_ALPHA * totalProducts,
       1 / Math.max(totalProducts, 1)
     );
-    
+
     // 그룹 레벨 전이 확률 (같은 클러스터의 모든 전이)
     const groupTransitions = await prisma.transitionMatrix.aggregate({
       where: { cluster, nextProductId },
       _sum: { transitionCount: true },
     });
-    
+
     const groupTotal = await prisma.transitionMatrix.aggregate({
       where: { cluster },
       _sum: { transitionCount: true },
     });
-    
+
     const groupCount = groupTransitions._sum.transitionCount || 0;
     const groupTotalCount = groupTotal._sum.transitionCount || 0;
-    
+
     // 라플라스 스무딩 적용 그룹 확률
     const group = safeDivide(
       groupCount + CONFIG.LAPLACE_ALPHA,
       groupTotalCount + CONFIG.LAPLACE_ALPHA * totalProducts,
       1 / Math.max(totalProducts, 1)
     );
-    
+
     // 개인 + 그룹 가중 결합
     const combined = CONFIG.PERSONAL_WEIGHT * personal + (1 - CONFIG.PERSONAL_WEIGHT) * group;
-    
+
     return { personal, group, combined };
+  }
+
+  /** 배치 조건부 확률 계산: 여러 상품에 대해 한 번에 계산 (N+1 문제 해결) */
+  async computeBatchConditionalProbabilities(
+    firstProductId: string,
+    nextProductIds: string[],
+    cluster: UserClusterType
+  ): Promise<Map<string, { personal: number; group: number; combined: number }>> {
+    const result = new Map<string, { personal: number; group: number; combined: number }>();
+
+    if (nextProductIds.length === 0) {
+      return result;
+    }
+
+    // 1. 배치로 전이 행렬 조회
+    const transitions = await prisma.transitionMatrix.findMany({
+      where: {
+        firstProductId,
+        cluster,
+        nextProductId: { in: nextProductIds }
+      }
+    });
+
+    // 전이 맵 생성 (타입 명시)
+    const transitionMap = new Map<string, typeof transitions[0]>(
+      transitions.map(t => [t.nextProductId, t])
+    );
+
+    // 2. 전체 상품 수 (한 번만 조회)
+    const totalProducts = await prisma.product.count({ where: { status: "PUBLISHED" } });
+
+    // 3. 그룹 레벨 통계 배치 조회
+    const groupTransitions = await prisma.transitionMatrix.groupBy({
+      by: ['nextProductId'],
+      where: {
+        cluster,
+        nextProductId: { in: nextProductIds }
+      },
+      _sum: { transitionCount: true },
+    });
+
+    const groupTransitionMap = new Map<string, number>(
+      groupTransitions.map(g => [g.nextProductId, g._sum.transitionCount || 0])
+    );
+
+    // 4. 클러스터 전체 전이 수 (한 번만 조회)
+    const groupTotal = await prisma.transitionMatrix.aggregate({
+      where: { cluster },
+      _sum: { transitionCount: true },
+    });
+    const groupTotalCount = groupTotal._sum.transitionCount || 0;
+
+    // 5. 각 상품별 확률 계산
+    for (const nextProductId of nextProductIds) {
+      const transition = transitionMap.get(nextProductId);
+      const personalCount = transition?.transitionCount || 0;
+      const totalFromFirst = transition?.totalFromFirst || 0;
+
+      const personal = safeDivide(
+        personalCount + CONFIG.LAPLACE_ALPHA,
+        totalFromFirst + CONFIG.LAPLACE_ALPHA * totalProducts,
+        1 / Math.max(totalProducts, 1)
+      );
+
+      const groupCount = groupTransitionMap.get(nextProductId) || 0;
+      const group = safeDivide(
+        groupCount + CONFIG.LAPLACE_ALPHA,
+        groupTotalCount + CONFIG.LAPLACE_ALPHA * totalProducts,
+        1 / Math.max(totalProducts, 1)
+      );
+
+      const combined = CONFIG.PERSONAL_WEIGHT * personal + (1 - CONFIG.PERSONAL_WEIGHT) * group;
+
+      result.set(nextProductId, { personal, group, combined });
+    }
+
+    return result;
   }
   
   /** 전이 행렬 업데이트 */
@@ -705,6 +782,126 @@ class FunnelSimulator {
         actionPenalty: 0,
       }
     });
+  }
+
+  /** 배치 퍼널 시뮬레이션: 여러 상품에 대해 한 번에 계산 (N+1 문제 해결) */
+  async simulateFunnelBatch(
+    productIds: string[],
+    cluster: UserClusterType,
+    context: { hour?: number; stockLevel?: number; discountRate?: number }
+  ): Promise<Map<string, { conversionRate: number; stageRates: Record<FunnelStage, number> }>> {
+    const result = new Map<string, { conversionRate: number; stageRates: Record<FunnelStage, number> }>();
+
+    if (productIds.length === 0) {
+      return result;
+    }
+
+    // 배치로 퍼널 상태 조회
+    const funnelStates = await prisma.funnelState.findMany({
+      where: {
+        productId: { in: productIds },
+        cluster
+      }
+    });
+
+    const funnelStateMap = new Map<string, typeof funnelStates[0]>(
+      funnelStates.map(f => [f.productId, f])
+    );
+
+    // 맥락 조정 계수 (한 번만 계산)
+    const timeMultiplier = this.getTimeMultiplier(context.hour ?? new Date().getHours());
+    const stockMultiplier = this.getStockMultiplier(context.stockLevel ?? 100);
+    const discountMultiplier = this.getDiscountMultiplier(context.discountRate ?? 0);
+    const contextMultiplier = timeMultiplier * stockMultiplier * discountMultiplier;
+
+    // 각 상품별 퍼널 계산
+    for (const productId of productIds) {
+      const funnelState = funnelStateMap.get(productId);
+
+      const baseRates = funnelState ? {
+        exposure: funnelState.exposureRate,
+        awareness: funnelState.awarenessRate,
+        interest: funnelState.interestRate,
+        desire: funnelState.desireRate,
+        action: funnelState.actionRate,
+      } : DEFAULT_FUNNEL_RATES[cluster];
+
+      const penalties = funnelState ? {
+        exposure: funnelState.exposurePenalty,
+        awareness: funnelState.awarenessPenalty,
+        interest: funnelState.interestPenalty,
+        desire: funnelState.desirePenalty,
+        action: funnelState.actionPenalty,
+      } : { exposure: 0, awareness: 0, interest: 0, desire: 0, action: 0 };
+
+      const stageRates: Record<FunnelStage, number> = {} as Record<FunnelStage, number>;
+      let cumulativeRate = 1.0;
+
+      for (const stage of FUNNEL_STAGES) {
+        const baseRate = baseRates[stage];
+        const penalty = penalties[stage];
+        const adjustedRate = clamp(baseRate * contextMultiplier * (1 - penalty), 0, 1);
+
+        cumulativeRate *= adjustedRate;
+        stageRates[stage] = adjustedRate;
+      }
+
+      result.set(productId, {
+        conversionRate: cumulativeRate,
+        stageRates
+      });
+    }
+
+    return result;
+  }
+
+  /** 배치 노출 기록 (N+1 문제 해결) */
+  async recordExposureBatch(productIds: string[], cluster: UserClusterType): Promise<void> {
+    if (productIds.length === 0) return;
+
+    // 기존 레코드 조회
+    const existingStates = await prisma.funnelState.findMany({
+      where: {
+        productId: { in: productIds },
+        cluster
+      },
+      select: { productId: true }
+    });
+
+    const existingIds = new Set(existingStates.map(s => s.productId));
+
+    // 기존 레코드 업데이트 (배치)
+    if (existingIds.size > 0) {
+      await prisma.funnelState.updateMany({
+        where: {
+          productId: { in: Array.from(existingIds) },
+          cluster
+        },
+        data: {
+          totalExposures: { increment: 1 },
+          updatedAt: new Date()
+        }
+      });
+    }
+
+    // 새 레코드 생성 (배치)
+    const newProductIds = productIds.filter(id => !existingIds.has(id));
+    if (newProductIds.length > 0) {
+      await prisma.funnelState.createMany({
+        data: newProductIds.map(productId => ({
+          productId,
+          cluster,
+          totalExposures: 1,
+          ...DEFAULT_FUNNEL_RATES[cluster],
+          exposurePenalty: 0,
+          awarenessPenalty: 0,
+          interestPenalty: 0,
+          desirePenalty: 0,
+          actionPenalty: 0,
+        })),
+        skipDuplicates: true
+      });
+    }
   }
   
   /** 퍼널 페널티 업데이트 (실패 시) */
@@ -1029,51 +1226,67 @@ class UnifiedRecommendationEngine {
       return [];
     }
     
-    // Step 3: 각 후보에 대해 점수 계산
+    // Step 3: 배치로 필요한 데이터 미리 로드 (N+1 문제 해결)
+    const candidateIds = candidates.map(c => c.id);
+
+    // 3.1 조건부 확률 배치 계산
+    let conditionalProbMap = new Map<string, { personal: number; group: number; combined: number }>();
+    if (firstProductId && !isColdStart) {
+      conditionalProbMap = await this.conditionalEngine.computeBatchConditionalProbabilities(
+        firstProductId,
+        candidateIds,
+        cluster
+      );
+    }
+
+    // 3.2 퍼널 전환율 배치 계산
+    const funnelMap = await this.funnelSimulator.simulateFunnelBatch(
+      candidateIds,
+      cluster,
+      context
+    );
+
+    // Step 4: 각 후보에 대해 점수 계산 (DB 쿼리 없이 메모리에서)
     const scoredCandidates: RecommendationResult[] = [];
-    
+    const recommendedProductIds: string[] = [];
+
     for (const product of candidates) {
-      // 3.1 조건부 확률 계산
+      // 조건부 확률 조회 (미리 로드된 데이터에서)
       let conditionalProb = 0.1; // 기본값
-      
+
       if (firstProductId && !isColdStart) {
-        const prob = await this.conditionalEngine.computeConditionalProbability(
-          firstProductId,
-          product.id,
-          cluster
-        );
-        conditionalProb = prob.combined;
+        const prob = conditionalProbMap.get(product.id);
+        conditionalProb = prob?.combined || 0.1;
       } else if (isColdStart) {
         // 콜드 스타트: 카테고리 기반 또는 인기도 기반
         conditionalProb = 0.1 + (product._count.purchases / 1000) * 0.1;
-        
+
         // 탐색 확률 추가
         if (Math.random() < CONFIG.COLD_START_EXPLORE_RATE) {
           conditionalProb += 0.1;
         }
       }
-      
-      // 3.2 퍼널 전환율 계산
-      const funnel = await this.funnelSimulator.simulateFunnel(
-        product.id,
-        cluster,
-        context
-      );
-      
-      // 3.3 베이지안 스무딩
+
+      // 퍼널 전환율 조회 (미리 로드된 데이터에서)
+      const funnel = funnelMap.get(product.id) || {
+        conversionRate: DEFAULT_FUNNEL_RATES[cluster].action,
+        stageRates: DEFAULT_FUNNEL_RATES[cluster]
+      };
+
+      // 베이지안 스무딩
       const smoothedProb = this.evEngine.applyBayesianSmoothing(
         conditionalProb * funnel.conversionRate
       );
-      
-      // 3.4 기댓값 계산
+
+      // 기댓값 계산
       const productValue = Number(product.price);
       const expectedValue = this.evEngine.calculateExpectedValue(
         smoothedProb,
         productValue,
         0 // 추천 비용 (추후 확장)
       );
-      
-      // 3.5 추천 여부 결정
+
+      // 추천 여부 결정
       if (this.evEngine.shouldRecommend(expectedValue)) {
         // 추천 이유 생성
         const reasoning = this.generateReasoning(
@@ -1082,7 +1295,7 @@ class UnifiedRecommendationEngine {
           funnel.conversionRate,
           isColdStart
         );
-        
+
         scoredCandidates.push({
           productId: product.id,
           productName: product.title,
@@ -1100,12 +1313,14 @@ class UnifiedRecommendationEngine {
             isColdStart,
           }
         });
-        
-        // 퍼널 노출 기록
-        if (userId) {
-          await this.funnelSimulator.recordExposure(product.id, cluster);
-        }
+
+        recommendedProductIds.push(product.id);
       }
+    }
+
+    // Step 5: 퍼널 노출 배치 기록 (DB 쓰기를 한 번에)
+    if (userId && recommendedProductIds.length > 0) {
+      await this.funnelSimulator.recordExposureBatch(recommendedProductIds, cluster);
     }
     
     // Step 4: 기댓값 기준 정렬 및 상위 K개 반환

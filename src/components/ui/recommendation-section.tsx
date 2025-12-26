@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -100,18 +100,34 @@ export function RecommendationSection({
   const [data, setData] = useState<RecommendationResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchRecommendations = useCallback(async () => {
+    // 이전 요청 취소
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // 새 AbortController 생성
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/recommendations?type=${type}&limit=${limit}`);
+      const response = await fetch(`/api/recommendations?type=${type}&limit=${limit}`, {
+        signal: controller.signal,
+      });
       if (!response.ok) {
         throw new Error('추천 데이터를 불러오지 못했습니다.');
       }
       const result = await response.json();
       setData(result);
     } catch (err) {
+      // AbortError는 무시 (정상적인 취소)
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.');
     } finally {
       setLoading(false);
@@ -120,6 +136,13 @@ export function RecommendationSection({
 
   useEffect(() => {
     fetchRecommendations();
+
+    // 컴포넌트 언마운트 시 요청 취소
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [fetchRecommendations]);
 
   const getIcon = () => {
@@ -234,7 +257,7 @@ export function RecommendationSection({
   );
 }
 
-function ProductRecommendationCard({
+const ProductRecommendationCard = memo(function ProductRecommendationCard({
   product,
   isPopular = false,
 }: {
@@ -306,9 +329,9 @@ function ProductRecommendationCard({
       </div>
     </Link>
   );
-}
+});
 
-function TutorialRecommendationCard({ tutorial }: { tutorial: RecommendedTutorial }) {
+const TutorialRecommendationCard = memo(function TutorialRecommendationCard({ tutorial }: { tutorial: RecommendedTutorial }) {
   return (
     <Link href={`/education/${tutorial.id}`}>
       <div className="group relative bg-card border rounded-lg overflow-hidden hover:shadow-lg transition-all">
@@ -365,9 +388,9 @@ function TutorialRecommendationCard({ tutorial }: { tutorial: RecommendedTutoria
       </div>
     </Link>
   );
-}
+});
 
-function SellerRecommendationCard({ seller }: { seller: RecommendedSeller }) {
+const SellerRecommendationCard = memo(function SellerRecommendationCard({ seller }: { seller: RecommendedSeller }) {
   return (
     <Link href={`/seller/${seller.id}`}>
       <div className="group relative bg-card border rounded-lg p-4 hover:shadow-lg transition-all">
@@ -418,9 +441,9 @@ function SellerRecommendationCard({ seller }: { seller: RecommendedSeller }) {
       </div>
     </Link>
   );
-}
+});
 
-function RecommendationSkeleton() {
+const RecommendationSkeleton = memo(function RecommendationSkeleton() {
   return (
     <div className="bg-card border rounded-lg overflow-hidden">
       <Skeleton className="aspect-video w-full" />
@@ -431,7 +454,7 @@ function RecommendationSkeleton() {
       </div>
     </div>
   );
-}
+});
 
 // 컴팩트 버전 (사이드바용)
 interface CompactRecommendationProps {
@@ -449,20 +472,31 @@ export function CompactRecommendation({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/recommendations?type=${type}&limit=${limit}`);
+        const response = await fetch(`/api/recommendations?type=${type}&limit=${limit}`, {
+          signal: controller.signal,
+        });
         if (response.ok) {
           const result = await response.json();
           setData(result);
         }
-      } catch {
+      } catch (err) {
+        // AbortError는 무시 (정상적인 취소)
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
         console.error('Failed to fetch recommendations');
       } finally {
         setLoading(false);
       }
     };
     fetchData();
+
+    // 컴포넌트 언마운트 시 요청 취소
+    return () => controller.abort();
   }, [type, limit]);
 
   const items = type === 'products' ? data?.products : type === 'tutorials' ? data?.tutorials : data?.popular;

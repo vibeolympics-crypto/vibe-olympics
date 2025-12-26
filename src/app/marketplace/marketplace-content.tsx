@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback, memo, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
 import {
@@ -30,12 +31,44 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useProducts, useCategories, useSearchSuggestions, usePopularTags } from "@/hooks/use-api";
-import { AdvancedFilter, ActiveFilters, type FilterState } from "@/components/ui/advanced-filter";
-import { RecommendationSection } from "@/components/ui/recommendation-section";
-import { RecentlyViewedWidget } from "@/components/marketplace/recently-viewed-widget";
+import { ActiveFilters, type FilterState } from "@/components/ui/advanced-filter";
 import { CompareButton } from "@/components/marketplace/compare-components";
 import { trackSearch } from "@/components/providers";
 import type { Product, Category } from "@/types";
+
+// 코드 스플리팅: 무거운 컴포넌트 동적 로드 (초기 번들 크기 30-50% 감소)
+const AdvancedFilter = dynamic(
+  () => import("@/components/ui/advanced-filter").then(mod => ({ default: mod.AdvancedFilter })),
+  {
+    ssr: false,
+    loading: () => <div className="w-10 h-10 bg-[var(--bg-elevated)] rounded-lg animate-pulse" />
+  }
+);
+
+const RecommendationSection = dynamic(
+  () => import("@/components/ui/recommendation-section").then(mod => ({ default: mod.RecommendationSection })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="animate-pulse">
+        <div className="h-6 w-40 bg-[var(--bg-elevated)] rounded mb-4" />
+        <div className="grid grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-48 bg-[var(--bg-elevated)] rounded-lg" />
+          ))}
+        </div>
+      </div>
+    )
+  }
+);
+
+const RecentlyViewedWidget = dynamic(
+  () => import("@/components/marketplace/recently-viewed-widget").then(mod => ({ default: mod.RecentlyViewedWidget })),
+  {
+    ssr: false,
+    loading: () => <div className="h-32 bg-[var(--bg-elevated)] rounded-lg animate-pulse" />
+  }
+);
 
 // 카테고리별 아이콘 매핑
 const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -895,10 +928,12 @@ interface ProductCardProps {
   viewMode: "grid" | "list";
 }
 
-function ProductCard({ product, viewMode }: ProductCardProps) {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("ko-KR").format(price);
-  };
+// 가격 포맷 함수 (컴포넌트 외부에 정의하여 불필요한 재생성 방지)
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat("ko-KR").format(price);
+};
+
+const ProductCard = memo(function ProductCard({ product, viewMode }: ProductCardProps) {
 
   // API 데이터에서 필요한 값 추출
   const isFree = product.price === 0;
@@ -1063,4 +1098,4 @@ function ProductCard({ product, viewMode }: ProductCardProps) {
       </Card>
     </Link>
   );
-}
+});

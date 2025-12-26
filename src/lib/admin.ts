@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { securityLogger } from "@/lib/security";
 
 /**
  * 관리자 권한 확인 함수
@@ -8,7 +9,7 @@ import { prisma } from "@/lib/prisma";
  */
 export async function isAdmin(): Promise<boolean> {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user?.email) {
     return false;
   }
@@ -27,7 +28,7 @@ export async function isAdmin(): Promise<boolean> {
  */
 export async function requireAdmin(): Promise<{ isAdmin: true; userId: string } | { isAdmin: false; error: Response }> {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user?.email) {
     return {
       isAdmin: false,
@@ -44,6 +45,18 @@ export async function requireAdmin(): Promise<{ isAdmin: true; userId: string } 
   });
 
   if (!user || user.role !== "ADMIN") {
+    // 권한 없는 관리자 접근 시도 로깅
+    securityLogger.log({
+      type: 'SUSPICIOUS_ACTIVITY',
+      severity: 'high',
+      userId: user?.id || session.user.email,
+      details: {
+        reason: 'Unauthorized admin access attempt',
+        email: session.user.email,
+        currentRole: user?.role || 'UNKNOWN',
+      },
+    });
+
     return {
       isAdmin: false,
       error: new Response(JSON.stringify({ error: "관리자 권한이 필요합니다." }), {

@@ -379,6 +379,8 @@ export function ProductDetailContent({ product }: ProductDetailContentProps) {
                       src={product.images[currentImageIndex]}
                       alt={product.title}
                       fill
+                      priority={currentImageIndex === 0}
+                      sizes="(max-width: 1024px) 100vw, 66vw"
                       className="object-cover"
                     />
                   ) : (

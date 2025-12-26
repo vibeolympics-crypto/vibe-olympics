@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Bootpay } from "@bootpay/backend-js";
 import { logger } from "@/lib/logger";
+import { securityLogger } from "@/lib/security";
+import { replayProtection } from "@/lib/security/webhook";
 
 export const dynamic = 'force-dynamic';
 
@@ -46,9 +48,24 @@ interface WebhookPayload {
 
 // POST: 부트페이 웹훅 처리
 export async function POST(request: NextRequest) {
+  const context = securityLogger.extractContext(request);
+
   try {
     const payload: WebhookPayload = await request.json();
-    
+
+    // Replay Attack 방어
+    const webhookId = `bootpay_${payload.receipt_id}_${payload.status}`;
+    if (replayProtection.isDuplicate(webhookId)) {
+      securityLogger.log({
+        type: 'WEBHOOK_INVALID',
+        severity: 'high',
+        ...context,
+        details: { reason: 'Replay attack prevented', provider: 'bootpay', receiptId: payload.receipt_id },
+      });
+      return NextResponse.json({ error: "Duplicate webhook" }, { status: 400 });
+    }
+    replayProtection.record(webhookId);
+
     logger.log("Bootpay 웹훅 수신:", {
       receipt_id: payload.receipt_id,
       order_id: payload.order_id,
@@ -63,9 +80,16 @@ export async function POST(request: NextRequest) {
       
       // 결제 정보가 일치하지 않으면 무시
       if ((verifiedPayment as { price?: number }).price !== payload.price) {
-        console.error("Bootpay 웹훅: 결제 금액 불일치", {
-          webhook: payload.price,
-          verified: (verifiedPayment as { price?: number }).price,
+        securityLogger.log({
+          type: 'SUSPICIOUS_ACTIVITY',
+          severity: 'critical',
+          ...context,
+          details: {
+            reason: 'Bootpay payment amount mismatch',
+            webhookPrice: payload.price,
+            verifiedPrice: (verifiedPayment as { price?: number }).price,
+            receiptId: payload.receipt_id,
+          },
         });
         return NextResponse.json({ error: "결제 정보 불일치" }, { status: 400 });
       }

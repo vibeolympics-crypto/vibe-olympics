@@ -187,11 +187,17 @@ export default async function CategoryPage({ params }: Props) {
 
 // 정적 경로 생성 (선택적)
 export async function generateStaticParams() {
-  const categories = await prisma.category.findMany({
-    select: { slug: true },
-  });
+  try {
+    const categories = await prisma.category.findMany({
+      select: { slug: true },
+    });
 
-  return categories.map((cat) => ({
-    slug: cat.slug,
-  }));
+    return categories.map((cat) => ({
+      slug: cat.slug,
+    }));
+  } catch (error) {
+    // 빌드 시 DB 연결 실패해도 진행 (동적 렌더링으로 대체)
+    console.warn("[generateStaticParams] DB connection failed, using dynamic rendering");
+    return [];
+  }
 }

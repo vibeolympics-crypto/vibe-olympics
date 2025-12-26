@@ -31,6 +31,8 @@ export const useProducts = (params?: ProductsParams) => {
   return useQuery({
     queryKey: ["products", params],
     queryFn: () => productsApi.getAll(params),
+    staleTime: 1000 * 60, // 1분 캐시
+    gcTime: 1000 * 60 * 5, // 5분간 가비지 컬렉션 유예
   });
 };
 
@@ -39,6 +41,8 @@ export const useProduct = (id: string) => {
     queryKey: ["product", id],
     queryFn: () => productsApi.getById(id),
     enabled: !!id,
+    staleTime: 1000 * 60 * 2, // 2분 캐시
+    gcTime: 1000 * 60 * 10, // 10분간 가비지 컬렉션 유예
   });
 };
 
@@ -120,6 +124,8 @@ export const useReviews = (params: ReviewsParams) => {
     queryKey: ["reviews", params],
     queryFn: () => reviewsApi.getByProductId(params),
     enabled: !!params.productId,
+    staleTime: 1000 * 30, // 30초 캐시 (리뷰는 자주 변경)
+    gcTime: 1000 * 60 * 2, // 2분간 가비지 컬렉션 유예
   });
 };
 
@@ -143,6 +149,8 @@ export const useWishlist = (page = 1, limit = 12) => {
   return useQuery({
     queryKey: ["wishlist", page, limit],
     queryFn: () => wishlistApi.getAll(page, limit),
+    staleTime: 1000 * 30, // 30초 캐시
+    gcTime: 1000 * 60 * 2, // 2분간 가비지 컬렉션 유예
   });
 };
 
@@ -175,6 +183,8 @@ export const useCheckWishlist = (productId: string, enabled: boolean = true) => 
     queryKey: ["wishlist", "check", productId],
     queryFn: () => wishlistApi.check(productId),
     enabled: !!productId && enabled,
+    staleTime: 1000 * 30, // 30초 캐시
+    gcTime: 1000 * 60 * 2, // 2분간 가비지 컬렉션 유예
   });
 };
 
@@ -187,6 +197,8 @@ export const useSellerProfile = (sellerId: string) => {
     queryKey: ["seller", sellerId],
     queryFn: () => sellersApi.getProfile(sellerId),
     enabled: !!sellerId,
+    staleTime: 1000 * 60 * 2, // 2분 캐시 (프로필은 자주 안 변함)
+    gcTime: 1000 * 60 * 10, // 10분간 가비지 컬렉션 유예
   });
 };
 
@@ -200,6 +212,8 @@ export const useFollowStatus = (targetUserId: string) => {
     queryKey: ["followStatus", targetUserId],
     queryFn: () => followsApi.getStatus(targetUserId),
     enabled: !!targetUserId,
+    staleTime: 1000 * 30, // 30초 캐시
+    gcTime: 1000 * 60 * 2, // 2분간 가비지 컬렉션 유예
   });
 };
 
@@ -227,6 +241,8 @@ export const useFollowingList = (page = 1, limit = 12) => {
   return useQuery({
     queryKey: ["following", page, limit],
     queryFn: () => followsApi.getFollowing(page, limit),
+    staleTime: 1000 * 60, // 1분 캐시
+    gcTime: 1000 * 60 * 5, // 5분간 가비지 컬렉션 유예
   });
 };
 
@@ -235,6 +251,8 @@ export const useFollowingFeed = (page = 1, limit = 12) => {
   return useQuery({
     queryKey: ["followingFeed", page, limit],
     queryFn: () => followsApi.getFeed(page, limit),
+    staleTime: 1000 * 30, // 30초 캐시 (피드는 자주 변경)
+    gcTime: 1000 * 60 * 2, // 2분간 가비지 컬렉션 유예
   });
 };
 
@@ -246,6 +264,8 @@ export const usePurchases = (page = 1, limit = 12, status?: string) => {
   return useQuery({
     queryKey: ["purchases", page, limit, status],
     queryFn: () => purchasesApi.getAll(page, limit, status),
+    staleTime: 1000 * 60, // 1분 캐시
+    gcTime: 1000 * 60 * 5, // 5분간 가비지 컬렉션 유예
   });
 };
 
@@ -254,6 +274,8 @@ export const usePurchaseDetail = (id: string) => {
     queryKey: ["purchase", id],
     queryFn: () => purchasesApi.getById(id),
     enabled: !!id,
+    staleTime: 1000 * 60 * 2, // 2분 캐시 (구매 상세는 잘 안 변함)
+    gcTime: 1000 * 60 * 10, // 10분간 가비지 컬렉션 유예
   });
 };
 
@@ -313,6 +335,8 @@ export const useMyProducts = (sellerId: string | undefined, params?: Omit<Produc
     queryKey: ["my-products", sellerId, params],
     queryFn: () => productsApi.getAll({ ...params, sellerId }),
     enabled: !!sellerId,
+    staleTime: 1000 * 60, // 1분 캐시
+    gcTime: 1000 * 60 * 5, // 5분간 가비지 컬렉션 유예
   });
 };
 
@@ -400,6 +424,8 @@ export const usePosts = (params: PostsParams = {}) => {
   return useQuery({
     queryKey: ["posts", params],
     queryFn: () => postsApi.getAll(params),
+    staleTime: 1000 * 30, // 30초 캐시 (게시글은 자주 변경)
+    gcTime: 1000 * 60 * 2, // 2분간 가비지 컬렉션 유예
   });
 };
 
@@ -408,6 +434,8 @@ export const usePost = (id: string, enabled = true) => {
     queryKey: ["post", id],
     queryFn: () => postsApi.getById(id),
     enabled: enabled && !!id,
+    staleTime: 1000 * 60, // 1분 캐시
+    gcTime: 1000 * 60 * 5, // 5분간 가비지 컬렉션 유예
   });
 };
 
@@ -464,6 +492,8 @@ export const useComments = (postId: string, enabled = true) => {
     queryKey: ["comments", postId],
     queryFn: () => postsApi.getComments(postId),
     enabled: enabled && !!postId,
+    staleTime: 1000 * 30, // 30초 캐시 (댓글은 자주 변경)
+    gcTime: 1000 * 60 * 2, // 2분간 가비지 컬렉션 유예
   });
 };
 
@@ -489,6 +519,8 @@ export const useTutorials = (params?: TutorialsParams) => {
   return useQuery({
     queryKey: ["tutorials", params],
     queryFn: () => tutorialsApi.getAll(params),
+    staleTime: 1000 * 60 * 3, // 3분 캐시 (튜토리얼은 자주 안 변함)
+    gcTime: 1000 * 60 * 15, // 15분간 가비지 컬렉션 유예
   });
 };
 
@@ -496,6 +528,8 @@ export const useFeaturedTutorials = () => {
   return useQuery({
     queryKey: ["tutorials", "featured"],
     queryFn: () => tutorialsApi.getFeatured(),
+    staleTime: 1000 * 60 * 5, // 5분 캐시 (추천 목록은 자주 안 변함)
+    gcTime: 1000 * 60 * 30, // 30분간 가비지 컬렉션 유예
   });
 };
 
@@ -504,6 +538,8 @@ export const useTutorial = (id: string) => {
     queryKey: ["tutorial", id],
     queryFn: () => tutorialsApi.getById(id),
     enabled: !!id,
+    staleTime: 1000 * 60 * 3, // 3분 캐시
+    gcTime: 1000 * 60 * 15, // 15분간 가비지 컬렉션 유예
   });
 };
 

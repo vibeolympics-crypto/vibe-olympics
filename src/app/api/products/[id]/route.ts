@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
+import { securityLogger } from "@/lib/security";
 
 export const dynamic = 'force-dynamic';
 
@@ -125,6 +126,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     if (existingProduct.sellerId !== session.user.id) {
+      // IDOR 시도 로깅
+      securityLogger.log({
+        type: 'IDOR_ATTEMPT',
+        severity: 'high',
+        userId: session.user.id,
+        details: {
+          action: 'UPDATE_PRODUCT',
+          productId: id,
+          actualOwnerId: existingProduct.sellerId,
+        },
+      });
+
       return NextResponse.json(
         { error: "수정 권한이 없습니다" },
         { status: 403 }
@@ -199,6 +212,18 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     if (existingProduct.sellerId !== session.user.id) {
+      // IDOR 시도 로깅
+      securityLogger.log({
+        type: 'IDOR_ATTEMPT',
+        severity: 'high',
+        userId: session.user.id,
+        details: {
+          action: 'DELETE_PRODUCT',
+          productId: id,
+          actualOwnerId: existingProduct.sellerId,
+        },
+      });
+
       return NextResponse.json(
         { error: "삭제 권한이 없습니다" },
         { status: 403 }

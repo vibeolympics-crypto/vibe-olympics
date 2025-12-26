@@ -56,21 +56,24 @@ export function SignupContent() {
     setError(null);
 
     try {
-      // TODO: Implement actual signup API call
-      // const response = await fetch("/api/auth/signup", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(formData),
-      // });
-      // if (!response.ok) throw new Error("Signup failed");
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Signup failed");
+      }
 
       // GA4: sign_up 이벤트 트래킹
       trackSignUp("credentials");
-      
-      // For now, redirect to login page after mock signup
+
       router.push("/auth/login?signup=success");
-    } catch {
-      setError("회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
     } finally {
       setIsLoading(false);
     }
