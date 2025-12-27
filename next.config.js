@@ -38,6 +38,8 @@ const nextConfig = {
   // 실험적 기능
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
+    // jsdom/isomorphic-dompurify를 서버 외부 패키지로 설정 (빌드 시 번들링 제외)
+    serverComponentsExternalPackages: ['jsdom', 'isomorphic-dompurify'],
   },
   // 프로덕션 빌드 시 console 제거 (error, warn 제외)
   compiler: {
