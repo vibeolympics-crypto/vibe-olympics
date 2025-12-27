@@ -61,9 +61,9 @@ const shouldLog = (level: LogLevel): boolean => {
 const formatLog = (entry: LogEntry): string => {
   const prefix = `[${entry.timestamp}] [${entry.level.toUpperCase()}]`;
   const location = entry.isServer ? '[SERVER]' : '[CLIENT]';
-  const module = entry.context?.module ? `[${entry.context.module}]` : '';
+  const moduleTag = entry.context?.module ? `[${entry.context.module}]` : '';
 
-  return `${prefix} ${location}${module} ${entry.message}`;
+  return `${prefix} ${location}${moduleTag} ${entry.message}`;
 };
 
 // 구조화된 로그 객체 생성
