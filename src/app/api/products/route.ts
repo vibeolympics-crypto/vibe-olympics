@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 import { recordProductCreated } from "@/lib/realtime-events";
+import { withSecurity, securityLogger, sanitizer } from "@/lib/security";
 
 export const dynamic = 'force-dynamic';
 
@@ -107,7 +108,7 @@ const createProductSchema = z.object({
 });
 
 // 상품 목록 조회 (GET)
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     
@@ -278,8 +279,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function GET(request: NextRequest) {
+  return withSecurity(request, handleGET, { rateLimit: 'api' });
+}
+
 // 상품 생성 (POST)
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     // 인증 확인
     const session = await getServerSession(authOptions);
@@ -302,6 +307,11 @@ export async function POST(request: NextRequest) {
     }
 
     const data = validation.data;
+
+    // XSS 방지: 사용자 입력 정화
+    const sanitizedTitle = sanitizer.text(data.title);
+    const sanitizedShortDesc = sanitizer.text(data.shortDescription);
+    const sanitizedDesc = sanitizer.html(data.description);
 
     // 카테고리 ID 결정 (categoryId가 없으면 category slug로 조회)
     let categoryId = data.categoryId;
@@ -376,9 +386,9 @@ export async function POST(request: NextRequest) {
     // 상품 생성
     const product = await prisma.product.create({
       data: {
-        title: data.title,
-        shortDescription: data.shortDescription,
-        description: data.description,
+        title: sanitizedTitle,
+        shortDescription: sanitizedShortDesc,
+        description: sanitizedDesc,
         categoryId,
         pricingType,
         licenseType,
@@ -503,6 +513,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 보안 로깅
+    const context = securityLogger.extractContext(request);
+    securityLogger.log({
+      type: 'SUSPICIOUS_ACTIVITY',
+      severity: 'low',
+      userId: session.user.id,
+      ip: context.ip,
+      userAgent: context.userAgent,
+      details: {
+        action: 'PRODUCT_CREATED',
+        productId: product.id,
+        productType,
+        status,
+      },
+    });
+
     return NextResponse.json(
       { message: "상품이 생성되었습니다", product },
       { status: 201 }
@@ -514,6 +540,10 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function POST(request: NextRequest) {
+  return withSecurity(request, handlePOST, { rateLimit: 'api' });
 }
 
 // 고유 slug 생성 함수

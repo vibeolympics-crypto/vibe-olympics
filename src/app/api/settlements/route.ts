@@ -8,11 +8,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { withSecurity, securityLogger } from "@/lib/security";
 
 export const dynamic = 'force-dynamic';
 
 // 정산 목록 조회
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -82,8 +83,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function GET(request: NextRequest) {
+  return withSecurity(request, handleGET, { rateLimit: 'api' });
+}
+
 // 정산 생성 (관리자)
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -218,6 +223,23 @@ export async function POST(request: NextRequest) {
       return newSettlement;
     });
 
+    // 보안 로깅: 정산 생성 (관리자 중요 활동)
+    const context = securityLogger.extractContext(request);
+    securityLogger.log({
+      type: 'SUSPICIOUS_ACTIVITY',
+      severity: 'high',
+      userId: session.user.id,
+      ip: context.ip,
+      userAgent: context.userAgent,
+      details: {
+        action: 'SETTLEMENT_CREATED',
+        settlementId: settlement.id,
+        sellerId,
+        netAmount,
+        itemCount: eligiblePurchases.length,
+      },
+    });
+
     return NextResponse.json(settlement, { status: 201 });
   } catch (error) {
     console.error("Create settlement error:", error);
@@ -226,4 +248,8 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function POST(request: NextRequest) {
+  return withSecurity(request, handlePOST, { rateLimit: 'sensitive' });
 }

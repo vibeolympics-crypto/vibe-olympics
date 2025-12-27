@@ -1,17 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
+import { withSecurity, securityLogger } from "@/lib/security";
 
 export const dynamic = 'force-dynamic';
 
 // 사용자 목록 조회
-export async function GET(request: NextRequest) {
+async function handleGET(req: NextRequest): Promise<NextResponse> {
   const adminCheck = await requireAdmin();
   if (!adminCheck.isAdmin) {
-    return adminCheck.error;
+    return NextResponse.json({ error: "관리자 권한이 필요합니다" }, { status: 403 });
   }
 
-  const searchParams = request.nextUrl.searchParams;
+  // 관리자 액션 로깅
+  securityLogger.log({
+    type: 'SUSPICIOUS_ACTIVITY',
+    severity: 'medium',
+    userId: adminCheck.userId,
+    ...securityLogger.extractContext(req),
+    details: { action: 'ADMIN_VIEW_USERS', endpoint: req.nextUrl.pathname },
+  });
+
+  const searchParams = req.nextUrl.searchParams;
   const page = parseInt(searchParams.get("page") || "1");
   const limit = parseInt(searchParams.get("limit") || "20");
   const search = searchParams.get("search") || "";
@@ -77,15 +87,19 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function GET(request: NextRequest) {
+  return withSecurity(request, handleGET, { rateLimit: 'api' });
+}
+
 // 사용자 정보 수정 (역할 변경 등)
-export async function PATCH(request: NextRequest) {
+async function handlePATCH(req: NextRequest): Promise<NextResponse> {
   const adminCheck = await requireAdmin();
   if (!adminCheck.isAdmin) {
-    return adminCheck.error;
+    return NextResponse.json({ error: "관리자 권한이 필요합니다" }, { status: 403 });
   }
 
   try {
-    const body = await request.json();
+    const body = await req.json();
     const { userId, role, isSeller, sellerVerified } = body;
 
     if (!userId) {
@@ -94,6 +108,15 @@ export async function PATCH(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // 관리자 액션 로깅
+    securityLogger.log({
+      type: 'SUSPICIOUS_ACTIVITY',
+      severity: 'medium',
+      userId: adminCheck.userId,
+      ...securityLogger.extractContext(req),
+      details: { action: 'ADMIN_UPDATE_USER', targetUserId: userId, changes: { role, isSeller, sellerVerified } },
+    });
 
     const updateData: Record<string, unknown> = {};
     if (role !== undefined) updateData.role = role;
@@ -123,14 +146,18 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  return withSecurity(request, handlePATCH, { rateLimit: 'api' });
+}
+
 // 사용자 삭제
-export async function DELETE(request: NextRequest) {
+async function handleDELETE(req: NextRequest): Promise<NextResponse> {
   const adminCheck = await requireAdmin();
   if (!adminCheck.isAdmin) {
-    return adminCheck.error;
+    return NextResponse.json({ error: "관리자 권한이 필요합니다" }, { status: 403 });
   }
 
-  const searchParams = request.nextUrl.searchParams;
+  const searchParams = req.nextUrl.searchParams;
   const userId = searchParams.get("userId");
 
   if (!userId) {
@@ -149,6 +176,15 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    // 관리자 액션 로깅
+    securityLogger.log({
+      type: 'SUSPICIOUS_ACTIVITY',
+      severity: 'medium',
+      userId: adminCheck.userId,
+      ...securityLogger.extractContext(req),
+      details: { action: 'ADMIN_DELETE_USER', targetUserId: userId },
+    });
+
     await prisma.user.delete({
       where: { id: userId },
     });
@@ -161,4 +197,8 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function DELETE(request: NextRequest) {
+  return withSecurity(request, handleDELETE, { rateLimit: 'api' });
 }

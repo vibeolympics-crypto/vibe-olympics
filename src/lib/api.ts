@@ -1,3 +1,44 @@
+/**
+ * API 클라이언트 모듈
+ *
+ * 백엔드 API와의 통신을 담당하는 Axios 기반 클라이언트입니다.
+ * 각 도메인별로 분리된 API 객체를 제공합니다.
+ *
+ * @module lib/api
+ *
+ * @example 상품 목록 조회
+ * ```typescript
+ * import { productsApi } from "@/lib/api";
+ *
+ * const { products, pagination } = await productsApi.getAll({
+ *   page: 1,
+ *   limit: 12,
+ *   category: "templates"
+ * });
+ * ```
+ *
+ * @example 위시리스트 추가
+ * ```typescript
+ * import { wishlistApi } from "@/lib/api";
+ *
+ * await wishlistApi.add(productId);
+ * ```
+ *
+ * @example React Query와 함께 사용 (권장)
+ * ```typescript
+ * import { useProducts, useCreateReview } from "@/hooks/use-api";
+ *
+ * // 조회 훅
+ * const { data, isLoading } = useProducts({ page: 1 });
+ *
+ * // 변경 훅
+ * const createReview = useCreateReview();
+ * await createReview.mutateAsync({ productId, rating: 5, content: "좋아요!" });
+ * ```
+ *
+ * @see {@link module:hooks/use-api use-api} - React Query 래퍼 훅
+ */
+
 import axios from "axios";
 import type {
   Product,
@@ -7,7 +48,15 @@ import type {
   Wishlist,
 } from "@/types";
 
-// Axios 인스턴스 생성
+/**
+ * Axios 인스턴스
+ *
+ * 기본 설정:
+ * - baseURL: `/api`
+ * - Content-Type: `application/json`
+ *
+ * @private
+ */
 const api = axios.create({
   baseURL: "/api",
   headers: {
@@ -19,6 +68,18 @@ const api = axios.create({
 // 상품 API
 // ==========================================
 
+/**
+ * 상품 조회 파라미터
+ *
+ * @property {number} [page=1] - 페이지 번호
+ * @property {number} [limit=12] - 페이지당 항목 수
+ * @property {string} [category] - 카테고리 슬러그
+ * @property {string} [search] - 검색어
+ * @property {string} [sort] - 정렬 기준
+ * @property {string} [pricingType] - 가격 타입 (FREE/PAID)
+ * @property {string} [sellerId] - 판매자 ID
+ * @property {string} [productType] - 상품 타입
+ */
 export interface ProductsParams {
   page?: number;
   limit?: number;
@@ -44,8 +105,30 @@ export interface ProductsResponse {
   };
 }
 
+/**
+ * 상품 API
+ *
+ * 상품의 CRUD 및 조회 기능을 제공합니다.
+ *
+ * @example
+ * ```typescript
+ * // 목록 조회
+ * const { products } = await productsApi.getAll({ category: "templates" });
+ *
+ * // 상세 조회
+ * const { product } = await productsApi.getById("product-id");
+ *
+ * // 생성 (판매자만)
+ * const { product } = await productsApi.create({ title: "...", price: 10000 });
+ * ```
+ */
 export const productsApi = {
-  // 상품 목록 조회
+  /**
+   * 상품 목록 조회
+   *
+   * @param params - 조회 파라미터 (페이지, 카테고리, 검색어 등)
+   * @returns 상품 목록 및 페이지네이션 정보
+   */
   getAll: async (params?: ProductsParams): Promise<ProductsResponse> => {
     const { data } = await api.get("/products", { params });
     return data;

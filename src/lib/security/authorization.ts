@@ -34,7 +34,8 @@ export type ResourceType =
   | 'subscription'
   | 'comment'
   | 'notification'
-  | 'file';
+  | 'file'
+  | 'refundRequest';
 
 interface OwnershipCheckResult {
   isOwner: boolean;
@@ -125,6 +126,15 @@ const ownershipCheckers: Record<
       },
     });
     return { isOwner: !!product, resource: product };
+  },
+
+  refundRequest: async (resourceId, userId) => {
+    const refundRequest = await prisma.refundRequest.findUnique({
+      where: { id: resourceId },
+      select: { id: true, userId: true },
+    });
+    if (!refundRequest) return { isOwner: false, error: 'Resource not found' };
+    return { isOwner: refundRequest.userId === userId, resource: refundRequest };
   },
 };
 

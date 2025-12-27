@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { sendReviewNotificationEmail } from "@/lib/email";
 import { z } from "zod";
+import { withSecurity, securityLogger, sanitizer } from "@/lib/security";
 
 export const dynamic = 'force-dynamic';
 
@@ -15,31 +16,31 @@ const createReviewSchema = z.object({
   content: z.string().min(10, "리뷰는 10자 이상 작성해주세요").max(2000),
 });
 
-// 리뷰 목록 조회 (GET)
-export async function GET(request: NextRequest) {
+// 리뷰 목록 조회 (GET) - 내부 핸들러
+async function handleGetReviews(request: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url);
-    
+
     const productId = searchParams.get("productId");
-    
+
     // 페이지네이션 파라미터 유효성 검사
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
-    
+
     if (isNaN(page) || page < 1) {
       return NextResponse.json(
         { error: "Invalid page parameter. Page must be a positive integer." },
         { status: 400 }
       );
     }
-    
+
     if (isNaN(limit) || limit < 1 || limit > 100) {
       return NextResponse.json(
         { error: "Invalid limit parameter. Limit must be between 1 and 100." },
         { status: 400 }
       );
     }
-    
+
     const sort = searchParams.get("sort") || "latest";
 
     if (!productId) {
@@ -120,8 +121,17 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// 리뷰 생성 (POST)
-export async function POST(request: NextRequest) {
+// 리뷰 목록 조회 (GET) - 보안 래퍼 적용
+export async function GET(request: NextRequest) {
+  return withSecurity(request, handleGetReviews, {
+    rateLimit: "api",
+  });
+}
+
+// 리뷰 생성 (POST) - 내부 핸들러
+async function handleCreateReview(request: NextRequest): Promise<NextResponse> {
+  const context = securityLogger.extractContext(request);
+
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -143,6 +153,10 @@ export async function POST(request: NextRequest) {
     }
 
     const { productId, rating, title, content } = validation.data;
+
+    // XSS 방지: 리뷰 내용 정화
+    const sanitizedTitle = title ? sanitizer.html(title) : undefined;
+    const sanitizedContent = sanitizer.html(content);
 
     // 상품 존재 확인
     const product = await prisma.product.findUnique({
@@ -206,8 +220,8 @@ export async function POST(request: NextRequest) {
           userId: session.user.id,
           productId,
           rating,
-          title,
-          content,
+          title: sanitizedTitle,
+          content: sanitizedContent,
         },
         include: {
           user: {
@@ -240,9 +254,24 @@ export async function POST(request: NextRequest) {
       data: {
         userId: product.sellerId,
         type: "REVIEW",
-        title: "새로운 리뷰가 등록되었어요! ⭐",
+        title: "새로운 리뷰가 등록되었어요!",
         message: `${session.user.name || "사용자"}님이 "${product.title}"에 ${rating}점 리뷰를 남겼습니다.`,
         data: { productId, reviewId: review.id, rating },
+      },
+    });
+
+    // 보안 로그: 리뷰 생성 이벤트
+    securityLogger.log({
+      type: "LOGIN_SUCCESS", // 일반 활동 로그로 사용
+      severity: "low",
+      userId: session.user.id,
+      ip: context.ip,
+      userAgent: context.userAgent,
+      details: {
+        action: "REVIEW_CREATED",
+        productId,
+        reviewId: review.id,
+        rating,
       },
     });
 
@@ -259,7 +288,7 @@ export async function POST(request: NextRequest) {
           productTitle: product.title,
           rating,
           reviewerName: session.user.name || "사용자",
-          reviewContent: content.length > 200 ? content.slice(0, 200) + "..." : content,
+          reviewContent: sanitizedContent.length > 200 ? sanitizedContent.slice(0, 200) + "..." : sanitizedContent,
         });
       }
     } catch (emailError) {
@@ -277,4 +306,11 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// 리뷰 생성 (POST) - 보안 래퍼 적용
+export async function POST(request: NextRequest) {
+  return withSecurity(request, handleCreateReview, {
+    rateLimit: "api",
+  });
 }

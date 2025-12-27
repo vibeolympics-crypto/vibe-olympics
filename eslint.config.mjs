@@ -40,6 +40,28 @@ const eslintConfig = defineConfig([
       "react-hooks/preserve-manual-memoization": "off",
       "react-hooks/refs": "off",
       "react-hooks/set-state-in-effect": "off",
+
+      // === 코드 품질 규칙 ===
+      // 엄격한 동등 비교 (== 대신 ===)
+      "eqeqeq": ["error", "always", { null: "ignore" }],
+      // const 선호 (재할당 없는 변수)
+      "prefer-const": "warn",
+      // console.log 경고 (error, warn 제외)
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+      // 중첩 삼항 연산자 금지
+      "no-nested-ternary": "warn",
+      // Promise reject는 Error 객체만
+      "prefer-promise-reject-errors": "warn",
+      // 불필요한 return await 제거
+      "no-return-await": "warn",
+
+      // === TypeScript 추가 규칙 ===
+      // any 타입 경고 (점진적 전환)
+      "@typescript-eslint/no-explicit-any": "warn",
+      // 빈 함수 허용 (콜백 등에서 필요)
+      "@typescript-eslint/no-empty-function": "off",
+      // non-null assertion (!) 경고
+      "@typescript-eslint/no-non-null-assertion": "warn",
     },
   },
 ]);

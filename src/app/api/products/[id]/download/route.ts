@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { withSecurity, securityLogger } from "@/lib/security";
 
 export const dynamic = 'force-dynamic';
 
@@ -9,7 +10,7 @@ export const dynamic = 'force-dynamic';
  * GET /api/products/[id]/download
  * 구매한 상품의 다운로드 URL을 반환합니다.
  */
-export async function GET(
+async function handleGET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -90,6 +91,22 @@ export async function GET(
       });
     }
 
+    // 보안 로깅: 다운로드 이벤트 (중요 자산 접근)
+    const context = securityLogger.extractContext(request);
+    securityLogger.log({
+      type: 'SUSPICIOUS_ACTIVITY',
+      severity: 'medium',
+      userId: session.user.id,
+      ip: context.ip,
+      userAgent: context.userAgent,
+      details: {
+        action: 'FILE_DOWNLOAD',
+        productId: id,
+        isSeller,
+        fileCount: product.files.length,
+      },
+    });
+
     return NextResponse.json({
       success: true,
       data: {
@@ -110,4 +127,12 @@ export async function GET(
       { status: 500 }
     );
   }
+}
+
+export async function GET(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const handler = (req: NextRequest) => handleGET(req, context);
+  return withSecurity(request, handler, { rateLimit: 'api' });
 }

@@ -6,18 +6,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
+import { withSecurity, securityLogger } from "@/lib/security";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+async function handleGET(req: NextRequest): Promise<NextResponse> {
   // 관리자 권한 확인
   const adminCheck = await requireAdmin();
   if (!adminCheck.isAdmin) {
-    return adminCheck.error;
+    return NextResponse.json({ error: "관리자 권한이 필요합니다" }, { status: 403 });
   }
 
+  // 관리자 액션 로깅
+  securityLogger.log({
+    type: 'SUSPICIOUS_ACTIVITY',
+    severity: 'medium',
+    userId: adminCheck.userId,
+    ...securityLogger.extractContext(req),
+    details: { action: 'ADMIN_VIEW_DASHBOARD', endpoint: req.nextUrl.pathname },
+  });
+
   try {
-    const searchParams = request.nextUrl.searchParams;
+    const searchParams = req.nextUrl.searchParams;
     const period = searchParams.get("period") || "month"; // day, week, month, year
 
     // 기간 설정
@@ -302,6 +312,10 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function GET(request: NextRequest) {
+  return withSecurity(request, handleGET, { rateLimit: 'api' });
 }
 
 // 일별 매출 추이

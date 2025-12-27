@@ -1,15 +1,25 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, getAdminStats } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
+import { withSecurity, securityLogger } from "@/lib/security";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+async function handleGET(req: NextRequest): Promise<NextResponse> {
   // 관리자 권한 확인
   const adminCheck = await requireAdmin();
   if (!adminCheck.isAdmin) {
-    return adminCheck.error;
+    return NextResponse.json({ error: "관리자 권한이 필요합니다" }, { status: 403 });
   }
+
+  // 관리자 액션 로깅
+  securityLogger.log({
+    type: 'SUSPICIOUS_ACTIVITY',
+    severity: 'medium',
+    userId: adminCheck.userId,
+    ...securityLogger.extractContext(req),
+    details: { action: 'ADMIN_VIEW_STATS', endpoint: req.nextUrl.pathname },
+  });
 
   try {
     const stats = await getAdminStats();
@@ -40,6 +50,10 @@ export async function GET() {
       { status: 500 }
     );
   }
+}
+
+export async function GET(request: NextRequest) {
+  return withSecurity(request, handleGET, { rateLimit: 'api' });
 }
 
 async function getDailyStats(days: number) {

@@ -24,14 +24,31 @@ const customJestConfig = {
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
     '!src/types/**/*',
+    '!src/app/**/layout.tsx',
+    '!src/app/**/loading.tsx',
+    '!src/app/**/error.tsx',
+    '!src/app/**/not-found.tsx',
   ],
-  // 커버리지 임계값 - CI에서 점진적으로 높일 예정
+  // 커버리지 임계값 (점진적 향상 목표: 50% → 70% → 80%)
   coverageThreshold: {
     global: {
-      branches: 0,
-      functions: 0,
-      lines: 0,
-      statements: 0,
+      branches: 30,
+      functions: 30,
+      lines: 30,
+      statements: 30,
+    },
+    // 핵심 유틸리티는 더 높은 커버리지 요구
+    './src/lib/utils.ts': {
+      branches: 50,
+      functions: 50,
+      lines: 50,
+      statements: 50,
+    },
+    './src/lib/validation.ts': {
+      branches: 50,
+      functions: 50,
+      lines: 50,
+      statements: 50,
     },
   },
 };

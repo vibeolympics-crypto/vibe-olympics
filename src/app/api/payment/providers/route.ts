@@ -14,27 +14,68 @@ import {
   PaymentRequest,
   Currency,
 } from '@/lib/payment-providers';
+import { withSecurity, rateLimit, securityLogger } from '@/lib/security';
 
 export const dynamic = 'force-dynamic';
 
 // POST: 결제 처리
 export async function POST(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
+  return withSecurity(request, async (req) => {
+    const context = securityLogger.extractContext(req);
+
+    // Rate Limit 체크 (payment config: 1분 5회)
+    const rateLimitResult = rateLimit.check(context.ip, 'payment');
+    if (!rateLimitResult.allowed) {
+      securityLogger.log({
+        type: 'RATE_LIMIT_EXCEEDED',
+        severity: 'medium',
+        ip: context.ip,
+        userAgent: context.userAgent,
+        details: { endpoint: '/api/payment/providers', action: 'POST' },
+      });
       return NextResponse.json(
-        { error: '로그인이 필요합니다.' },
-        { status: 401 }
+        { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
+        { status: 429, headers: rateLimit.headers(rateLimitResult) }
       );
     }
 
-    const body = await request.json();
-    const { action } = body as { action: string };
+    try {
+      const session = await getServerSession(authOptions);
 
-    const paymentManager = getPaymentManager();
+      if (!session?.user) {
+        securityLogger.log({
+          type: 'SUSPICIOUS_ACTIVITY',
+          severity: 'low',
+          ip: context.ip,
+          userAgent: context.userAgent,
+          details: { endpoint: '/api/payment/providers', reason: 'Unauthenticated payment attempt' },
+        });
+        return NextResponse.json(
+          { error: '로그인이 필요합니다.' },
+          { status: 401 }
+        );
+      }
 
-    switch (action) {
+      const body = await req.json();
+      const { action } = body as { action: string };
+
+      // 결제 액션 로깅
+      securityLogger.log({
+        type: 'LOGIN_SUCCESS', // 결제 이벤트 로깅용
+        severity: 'low',
+        ip: context.ip,
+        userAgent: context.userAgent,
+        userId: session.user.id,
+        details: {
+          endpoint: '/api/payment/providers',
+          event: 'PAYMENT_ACTION',
+          action,
+        },
+      });
+
+      const paymentManager = getPaymentManager();
+
+      switch (action) {
       // 결제 생성
       case 'create': {
         const { 
@@ -278,32 +319,52 @@ export async function POST(request: NextRequest) {
           { error: '지원하지 않는 액션입니다.' },
           { status: 400 }
         );
+      }
+    } catch (error) {
+      console.error('Payment provider API error:', error);
+      return NextResponse.json(
+        { error: '결제 처리 중 오류가 발생했습니다.' },
+        { status: 500 }
+      );
     }
-  } catch (error) {
-    console.error('Payment provider API error:', error);
-    return NextResponse.json(
-      { error: '결제 처리 중 오류가 발생했습니다.' },
-      { status: 500 }
-    );
-  }
+  });
 }
 
 // GET: 결제 정보 조회
 export async function GET(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
+  return withSecurity(request, async (req) => {
+    const context = securityLogger.extractContext(req);
+
+    // Rate Limit 체크 (api config: 1분 100회)
+    const rateLimitResult = rateLimit.check(context.ip, 'api');
+    if (!rateLimitResult.allowed) {
+      securityLogger.log({
+        type: 'RATE_LIMIT_EXCEEDED',
+        severity: 'medium',
+        ip: context.ip,
+        userAgent: context.userAgent,
+        details: { endpoint: '/api/payment/providers', action: 'GET' },
+      });
       return NextResponse.json(
-        { error: '로그인이 필요합니다.' },
-        { status: 401 }
+        { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
+        { status: 429, headers: rateLimit.headers(rateLimitResult) }
       );
     }
 
-    const searchParams = request.nextUrl.searchParams;
-    const type = searchParams.get('type') || 'providers';
+    try {
+      const session = await getServerSession(authOptions);
 
-    const paymentManager = getPaymentManager();
+      if (!session?.user) {
+        return NextResponse.json(
+          { error: '로그인이 필요합니다.' },
+          { status: 401 }
+        );
+      }
+
+      const searchParams = req.nextUrl.searchParams;
+      const type = searchParams.get('type') || 'providers';
+
+      const paymentManager = getPaymentManager();
 
     switch (type) {
       // 사용 가능한 결제 제공자 목록
@@ -428,12 +489,13 @@ export async function GET(request: NextRequest) {
           { error: '지원하지 않는 타입입니다.' },
           { status: 400 }
         );
+      }
+    } catch (error) {
+      console.error('Payment provider API error:', error);
+      return NextResponse.json(
+        { error: '조회 중 오류가 발생했습니다.' },
+        { status: 500 }
+      );
     }
-  } catch (error) {
-    console.error('Payment provider API error:', error);
-    return NextResponse.json(
-      { error: '조회 중 오류가 발생했습니다.' },
-      { status: 500 }
-    );
-  }
+  });
 }

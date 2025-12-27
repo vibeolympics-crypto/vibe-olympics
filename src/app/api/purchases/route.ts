@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
 import { recordPurchase } from "@/lib/realtime-events";
+import { withSecurity, rateLimit, securityLogger } from "@/lib/security";
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +16,7 @@ const createPurchaseSchema = z.object({
 });
 
 // 구매 내역 조회 (GET)
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -24,6 +25,8 @@ export async function GET(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    const context = securityLogger.extractContext(request);
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
@@ -47,6 +50,19 @@ export async function GET(request: NextRequest) {
               },
             },
           },
+        },
+      });
+
+      securityLogger.log({
+        type: 'SUSPICIOUS_ACTIVITY',
+        severity: 'low',
+        userId: session.user.id,
+        ip: context.ip,
+        userAgent: context.userAgent,
+        details: {
+          action: 'PURCHASE_CHECK',
+          productId,
+          found: !!purchase,
         },
       });
 
@@ -128,8 +144,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function GET(request: NextRequest) {
+  return withSecurity(request, handleGET, { rateLimit: 'api' });
+}
+
 // 구매 처리 (POST)
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -139,6 +159,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const context = securityLogger.extractContext(request);
     const body = await request.json();
 
     // 유효성 검사
@@ -243,7 +264,7 @@ export async function POST(request: NextRequest) {
           data: {
             userId: product.sellerId,
             type: "SALE",
-            title: "새로운 판매! 🎉",
+            title: "새로운 판매!",
             message: `${session.user.name || "사용자"}님이 "${newPurchase.product.title}"를 구매했습니다.`,
             data: { purchaseId: newPurchase.id, productId },
           },
@@ -254,7 +275,7 @@ export async function POST(request: NextRequest) {
           data: {
             userId: session.user.id,
             type: "PURCHASE",
-            title: "구매 완료! 🛒",
+            title: "구매 완료!",
             message: `"${newPurchase.product.title}" 구매가 완료되었습니다. 다운로드 페이지에서 파일을 받아보세요.`,
             data: { purchaseId: newPurchase.id, productId },
           },
@@ -273,10 +294,26 @@ export async function POST(request: NextRequest) {
       return newPurchase;
     });
 
+    // 구매 성공 로깅
+    securityLogger.log({
+      type: 'SUSPICIOUS_ACTIVITY',
+      severity: 'low',
+      userId: session.user.id,
+      ip: context.ip,
+      userAgent: context.userAgent,
+      details: {
+        action: 'PURCHASE_CREATED',
+        purchaseId: purchase.id,
+        productId,
+        amount: Number(product.price),
+        pricingType: product.pricingType,
+      },
+    });
+
     return NextResponse.json(
       {
-        message: product.pricingType === "FREE" 
-          ? "구매가 완료되었습니다" 
+        message: product.pricingType === "FREE"
+          ? "구매가 완료되었습니다"
           : "결제를 진행해주세요",
         purchase,
       },
@@ -289,4 +326,8 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function POST(request: NextRequest) {
+  return withSecurity(request, handlePOST, { rateLimit: 'api' });
 }

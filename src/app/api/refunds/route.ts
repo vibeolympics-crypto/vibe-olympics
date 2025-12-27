@@ -10,11 +10,12 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendRefundRequestedEmail } from "@/lib/email";
 import { recordRefund } from "@/lib/realtime-events";
+import { withSecurity, securityLogger } from "@/lib/security";
 
 export const dynamic = 'force-dynamic';
 
 // 환불 요청 목록 조회
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -80,8 +81,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function GET(request: NextRequest) {
+  return withSecurity(request, handleGET, { rateLimit: 'api' });
+}
+
 // 환불 요청 생성 (구매자)
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -202,6 +207,23 @@ export async function POST(request: NextRequest) {
       Number(refundRequest.amount)
     );
 
+    // 보안 로깅
+    const context = securityLogger.extractContext(request);
+    securityLogger.log({
+      type: 'SUSPICIOUS_ACTIVITY',
+      severity: 'medium',
+      userId: session.user.id,
+      ip: context.ip,
+      userAgent: context.userAgent,
+      details: {
+        action: 'REFUND_REQUESTED',
+        refundId: refundRequest.id,
+        purchaseId,
+        amount: Number(refundRequest.amount),
+        reason,
+      },
+    });
+
     return NextResponse.json(refundRequest, { status: 201 });
   } catch (error) {
     console.error("Create refund request error:", error);
@@ -210,4 +232,8 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function POST(request: NextRequest) {
+  return withSecurity(request, handlePOST, { rateLimit: 'sensitive' });
 }

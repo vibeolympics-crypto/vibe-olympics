@@ -3,11 +3,12 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { NotificationType } from "@prisma/client";
+import { withSecurity } from "@/lib/security";
 
 export const dynamic = 'force-dynamic';
 
 // 알림 목록 조회
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -62,9 +63,13 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function GET(request: NextRequest) {
+  return withSecurity(request, handleGET, { rateLimit: 'api' });
+}
+
 // 알림 생성 (내부 API 또는 시스템용)
 // 인증 방법: 1) 관리자 세션 2) 내부 API 키
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     // 인증 확인 - 관리자 세션 또는 내부 API 키 필요
     const session = await getServerSession(authOptions);
@@ -126,8 +131,12 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function POST(request: NextRequest) {
+  return withSecurity(request, handlePOST, { rateLimit: 'api' });
+}
+
 // 모든 알림 읽음 처리
-export async function PATCH(request: NextRequest) {
+async function handlePATCH(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -186,8 +195,12 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  return withSecurity(request, handlePATCH, { rateLimit: 'api' });
+}
+
 // 알림 삭제
-export async function DELETE(request: NextRequest) {
+async function handleDELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -245,4 +258,8 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function DELETE(request: NextRequest) {
+  return withSecurity(request, handleDELETE, { rateLimit: 'api' });
 }
