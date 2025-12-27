@@ -1,5 +1,16 @@
 import '@testing-library/jest-dom';
 
+// Mock isomorphic-dompurify (ESM module issue)
+jest.mock('isomorphic-dompurify', () => ({
+  __esModule: true,
+  default: {
+    sanitize: (html) => html,
+    isSupported: true,
+  },
+  sanitize: (html) => html,
+  isSupported: true,
+}));
+
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useRouter: () => ({

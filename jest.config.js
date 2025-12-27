@@ -18,7 +18,7 @@ const customJestConfig = {
     '<rootDir>/e2e/',
   ],
   transformIgnorePatterns: [
-    '/node_modules/(?!(@auth/prisma-adapter|@auth/core)/)',
+    '/node_modules/(?!(@auth/prisma-adapter|@auth/core|isomorphic-dompurify|dompurify)/)',
   ],
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
