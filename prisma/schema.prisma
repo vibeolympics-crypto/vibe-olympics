@@ -167,7 +167,17 @@ model User {
   supportTickets   SupportTicket[]   // 내 지원 티켓
   assignedTickets  SupportTicket[]   @relation("TicketAssignee") // 담당 티켓
   ticketMessages   TicketMessage[]   // 티켓 메시지
-  
+
+  // 신뢰 & 안전 시스템 (Trust & Safety)
+  userTrust           UserTrust?              // 신뢰 정보
+  reportsSubmitted    Report[]   @relation("ReportedBy")       // 제출한 신고
+  reportsReceived     Report[]   @relation("ReportedAgainst")  // 받은 신고
+  disputesInitiated   Dispute[]  @relation("DisputeInitiator") // 신청한 분쟁
+  disputesReceived    Dispute[]  @relation("DisputeRespondent")// 받은 분쟁
+  disputeMessages     DisputeMessage[]        // 분쟁 메시지
+  sanctions           Sanction[]              // 제재 내역
+  appeals             Appeal[]                // 이의 신청 내역
+
   @@index([email])
 }
 
@@ -622,7 +632,10 @@ model Purchase {
   // 정산/환불 관계
   settlementItems SettlementItem[]
   refundRequests  RefundRequest[]
-  
+
+  // 분쟁 관계
+  disputes        Dispute[]
+
   @@unique([buyerId, productId])
   @@index([buyerId])
   @@index([productId])
@@ -2273,5 +2286,349 @@ enum ReferralStatus {
   REWARDED        // 보상 지급 완료
   EXPIRED         // 만료
   CANCELLED       // 취소
+}
+
+// ==========================================
+// 신뢰 & 안전 시스템 (Trust & Safety)
+// ==========================================
+
+// 사용자 신뢰 상태
+enum UserTrustStatus {
+  NORMAL          // 정상
+  CAUTION         // 주의 (모니터링 대상)
+  RESTRICTED      // 제한 (일부 기능 제한)
+  SUSPENDED       // 정지 (활동 중지)
+  BANNED          // 영구 정지
+}
+
+// 사용자 신뢰 정보
+model UserTrust {
+  id              String          @id @default(cuid())
+  userId          String          @unique
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 상태
+  status          UserTrustStatus @default(NORMAL)
+  statusReason    String?         // 상태 변경 사유
+  statusChangedAt DateTime?       // 상태 변경 일시
+  statusChangedBy String?         // 상태 변경자 (관리자 ID)
+
+  // 신뢰 점수 (0-100)
+  trustScore      Int             @default(50)
+
+  // 통계
+  totalSales      Int             @default(0)
+  avgRating       Float           @default(0)
+  refundRate      Float           @default(0)   // 환불률 (0-1)
+  disputeRate     Float           @default(0)   // 분쟁률 (0-1)
+  responseRate    Float           @default(0)   // 응답률 (0-1)
+
+  // 경고/제재 누적
+  warningCount    Int             @default(0)
+  sanctionCount   Int             @default(0)
+
+  // 인증 상태
+  phoneVerified   Boolean         @default(false)
+  emailVerified   Boolean         @default(false)
+  identityVerified Boolean        @default(false)
+  businessVerified Boolean        @default(false)
+
+  // 정지 정보
+  suspendedAt     DateTime?
+  suspendedUntil  DateTime?       // 정지 해제 예정일
+
+  // 정산 주기 (일)
+  settlementCycle Int             @default(7)
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([status])
+  @@index([trustScore])
+}
+
+// 신고 대상 유형
+enum ReportTargetType {
+  USER
+  PRODUCT
+  REVIEW
+  POST
+  COMMENT
+  MESSAGE
+}
+
+// 신고 유형
+enum ReportType {
+  FRAUD               // 사기/기만
+  COPYRIGHT           // 저작권 침해
+  INAPPROPRIATE       // 부적절 콘텐츠
+  HARASSMENT          // 괴롭힘/욕설
+  SPAM                // 스팸/광고
+  DIRECT_TRADE        // 직거래 유도
+  QUALITY             // 품질 문제
+  OTHER               // 기타
+}
+
+// 신고 상태
+enum ReportStatus {
+  PENDING             // 접수 대기
+  REVIEWING           // 검토 중
+  AWAITING_RESPONSE   // 소명 대기
+  RESOLVED            // 처리 완료 (인정)
+  DISMISSED           // 기각
+  ON_HOLD             // 보류
+}
+
+// 신고
+model Report {
+  id              String            @id @default(cuid())
+
+  // 신고자
+  reporterId      String
+  reporter        User              @relation("ReportedBy", fields: [reporterId], references: [id])
+
+  // 신고 대상
+  targetType      ReportTargetType
+  targetId        String
+  targetUserId    String?           // 신고 대상 사용자 ID
+  targetUser      User?             @relation("ReportedAgainst", fields: [targetUserId], references: [id])
+
+  // 신고 내용
+  type            ReportType
+  reason          String            @db.Text
+  evidence        Json?             // 증거 자료 (URL 배열 등)
+
+  // 처리 정보
+  status          ReportStatus      @default(PENDING)
+  priority        Int               @default(0)  // 우선순위 (높을수록 긴급)
+  assignedTo      String?           // 담당자 ID
+
+  // 검토 결과
+  reviewNote      String?           @db.Text
+  actionTaken     String?           // 취해진 조치
+  reviewedAt      DateTime?
+  reviewedBy      String?
+
+  // 관련 제재
+  sanctionId      String?
+  sanction        Sanction?         @relation(fields: [sanctionId], references: [id])
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([reporterId])
+  @@index([targetUserId])
+  @@index([targetType, targetId])
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+}
+
+// 분쟁 유형
+enum DisputeType {
+  NOT_AS_DESCRIBED    // 상품 불일치
+  NOT_DELIVERED       // 미제공
+  QUALITY_ISSUE       // 품질 문제
+  REFUND_DISPUTE      // 환불 분쟁
+  OTHER               // 기타
+}
+
+// 분쟁 상태
+enum DisputeStatus {
+  OPEN                // 개시
+  NEGOTIATING         // 당사자 협의 중
+  MEDIATION_REQUESTED // 중재 요청
+  IN_MEDIATION        // 중재 진행 중
+  AWAITING_DECISION   // 판정 대기
+  RESOLVED            // 해결됨
+  CLOSED              // 종료
+}
+
+// 분쟁 결과
+enum DisputeResolution {
+  BUYER_WIN           // 구매자 승
+  SELLER_WIN          // 판매자 승
+  MUTUAL_AGREEMENT    // 상호 합의
+  PARTIAL_REFUND      // 부분 환불
+  DISMISSED           // 기각
+}
+
+// 분쟁
+model Dispute {
+  id              String            @id @default(cuid())
+
+  // 관련 거래
+  purchaseId      String
+  purchase        Purchase          @relation(fields: [purchaseId], references: [id])
+
+  // 당사자
+  initiatorId     String            // 분쟁 신청자
+  initiator       User              @relation("DisputeInitiator", fields: [initiatorId], references: [id])
+  respondentId    String            // 상대방
+  respondent      User              @relation("DisputeRespondent", fields: [respondentId], references: [id])
+
+  // 분쟁 내용
+  type            DisputeType
+  reason          String            @db.Text
+  evidence        Json?             // 증거 자료
+  requestedAmount Decimal?          @db.Decimal(10, 2)  // 요청 금액
+
+  // 상태
+  status          DisputeStatus     @default(OPEN)
+
+  // 협의
+  negotiationDeadline DateTime?     // 협의 기한
+
+  // 중재
+  mediatorId      String?           // 중재자 ID
+  mediationNote   String?           @db.Text
+  mediationProposal Json?           // 중재안
+
+  // 판정
+  resolution      DisputeResolution?
+  resolutionNote  String?           @db.Text
+  resolvedAmount  Decimal?          @db.Decimal(10, 2)  // 결정 금액
+  resolvedAt      DateTime?
+  resolvedBy      String?
+
+  // 타임스탬프
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  closedAt        DateTime?
+
+  // 분쟁 메시지
+  messages        DisputeMessage[]
+
+  @@index([purchaseId])
+  @@index([initiatorId])
+  @@index([respondentId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// 분쟁 메시지
+model DisputeMessage {
+  id              String    @id @default(cuid())
+  disputeId       String
+  dispute         Dispute   @relation(fields: [disputeId], references: [id], onDelete: Cascade)
+
+  senderId        String
+  sender          User      @relation(fields: [senderId], references: [id])
+
+  content         String    @db.Text
+  attachments     Json?     // 첨부 파일 URL 배열
+  isSystemMessage Boolean   @default(false)  // 시스템 메시지 여부
+
+  createdAt       DateTime  @default(now())
+
+  @@index([disputeId])
+  @@index([senderId])
+}
+
+// 제재 유형
+enum SanctionType {
+  WARNING                 // 경고
+  CONTENT_REMOVAL         // 콘텐츠 삭제
+  FEATURE_RESTRICTION     // 기능 제한
+  TEMPORARY_SUSPENSION    // 일시 정지
+  PERMANENT_BAN           // 영구 정지
+}
+
+// 제재 상태
+enum SanctionStatus {
+  ACTIVE          // 활성
+  EXPIRED         // 만료
+  REVOKED         // 철회
+  APPEALED        // 이의 신청 중
+}
+
+// 제재
+model Sanction {
+  id              String          @id @default(cuid())
+
+  // 대상 사용자
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+
+  // 제재 정보
+  type            SanctionType
+  reason          String          @db.Text
+  evidence        Json?
+
+  // 기간
+  startAt         DateTime        @default(now())
+  endAt           DateTime?       // null이면 무기한
+
+  // 제한 내용 (기능 제한 시)
+  restrictions    Json?           // 제한된 기능 목록
+
+  // 상태
+  status          SanctionStatus  @default(ACTIVE)
+
+  // 관련 신고
+  reports         Report[]
+
+  // 처리자
+  issuedBy        String
+
+  // 이의 신청
+  appealId        String?         @unique
+  appeal          Appeal?
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([startAt])
+  @@index([endAt])
+}
+
+// 이의 신청 상태
+enum AppealStatus {
+  PENDING         // 접수 대기
+  REVIEWING       // 검토 중
+  APPROVED        // 승인 (제재 해제/완화)
+  REJECTED        // 기각
+}
+
+// 이의 신청 결과
+enum AppealResult {
+  FULL_REVERSAL   // 전부 인용 (제재 해제)
+  PARTIAL_REVERSAL // 일부 인용 (제재 완화)
+  REJECTED        // 기각 (제재 유지)
+}
+
+// 이의 신청
+model Appeal {
+  id              String        @id @default(cuid())
+
+  // 관련 제재
+  sanctionId      String        @unique
+  sanction        Sanction      @relation(fields: [sanctionId], references: [id])
+
+  // 신청자
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+
+  // 신청 내용
+  reason          String        @db.Text
+  evidence        Json?
+
+  // 상태
+  status          AppealStatus  @default(PENDING)
+
+  // 결과
+  result          AppealResult?
+  resultNote      String?       @db.Text
+  reviewedAt      DateTime?
+  reviewedBy      String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([status])
 }
 

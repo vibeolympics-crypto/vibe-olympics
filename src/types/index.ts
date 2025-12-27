@@ -307,6 +307,194 @@ export interface Comment {
 }
 
 // ==========================================
+// Trust & Safety Types
+// ==========================================
+
+// 사용자 신뢰 상태
+export type UserTrustStatus = "NORMAL" | "CAUTION" | "RESTRICTED" | "SUSPENDED" | "BANNED";
+
+// 신고 관련 타입
+export type ReportTargetType = "USER" | "PRODUCT" | "REVIEW" | "POST" | "COMMENT" | "MESSAGE";
+export type ReportType = "FRAUD" | "COPYRIGHT" | "INAPPROPRIATE" | "HARASSMENT" | "SPAM" | "DIRECT_TRADE" | "QUALITY" | "OTHER";
+export type ReportStatus = "PENDING" | "REVIEWING" | "AWAITING_RESPONSE" | "RESOLVED" | "DISMISSED" | "ON_HOLD";
+
+// 분쟁 관련 타입
+export type DisputeType = "NOT_AS_DESCRIBED" | "NOT_DELIVERED" | "QUALITY_ISSUE" | "REFUND_DISPUTE" | "OTHER";
+export type DisputeStatus = "OPEN" | "NEGOTIATING" | "MEDIATION_REQUESTED" | "IN_MEDIATION" | "AWAITING_DECISION" | "RESOLVED" | "CLOSED";
+export type DisputeResolution = "BUYER_WIN" | "SELLER_WIN" | "MUTUAL_AGREEMENT" | "PARTIAL_REFUND" | "DISMISSED";
+
+// 제재 관련 타입
+export type SanctionType = "WARNING" | "CONTENT_REMOVAL" | "FEATURE_RESTRICTION" | "TEMPORARY_SUSPENSION" | "PERMANENT_BAN";
+export type SanctionStatus = "ACTIVE" | "EXPIRED" | "REVOKED" | "APPEALED";
+
+// 이의 신청 관련 타입
+export type AppealStatus = "PENDING" | "REVIEWING" | "APPROVED" | "REJECTED";
+export type AppealResult = "FULL_REVERSAL" | "PARTIAL_REVERSAL" | "REJECTED";
+
+// 사용자 신뢰 정보
+export interface UserTrust {
+  id: string;
+  userId: string;
+  status: UserTrustStatus;
+  statusReason: string | null;
+  statusChangedAt: Date | null;
+  statusChangedBy: string | null;
+  trustScore: number;
+  totalSales: number;
+  avgRating: number;
+  refundRate: number;
+  disputeRate: number;
+  responseRate: number;
+  warningCount: number;
+  sanctionCount: number;
+  phoneVerified: boolean;
+  emailVerified: boolean;
+  identityVerified: boolean;
+  businessVerified: boolean;
+  suspendedAt: Date | null;
+  suspendedUntil: Date | null;
+  settlementCycle: number;
+  createdAt: Date;
+  updatedAt: Date;
+  user?: User;
+}
+
+// 신고
+export interface Report {
+  id: string;
+  reporterId: string;
+  targetType: ReportTargetType;
+  targetId: string;
+  targetUserId: string | null;
+  type: ReportType;
+  reason: string;
+  evidence: Record<string, unknown> | null;
+  status: ReportStatus;
+  priority: number;
+  assignedTo: string | null;
+  reviewNote: string | null;
+  actionTaken: string | null;
+  reviewedAt: Date | null;
+  reviewedBy: string | null;
+  sanctionId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  reporter?: User;
+  targetUser?: User;
+  sanction?: Sanction;
+}
+
+// 분쟁
+export interface Dispute {
+  id: string;
+  purchaseId: string;
+  initiatorId: string;
+  respondentId: string;
+  type: DisputeType;
+  reason: string;
+  evidence: Record<string, unknown> | null;
+  requestedAmount: number | null;
+  status: DisputeStatus;
+  negotiationDeadline: Date | null;
+  mediatorId: string | null;
+  mediationNote: string | null;
+  mediationProposal: Record<string, unknown> | null;
+  resolution: DisputeResolution | null;
+  resolutionNote: string | null;
+  resolvedAmount: number | null;
+  resolvedAt: Date | null;
+  resolvedBy: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  closedAt: Date | null;
+  purchase?: Purchase;
+  initiator?: User;
+  respondent?: User;
+  messages?: DisputeMessage[];
+}
+
+// 분쟁 메시지
+export interface DisputeMessage {
+  id: string;
+  disputeId: string;
+  senderId: string;
+  content: string;
+  attachments: Record<string, unknown> | null;
+  isSystemMessage: boolean;
+  createdAt: Date;
+  sender?: User;
+}
+
+// 제재
+export interface Sanction {
+  id: string;
+  userId: string;
+  type: SanctionType;
+  reason: string;
+  evidence: Record<string, unknown> | null;
+  startAt: Date;
+  endAt: Date | null;
+  restrictions: Record<string, unknown> | null;
+  status: SanctionStatus;
+  issuedBy: string;
+  appealId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  user?: User;
+  reports?: Report[];
+  appeal?: Appeal;
+}
+
+// 이의 신청
+export interface Appeal {
+  id: string;
+  sanctionId: string;
+  userId: string;
+  reason: string;
+  evidence: Record<string, unknown> | null;
+  status: AppealStatus;
+  result: AppealResult | null;
+  resultNote: string | null;
+  reviewedAt: Date | null;
+  reviewedBy: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  sanction?: Sanction;
+  user?: User;
+}
+
+// 신고 생성 요청
+export interface CreateReportRequest {
+  targetType: ReportTargetType;
+  targetId: string;
+  type: ReportType;
+  reason: string;
+  evidence?: string[];
+}
+
+// 분쟁 생성 요청
+export interface CreateDisputeRequest {
+  purchaseId: string;
+  type: DisputeType;
+  reason: string;
+  evidence?: string[];
+  requestedAmount?: number;
+}
+
+// 분쟁 메시지 생성 요청
+export interface CreateDisputeMessageRequest {
+  content: string;
+  attachments?: string[];
+}
+
+// 이의 신청 생성 요청
+export interface CreateAppealRequest {
+  sanctionId: string;
+  reason: string;
+  evidence?: string[];
+}
+
+// ==========================================
 // API Response Types
 // ==========================================
 
